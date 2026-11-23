@@ -15,5 +15,5 @@ const server = http.createServer((req, res) => {
   if (!sync.handle(req, res)) { res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' }); res.end('{"error":"not found"}'); }
 });
 server.listen(PORT, () => console.log('Sổ Cá Nhân sync server: http://localhost:' + PORT + (TOKEN ? ' (có token)' : ' (KHÔNG có token – chỉ dùng thử)')));
-const stop = () => { sync.flush(); process.exit(0); };
+const stop = async () => { await sync.close(); process.exit(0); };
 process.on('SIGTERM', stop); process.on('SIGINT', stop);

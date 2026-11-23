@@ -1,18 +1,23 @@
 /* Sổ Cá Nhân – máy chủ GỘP: phục vụ ứng dụng (PWA) + đồng bộ dữ liệu trên CÙNG một địa chỉ.
-   Node.js ≥ 18, không cần cài thư viện. Dùng cho Railway / Render / Fly.io / VPS.
+   Node.js ≥ 18. Thư viện: pg (Postgres), web-push (thông báo đẩy). Dùng cho Railway / Render / Fly.io / VPS.
    Biến môi trường:
-     PORT         cổng (Railway tự đặt)
-     SYNC_TOKEN   mã truy cập đồng bộ – BẮT BUỘC, chưa đặt thì /sync báo lỗi 503 (app vẫn chạy bình thường)
-     SYNC_FILE    tệp lưu dữ liệu đồng bộ. Mặc định: <Volume Railway>/data.json nếu có Volume, ngược lại ./data/data.json
-   Đường dẫn: /  /index.html  /sw.js  /manifest.webmanifest  /icons/*   ·   POST /sync   ·   GET /health */
+     PORT          cổng (Railway tự đặt)
+     SYNC_TOKEN    mã truy cập đồng bộ – BẮT BUỘC, chưa đặt thì /sync báo lỗi 503 (app vẫn chạy bình thường)
+     DATABASE_URL  (khuyên dùng) Postgres → dữ liệu bền vững qua mọi lần triển khai lại. Không có: lưu tệp (cần Volume)
+     SYNC_FILE     tệp dữ liệu khi không dùng Postgres. Mặc định: <Volume>/data.json hoặc ./data/data.json
+     GITHUB_TOKEN  bật sao lưu hằng tuần lên nhánh GitHub (xem server/backup.js)
+   Đường dẫn: /  /index.html  /sw.js  /manifest.webmanifest  /icons/*  ·  POST /sync  ·  GET /events  ·  /push/*  ·  /admin/*  ·  GET /health */
 const http = require('http'), fs = require('fs'), path = require('path'), zlib = require('zlib'), crypto = require('crypto');
 const { createSync } = require('./server/sync-core');
+const { openStore } = require('./server/store');
+const { createPush } = require('./server/push');
+const { createBackup } = require('./server/backup');
 
 const ROOT = __dirname, PORT = Number(process.env.PORT || 8080);
 const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
 const SYNC_FILE = process.env.SYNC_FILE || (VOLUME ? path.join(VOLUME, 'data.json') : path.join(ROOT, 'data', 'data.json'));
 const ON_RAILWAY = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
-const sync = createSync({ file: SYNC_FILE, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '*' });
+let sync = null, push = null, backup = null, store = null;
 
 // ---- Tệp tĩnh: CHỈ các tệp của ứng dụng (không lộ server/, data/, kiem-tra/…) ----
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml' };
@@ -49,15 +54,32 @@ function serveStatic(req, res) {
 const server = http.createServer((req, res) => {
   try {
     if (sync.handle(req, res)) return;
+    if (push.handle(req, res)) return;
+    if (backup.handle(req, res)) return;
     if (serveStatic(req, res)) return;
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', ...SEC }); res.end('Không tìm thấy');
   } catch (e) { console.error(e); if (!res.headersSent) res.writeHead(500); res.end(); }
 });
-server.listen(PORT, () => {
-  const i = sync.info();
-  console.log(`Sổ Cá Nhân: cổng ${PORT} · ${FILES.size} tệp ứng dụng · dữ liệu đồng bộ: ${SYNC_FILE} (${i.docs} bản ghi)`);
-  if (!process.env.SYNC_TOKEN) console.warn('⚠ Chưa đặt SYNC_TOKEN → đồng bộ đang TẮT (app vẫn chạy). Hãy đặt biến SYNC_TOKEN.');
-  if (ON_RAILWAY && !VOLUME && !process.env.SYNC_FILE) console.warn('⚠ Chưa gắn Volume trên Railway → dữ liệu đồng bộ bị xoá mỗi lần triển khai lại. Thiết bị sẽ tự gửi lại, nhưng nên gắn Volume.');
-});
-const stop = () => { sync.flush(); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 3000).unref(); };
+
+(async () => {
+  store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
+  sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '*', onChange: c => push && push.onChange(c) });
+  const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
+  push = createPush({ store, sync, isLive: d => sync.isLive(d), subject: process.env.PUSH_SUBJECT || (domain ? 'https://' + domain : 'mailto:so-ca-nhan@example.com') });
+  backup = createBackup({ store, sync, push });
+  const _h = sync.handle; // /health: thêm nơi lưu trữ để kiểm tra từ xa
+  sync.handle = (req, res) => {
+    if (req.method === 'GET' && req.url.split('?')[0] === '/health') { const i = sync.info(); sync.send(res, 200, { ok: true, seq: i.seq, docs: i.docs, sync: !!process.env.SYNC_TOKEN, storage: store.kind === 'postgres' ? 'postgres' : VOLUME ? 'volume' : 'tam-thoi', live: i.live, push: push.enabled, backup: backup.enabled }); return true; }
+    return _h(req, res);
+  };
+  server.listen(PORT, () => {
+    const i = sync.info();
+    console.log(`Sổ Cá Nhân: cổng ${PORT} · ${FILES.size} tệp ứng dụng · lưu trữ: ${store.kind === 'postgres' ? 'Postgres' : SYNC_FILE} (${i.docs} bản ghi) · thông báo đẩy: ${push.enabled ? 'bật' : 'tắt'} · sao lưu GitHub: ${backup.enabled ? 'bật' : 'tắt'}`);
+    if (!process.env.SYNC_TOKEN) console.warn('⚠ Chưa đặt SYNC_TOKEN → đồng bộ đang TẮT (app vẫn chạy). Hãy đặt biến SYNC_TOKEN.');
+    if (ON_RAILWAY && store.kind !== 'postgres' && !VOLUME && !process.env.SYNC_FILE) console.warn('⚠ Không có Postgres (DATABASE_URL) hay Volume → dữ liệu đồng bộ bị xoá mỗi lần triển khai lại.');
+  });
+})().catch(e => { console.error('Không khởi động được:', e); process.exit(1); });
+
+let stopping = false;
+const stop = async () => { if (stopping) return; stopping = true; setTimeout(() => process.exit(0), 5000).unref(); try { if (sync) await sync.close(); if (store) await store.close(); } catch (e) { } server.close(() => process.exit(0)); };
 process.on('SIGTERM', stop); process.on('SIGINT', stop);

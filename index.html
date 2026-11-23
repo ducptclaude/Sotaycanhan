@@ -36,7 +36,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Lexend",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
 button,input,select,textarea{font:inherit;color:inherit}
-.wrap{max-width:760px;margin:0 auto;padding:12px 14px 96px}
+.wrap{max-width:760px;margin:0 auto;padding:12px 14px 160px}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 2px 10px}
 header.top h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--text2);font-size:13px}
@@ -955,7 +955,7 @@ const S = { accounts: {}, txns: {}, loans: {}, savings: {}, settings: {}, health
 const got = new Set();
 let MODE = 'loading', NOTE = '';
 const UI = { tab: 'tong-quan', month: ymOf(today()), txFilter: 'all', txSearch: '', loanId: null, calMonth: ymOf(today()), calDay: today(), hMetric: 'weight', hRange: 90, planSeg: 'todo', showDone: false, learnSeg: 'path', openWeek: null, cardQ: '', cardDeck: '', noteQ: '', ctQ: '', ctGroup: '', per: { mode: 'month', anchor: today(), from: '', to: '' }, txCat: '', txAcc: '', asOf: '', open: {}, openAll: false, accId: null };
-const TABS = { 'tong-quan': 'home', 'tong-ket': 'home', 'ngan-sach': 'fin', 'danh-ba': 'cal', 'su-kien': 'cal', 'nhac-nho': 'cal', 'uong-thuoc': 'cal', 'tieng-anh': 'learn', 'the-tu': 'learn', 'khoa-hoc': 'learn', 'doc-sach': 'learn', 'nhat-ky-hoc': 'learn', 'ngay-ky-niem': 'cal', 'ngay-le': 'cal', 'muc-tieu': 'plan', 'thoi-quen': 'plan', 'ghi-chep': 'plan', 'tai-chinh': 'fin', 'thu-chi': 'fin', 'vay-no': 'fin', 'tiet-kiem': 'fin', 'tai-khoan': 'fin', 'tai-san': 'fin', 'hoc-tap': 'learn', 'suc-khoe': 'health', 'lich': 'cal', 'ke-hoach': 'plan' };
+const TABS = { 'lich-su-gd': 'fin', 'tong-quan': 'home', 'tong-ket': 'home', 'ngan-sach': 'fin', 'danh-ba': 'cal', 'su-kien': 'cal', 'nhac-nho': 'cal', 'uong-thuoc': 'cal', 'tieng-anh': 'learn', 'the-tu': 'learn', 'khoa-hoc': 'learn', 'doc-sach': 'learn', 'nhat-ky-hoc': 'learn', 'ngay-ky-niem': 'cal', 'ngay-le': 'cal', 'muc-tieu': 'plan', 'thoi-quen': 'plan', 'ghi-chep': 'plan', 'tai-chinh': 'fin', 'thu-chi': 'fin', 'vay-no': 'fin', 'tiet-kiem': 'fin', 'tai-khoan': 'fin', 'tai-san': 'fin', 'hoc-tap': 'learn', 'suc-khoe': 'health', 'lich': 'cal', 'ke-hoach': 'plan' };
 const EV_CATS = { work: ['Công việc', '💼'], meeting: ['Hẹn gặp', '🤝'], personal: ['Cá nhân', '🙂'], family: ['Gia đình', '👨‍👩‍👧'], party: ['Đám cưới / hỏi / tiệc', '💐'], anniv: ['Đám giỗ / tang lễ', '🕯️'], bill: ['Hóa đơn / đóng tiền', '💡'], vehicle: ['Xe cộ', '🚗'], doc: ['Giấy tờ / gia hạn', '🪪'], worship: ['Cúng lễ / tâm linh', '🙏'], health: ['Sức khỏe', '🩺'], sport: ['Thể thao', '🏃'], study: ['Học tập', '📚'], travel: ['Du lịch / công tác', '✈️'], other: ['Khác', '📌'] };
 const REPEATS = { none: 'Không lặp', daily: 'Hằng ngày', weekdays: 'Ngày làm việc (T2–T6)', weekly: 'Hằng tuần', monthly: 'Hằng tháng (dương lịch)', quarterly: 'Hằng quý (3 tháng)', halfyear: '6 tháng một lần', yearly: 'Hằng năm (dương lịch)', lunar_1_15: 'Mùng 1 & Rằm (âm lịch)', lunar_monthly: 'Hằng tháng (âm lịch)', lunar_yearly: 'Hằng năm (âm lịch)' };
 const AREAS = { finance: ['Tài chính', '💰'], health: ['Sức khỏe', '❤️'], study: ['Học tập', '📚'], career: ['Sự nghiệp', '🏗️'], family: ['Gia đình', '👨‍👩‍👧'], personal: ['Cá nhân', '🌱'] };
@@ -974,7 +974,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.3.1';
+const APP_VER = '1.4.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -999,6 +999,7 @@ function idbAll(store) {
 }
 async function idbCount(store) { return idbReq([store], 'readonly', t => t.objectStore(store).count()); }
 async function idbWriteDoc(col, id, data, ts) {
+  DOC_TS[col + '/' + id] = ts;
   await idbReq(['docs', 'outbox'], 'readwrite', t => {
     t.objectStore('docs').put(data == null ? { col, id, del: true, ts } : { col, id, data, ts }, col + '/' + id);
     t.objectStore('outbox').add({ op: data == null ? 'del' : 'put', col, id, data: data == null ? null : data, ts });
@@ -1009,7 +1010,7 @@ async function idbBoot() {
   IDB.db = await idbOpen();
   const rows = await idbAll('docs');
   COLS.forEach(c => { S[c] = {}; });
-  rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) S[v.col][v.id] = v.data; });
+  rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) { S[v.col][v.id] = v.data; DOC_TS[v.col + '/' + v.id] = v.ts; } });
   COLS.forEach(c => got.add(c));
   IDB.cfg = { ...IDB.cfg, ...((await idbGet('meta', 'sync')) || {}) };
   IDB.lastSync = (await idbGet('meta', 'lastSync')) || 0; IDB.lastSyncAt = (await idbGet('meta', 'lastSyncAt')) || 0;
@@ -1021,7 +1022,8 @@ async function idbBoot() {
 // Trang và Service Worker (sw.js) dùng chung khoá 'scn-sync' nên không bao giờ gửi trùng cùng lúc.
 // Khi app đang mở: trang tự đồng bộ. Khi app ẩn/đóng hoặc mất mạng: bàn giao cho Service Worker.
 const withSyncLock = fn => (navigator.locks && navigator.locks.request) ? navigator.locks.request('scn-sync', fn) : fn();
-async function idbReloadState() { const rows = await idbAll('docs'); COLS.forEach(c => { S[c] = {}; }); rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) S[v.col][v.id] = v.data; }); queueRender(); }
+const DOC_TS = {}; // col/id → thời điểm sửa gần nhất (ms)
+async function idbReloadState() { const rows = await idbAll('docs'); COLS.forEach(c => { S[c] = {}; }); rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) { S[v.col][v.id] = v.data; DOC_TS[v.col + '/' + v.id] = v.ts; } }); queueRender(); }
 async function swRegReady() { if (_swReg) return _swReg; try { return ('serviceWorker' in navigator) ? (await navigator.serviceWorker.getRegistration()) || null : null; } catch (e) { return null; } }
 const bgSyncSupported = () => typeof SyncManager !== 'undefined' && 'serviceWorker' in navigator;
 // Nhờ trình duyệt gọi Service Worker đồng bộ khi có mạng (kể cả khi đã đóng app). Trả true nếu đăng ký được.
@@ -1047,6 +1049,7 @@ async function periodicSyncSetup() {
 }
 // Nhận kết quả đồng bộ do Service Worker thực hiện → cập nhật dữ liệu đang hiển thị
 async function onSwMessage(m) {
+  if (m && m.type === 'scn-open' && m.hash) { if (location.hash !== m.hash) location.hash = m.hash; return; }
   if (!m || MODE !== 'idb') return;
   if (m.type === 'scn-synced') {
     if (m.changed) await idbReloadState();
@@ -1062,8 +1065,37 @@ function idbRequeueAll(epoch) {
     t.objectStore('meta').put(0, 'lastSync'); t.objectStore('meta').put(epoch || '', 'epoch');
   });
 }
+// ---- Đồng bộ tức thời: nghe máy chủ báo thay đổi (luồng SSE qua fetch, mã gửi trong header – không lộ trên URL) ----
+const RT = { ctl: null, live: false, retry: 0, timer: null, denied: false };
+const rtWanted = () => MODE === 'idb' && !!IDB.cfg.url && IDB.cfg.auto !== false && !RT.denied && isOnline() && !document.hidden;
+function rtStop() { clearTimeout(RT.timer); RT.timer = null; const c = RT.ctl; RT.ctl = null; if (c) { try { c.abort(); } catch (e) { } } if (RT.live) { RT.live = false; netUI(); } }
+function rtKick(ms) { clearTimeout(RT.timer); RT.timer = setTimeout(rtStart, ms == null ? 0 : ms); }
+async function rtStart() {
+  if (RT.ctl || !rtWanted()) return;
+  const ctl = new AbortController(); RT.ctl = ctl;
+  try {
+    const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/events', { signal: ctl.signal, cache: 'no-store', headers: { Accept: 'text/event-stream', 'X-Device': IDB.device, ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}) } });
+    if (r.status === 401 || r.status === 403 || r.status === 503) RT.denied = true; // sai mã / máy chủ tắt đồng bộ: thôi kết nối tới khi đổi cấu hình
+    if (!r.ok || !r.body) throw new Error('http ' + r.status);
+    RT.live = true; RT.retry = 0; netUI();
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+    for (;;) {
+      const { value, done } = await rd.read(); if (done) break;
+      buf += dec.decode(value, { stream: true }).replace(/\r/g, '');
+      let i; while ((i = buf.indexOf('\n\n')) >= 0) { rtEvent(buf.slice(0, i)); buf = buf.slice(i + 2); }
+    }
+  } catch (e) { }
+  if (RT.ctl === ctl) { RT.ctl = null; if (RT.live) { RT.live = false; netUI(); } if (rtWanted()) rtKick([500, 1000, 2000, 4000, 8000, 15000][Math.min(RT.retry++, 5)]); }
+}
+function rtEvent(blk) {
+  let ev = 'message', data = '';
+  blk.split('\n').forEach(l => { if (l.startsWith('event:')) ev = l.slice(6).trim(); else if (l.startsWith('data:')) data += l.slice(5).trim(); });
+  let d = {}; try { d = JSON.parse(data || '{}'); } catch (e) { return; }
+  if (ev === 'hello') { if ((Number(d.seq) || 0) !== IDB.lastSync || IDB.pending) schedSync(100); }
+  else if (ev === 'change') { if (d.device !== IDB.device && (Number(d.seq) || 0) > IDB.lastSync) schedSync(80); } // thiết bị khác vừa ghi → kéo về ngay
+}
 let _syncT = null;
-function schedSync(ms) { clearTimeout(_syncT); _syncT = setTimeout(() => syncNow(), ms == null ? 1500 : ms); }
+function schedSync(ms) { clearTimeout(_syncT); _syncT = setTimeout(() => syncNow(), ms == null ? 500 : ms); } // gom các lần sửa liên tiếp trong 0,5 giây rồi gửi
 async function syncNow(manual) {
   if (MODE !== 'idb') return;
   if (!IDB.cfg.url) { if (manual) toast('Chưa cấu hình máy chủ đồng bộ. Dữ liệu vẫn lưu an toàn trên máy.'); return; }
@@ -1104,8 +1136,8 @@ async function syncNow(manual) {
     if (manual) toast('Đồng bộ chưa được: ' + IDB.syncErr);
   } finally { IDB.syncing = false; netUI(); }
 }
-setInterval(() => { if (MODE === 'idb' && isOnline() && IDB.cfg.url && IDB.cfg.auto !== false) syncNow(); }, 60000);
-document.addEventListener('visibilitychange', () => { if (MODE !== 'idb') return; if (document.hidden) handoffSync(); else { netProbe(); schedSync(300); } });
+setInterval(() => { if (MODE === 'idb' && isOnline() && IDB.cfg.url && IDB.cfg.auto !== false && !document.hidden && (!RT.live || Date.now() - IDB.lastSyncAt > 300000)) syncNow(); if (!RT.live && !RT.ctl && rtWanted()) rtKick(); }, 15000);
+document.addEventListener('visibilitychange', () => { if (MODE !== 'idb') return; if (document.hidden) { handoffSync(); rtStop(); } else { netProbe(); schedSync(300); rtKick(400); } });
 window.addEventListener('pagehide', () => handoffSync());
 // ---- Trạng thái Online / Offline (kiểm tra thực tế, không chỉ dựa vào navigator.onLine) ----
 let _wasOnline = navigator.onLine, NET_OK = navigator.onLine;
@@ -1120,10 +1152,11 @@ function netChange(ok) {
   const was = isOnline(); NET_OK = ok; const now = isOnline();
   if (was === now) { netUI(); return; }
   _wasOnline = now; netUI();
-  if (now) { toast('🟢 Đã có Internet trở lại' + (MODE === 'idb' && IDB.cfg.url ? ' – đang đồng bộ…' : '')); if (MODE === 'idb') schedSync(200); }
-  else { toast('🔴 Mất kết nối Internet – app chuyển sang chế độ ngoại tuyến, dữ liệu vẫn lưu trên máy.'); if (MODE === 'idb' && IDB.pending) bgSyncRegister(); }
+  if (now) { toast('🟢 Đã có Internet trở lại' + (MODE === 'idb' && IDB.cfg.url ? ' – đang đồng bộ…' : '')); if (MODE === 'idb') { schedSync(200); rtKick(500); } }
+  else { rtStop(); toast('🔴 Mất kết nối Internet – app chuyển sang chế độ ngoại tuyến, dữ liệu vẫn lưu trên máy.'); if (MODE === 'idb' && IDB.pending) bgSyncRegister(); }
 }
-setInterval(() => { if (STANDALONE_HOST && !document.hidden) netProbe(); }, 20000);
+// Kiểm tra mạng thực tế: 20 giây/lần; khi đang mất kết nối tới máy chủ (máy vẫn có mạng) thì 5 giây/lần để nối lại nhanh
+let _probeN = 0; setInterval(() => { if (!STANDALONE_HOST || document.hidden) return; _probeN++; if ((navigator.onLine && !NET_OK) || _probeN % 4 === 0) netProbe(); }, 5000);
 function netState() {
   const on = isOnline();
   if (MODE === 'idb') {
@@ -1187,9 +1220,21 @@ function swRegister() {
 function showUpdateBar() { let b = document.getElementById('updbar'); if (!b) { b = document.createElement('div'); b.id = 'updbar'; document.body.appendChild(b); } b.innerHTML = `<span>✨ Có phiên bản mới của ứng dụng.</span><button class="btn sm primary" data-act="sw-update">Cập nhật</button>`; b.classList.add('show'); }
 // ---- Sao lưu / khôi phục ----
 function backupObj() { const o = { app: 'so-ca-nhan', ver: APP_VER, exportedAt: new Date().toISOString(), data: {} }; COLS.forEach(c => { o.data[c] = S[c] || {}; }); return o; }
+function saveTextFile(name, txt) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+// Tải TOÀN BỘ dữ liệu đang lưu trên máy chủ (dùng trước khi chuyển region / kiểm tra). Tệp khôi phục được bằng "Khôi phục từ tệp".
+async function downloadServerBackup() {
+  if (MODE !== 'idb' || !IDB.cfg.url) return toast('Chưa kết nối máy chủ đồng bộ.');
+  try {
+    const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/admin/export', { cache: 'no-store', headers: IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {} });
+    if (r.status === 401 || r.status === 403) throw new Error('Sai mã truy cập (token)');
+    if (!r.ok) throw new Error('Máy chủ báo lỗi ' + r.status);
+    const o = await r.json(); saveTextFile('so-ca-nhan-may-chu-' + today() + '.json', JSON.stringify(o, null, 1));
+    toast('✓ Đã tải bản sao máy chủ (' + (o.count || 0) + ' mục)'); idbSet('meta', 'lastBackup', Date.now()).catch(() => { });
+  } catch (e) { toast('Không tải được: ' + (e instanceof TypeError ? 'không kết nối được máy chủ' : e.message)); }
+}
 async function downloadBackup() {
   const txt = JSON.stringify(backupObj(), null, 1), name = 'so-ca-nhan-sao-luu-' + today() + '.json';
-  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('Đã tạo tệp ' + name); }
+  try { saveTextFile(name, txt); toast('Đã tạo tệp ' + name); if (MODE === 'idb') idbSet('meta', 'lastBackup', Date.now()).catch(() => { }); }
   catch (e) { navigator.clipboard && navigator.clipboard.writeText(txt).then(() => toast('Đã sao chép dữ liệu sao lưu vào bộ nhớ tạm.')).catch(() => toast('Không tạo được tệp sao lưu.')); }
 }
 async function restoreBackup(file, mode) {
@@ -1205,6 +1250,7 @@ function sysStatusHTML() {
   return `<div class="sysrow"><span>Kết nối</span><b class="st-${k}">${l}${sub ? ' · ' + esc(sub) : ''}</b></div>
     <div class="sysrow"><span>Nơi lưu dữ liệu</span><b>${MODE === 'idb' ? '📱 Trên thiết bị' + (IDB.cfg.url ? ' + ☁️ máy chủ đồng bộ' : '') : '⚠ Tạm thời (chưa lưu)'}</b></div>
     ${MODE === 'idb' ? `<div class="sysrow"><span>Thay đổi chờ đồng bộ</span><b>${IDB.pending}</b></div><div class="sysrow"><span>Đồng bộ gần nhất</span><b>${IDB.lastSyncAt ? fmtDate(dsOf(IDB.lastSyncAt)) + ' ' + hmOf(IDB.lastSyncAt) : 'Chưa'}</b></div>` : ''}
+    ${MODE === 'idb' && IDB.cfg.url ? `<div class="sysrow"><span>Đồng bộ tức thời</span><b>${RT.live ? '⚡ Đang kết nối – nhận thay đổi ngay' : RT.denied ? '⛔ Bị từ chối (kiểm tra mã)' : isOnline() ? '⏳ Đang kết nối lại… (dự phòng: 15 giây/lần)' : 'Tạm dừng khi mất mạng'}</b></div>` : ''}
     ${MODE === 'idb' && IDB.cfg.url ? `<div class="sysrow"><span>Đồng bộ khi đóng app</span><b>${bgSyncSupported() ? '✓ Có – trình duyệt tự gửi khi có mạng' : 'Không hỗ trợ (iPhone/Safari) – mở app để đồng bộ'}</b></div>` : ''}
     <div class="sysrow"><span>Chạy ngoại tuyến</span><b>${navigator.serviceWorker && navigator.serviceWorker.controller ? '✓ Sẵn sàng (đã lưu giao diện)' : STANDALONE_HOST ? 'Đang chuẩn bị…' : 'Cần mở qua địa chỉ https://'}</b></div>`;
 }
@@ -1215,18 +1261,95 @@ async function sysForm() {
     <div class="card" style="margin:0 0 12px" id="sys-live">${sysStatusHTML()}</div>
     ${STANDALONE_HOST ? `<div class="f"><label>📲 Cài vào màn hình chính</label>${inst ? '<div class="banner">✓ Đang chạy như ứng dụng đã cài.</div>' : _installEvt ? '<button type="button" class="btn primary" id="sys-inst">Cài đặt ứng dụng</button>' : isIOS() ? '<div class="banner">iPhone/iPad: mở bằng <b>Safari</b> → bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) → <b>Thêm vào MH chính</b> → <b>Thêm</b>.</div>' : '<div class="banner">Android/Chrome: bấm menu <b>⋮</b> → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b>).</div>'}</div>` : ''}
     ${MODE === 'idb' ? `<div class="f"><label>🔄 Máy chủ đồng bộ (URL + mã SYNC_TOKEN)</label><input id="sys-url" placeholder="VD: https://sotaycanhan-production.up.railway.app" value="${esc(IDB.cfg.url || (STANDALONE_HOST ? location.origin : ''))}"><input id="sys-tok" placeholder="Mã truy cập (token)" value="${esc(IDB.cfg.token)}" style="margin-top:6px" type="password"><div class="actions" style="justify-content:flex-start;margin-top:8px"><button type="button" class="btn sm primary" id="sys-save">Lưu & đồng bộ</button><button type="button" class="btn sm" id="sys-sync">Đồng bộ ngay</button>${IDB.cfg.url ? '<button type="button" class="btn sm" id="sys-off">Tắt đồng bộ</button>' : ''}</div><div class="muted" style="font-size:12px;margin-top:4px">Không có máy chủ: app vẫn chạy đầy đủ, dữ liệu lưu trên máy này.</div></div>` : ''}
-    <div class="f"><label>💾 Sao lưu & khôi phục</label><div class="actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button type="button" class="btn sm" id="sys-exp">📤 Tải tệp sao lưu (.json)</button><label class="btn sm" style="cursor:pointer">📥 Khôi phục từ tệp<input type="file" id="sys-imp" accept=".json,application/json" hidden></label></div><label class="check" style="margin-top:6px;font-size:12.5px"><input type="checkbox" id="sys-rep"> Thay thế toàn bộ dữ liệu hiện có (mặc định: gộp thêm)</label></div>
+    ${MODE === 'idb' && IDB.cfg.url ? `<div class="f"><label>🔔 Thông báo đẩy (dữ liệu mới từ thiết bị khác · sao lưu hằng tuần)</label><div class="muted" id="sys-push" style="font-size:12.5px">Đang kiểm tra…</div><div class="actions" style="justify-content:flex-start;margin:6px 0 0;flex-wrap:wrap"><button type="button" class="btn sm primary" id="sys-pon" hidden>🔔 Bật thông báo</button><button type="button" class="btn sm" id="sys-ptest" hidden>Gửi thử</button><button type="button" class="btn sm" id="sys-poff" hidden>Tắt</button></div></div>
+    <div class="f"><label>🗄️ Sao lưu hằng tuần lên GitHub</label><div class="muted" id="sys-bk" style="font-size:12.5px">Đang kiểm tra…</div><div class="actions" style="justify-content:flex-start;margin:6px 0 0"><button type="button" class="btn sm" id="sys-bkrun" hidden>🗄️ Sao lưu ngay</button></div></div>` : ''}
+    <div class="f"><label>💾 Sao lưu & khôi phục</label><div class="actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0">${MODE === 'idb' && IDB.cfg.url ? '<button type="button" class="btn sm" id="sys-srvexp">☁️ Tải bản sao máy chủ</button>' : ''}<button type="button" class="btn sm" id="sys-exp">📤 Tải tệp sao lưu (.json)</button><label class="btn sm" style="cursor:pointer">📥 Khôi phục từ tệp<input type="file" id="sys-imp" accept=".json,application/json" hidden></label></div><label class="check" style="margin-top:6px;font-size:12.5px"><input type="checkbox" id="sys-rep"> Thay thế toàn bộ dữ liệu hiện có (mặc định: gộp thêm)</label></div>
     <div class="muted" style="font-size:12px">Phiên bản ${APP_VER}${est ? ' · ' + est : ''}</div>
     <div class="actions"><button type="button" class="btn" data-x>Đóng</button></div>`, sh => {
     sh.querySelectorAll('[data-x]').forEach(b => b.onclick = closeModal);
     const q = s => sh.querySelector(s);
     if (q('#sys-inst')) q('#sys-inst').onclick = async () => { const e = _installEvt; if (!e) return; e.prompt(); try { await e.userChoice; } catch (er) { } _installEvt = null; closeModal(); };
-    if (q('#sys-save')) q('#sys-save').onclick = async () => { const url = q('#sys-url').value.trim(); if (url && !/^https?:\/\//i.test(url)) return toast('Địa chỉ phải bắt đầu bằng https://'); IDB.cfg = { ...IDB.cfg, url, token: q('#sys-tok').value.trim() }; await idbSet('meta', 'sync', IDB.cfg); toast('Đã lưu cấu hình.'); syncNow(true); periodicSyncSetup(); };
+    if (q('#sys-save')) q('#sys-save').onclick = async () => { const url = q('#sys-url').value.trim(); if (url && !/^https?:\/\//i.test(url)) return toast('Địa chỉ phải bắt đầu bằng https://'); IDB.cfg = { ...IDB.cfg, url, token: q('#sys-tok').value.trim() }; await idbSet('meta', 'sync', IDB.cfg); toast('Đã lưu cấu hình.'); RT.denied = false; rtStop(); syncNow(true); periodicSyncSetup(); rtKick(800); };
     if (q('#sys-sync')) q('#sys-sync').onclick = () => syncNow(true);
-    if (q('#sys-off')) q('#sys-off').onclick = async () => { IDB.cfg = { ...IDB.cfg, url: '' }; await idbSet('meta', 'sync', IDB.cfg); periodicSyncSetup(); netUI(); closeModal(); toast('Đã tắt đồng bộ. Dữ liệu vẫn lưu trên máy.'); };
+    if (q('#sys-off')) q('#sys-off').onclick = async () => { IDB.cfg = { ...IDB.cfg, url: '' }; await idbSet('meta', 'sync', IDB.cfg); rtStop(); periodicSyncSetup(); netUI(); closeModal(); toast('Đã tắt đồng bộ. Dữ liệu vẫn lưu trên máy.'); };
     q('#sys-exp').onclick = downloadBackup;
+    if (q('#sys-srvexp')) q('#sys-srvexp').onclick = downloadServerBackup;
+    if (q('#sys-pon')) { q('#sys-pon').onclick = pushEnable; q('#sys-poff').onclick = pushDisable; q('#sys-ptest').onclick = pushTest; pushStatusUI(); }
+    if (q('#sys-bkrun')) { q('#sys-bkrun').onclick = backupRunNow; backupStatusUI(); }
     q('#sys-imp').onchange = e => { const f = e.target.files[0]; if (f) { const rep = q('#sys-rep').checked; closeModal(); restoreBackup(f, rep ? 'replace' : 'merge'); } };
   });
+}
+// ---- Gọi API máy chủ (URL + mã) ----
+async function apiFetch(p, opt = {}) {
+  const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + p, { cache: 'no-store', ...opt, headers: { 'Content-Type': 'application/json', ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}), ...(opt.headers || {}) } });
+  let j = {}; try { j = await r.json(); } catch (e) { }
+  if (!r.ok) throw new Error(j.error && /[À-ỹ]/.test(j.error) ? j.error : r.status === 401 || r.status === 403 ? 'Sai mã truy cập (token)' : 'Máy chủ báo lỗi ' + r.status);
+  return j;
+}
+// ---- Thông báo đẩy (Web Push) ----
+const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const b64u = x => { const b = atob((x + '='.repeat((4 - x.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+function devName() { const u = navigator.userAgent, os = /iPhone|iPad|iPod/.test(u) || isIOS() ? 'iPhone/iPad' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Mac/.test(u) ? 'Mac' : 'Máy tính', br = /Edg\//.test(u) ? 'Edge' : /CriOS|Chrome\//.test(u) ? 'Chrome' : /Firefox|FxiOS/.test(u) ? 'Firefox' : /Safari/.test(u) ? 'Safari' : ''; return os + (br ? ' · ' + br : ''); }
+async function pushSubscribe(force) {
+  const { publicKey } = await apiFetch('/push/key');
+  const reg = await navigator.serviceWorker.ready, m = (await idbGet('meta', 'push')) || {};
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && (force || m.key !== publicKey)) { await sub.unsubscribe().catch(() => { }); sub = null; } // khoá máy chủ đổi → đăng ký lại
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(publicKey) });
+  await apiFetch('/push/subscribe', { method: 'POST', body: JSON.stringify({ sub: sub.toJSON(), device: IDB.device, name: devName() }) });
+  await idbSet('meta', 'push', { on: true, key: publicKey, endpoint: sub.endpoint, at: Date.now() });
+}
+async function pushEnable() {
+  if (!pushSupported()) return toast(isIOS() && !isStandaloneDisplay() ? 'iPhone/iPad: hãy Thêm vào MH chính rồi mở app từ biểu tượng để bật thông báo.' : 'Trình duyệt này không hỗ trợ thông báo đẩy.');
+  if (MODE !== 'idb' || !IDB.cfg.url) return toast('Hãy kết nối máy chủ đồng bộ trước.');
+  if ((await Notification.requestPermission()) !== 'granted') return toast('Bạn chưa cho phép thông báo. Mở cài đặt trình duyệt để cho phép.');
+  try { await pushSubscribe(false); toast('🔔 Đã bật thông báo trên thiết bị này.'); pushStatusUI(); }
+  catch (e) { const m = String(e && e.message || ''); toast('Chưa bật được thông báo: ' + (/permission|denied|registration failed|push service/i.test(m) ? 'trình duyệt từ chối đăng ký (kiểm tra quyền thông báo của trang, không dùng chế độ ẩn danh).' : m || 'lỗi')); }
+}
+async function pushDisable() {
+  try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); await apiFetch('/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint: sub && sub.endpoint, device: IDB.device }) }).catch(() => { }); if (sub) await sub.unsubscribe(); } catch (e) { }
+  await idbSet('meta', 'push', { on: false }); toast('Đã tắt thông báo trên thiết bị này.'); pushStatusUI();
+}
+async function pushTest() { try { const r = await apiFetch('/push/test', { method: 'POST', body: JSON.stringify({ device: IDB.device }) }); toast(r.sent ? '✓ Đã gửi thông báo thử – kiểm tra khay thông báo' : 'Thiết bị này chưa đăng ký thông báo'); } catch (e) { toast(e.message); } }
+// Mỗi lần mở app (tối đa 6 giờ/lần): giữ đăng ký khớp khoá máy chủ
+async function pushRefresh() {
+  try { const m = (await idbGet('meta', 'push')) || {}; if (!m.on || MODE !== 'idb' || !IDB.cfg.url || !pushSupported() || Notification.permission !== 'granted' || Date.now() - (m.at || 0) < 6 * 3600e3) return; await pushSubscribe(false); } catch (e) { }
+}
+async function pushStatusUI() {
+  const el = document.getElementById('sys-push'); if (!el) return;
+  const m = MODE === 'idb' ? (await idbGet('meta', 'push').catch(() => null)) || {} : {};
+  const perm = pushSupported() ? Notification.permission : 'unsupported';
+  const st = perm === 'unsupported' ? (isIOS() && !isStandaloneDisplay() ? 'iPhone/iPad: cần Thêm vào MH chính rồi mở từ biểu tượng.' : 'Trình duyệt không hỗ trợ.') : perm === 'denied' ? '⛔ Đã chặn trong cài đặt trình duyệt.' : m.on && perm === 'granted' ? '✓ Đang bật trên thiết bị này.' : 'Chưa bật.';
+  el.textContent = st;
+  const on = m.on && perm === 'granted', q = id => document.getElementById(id);
+  if (q('sys-pon')) q('sys-pon').hidden = on || perm === 'unsupported'; if (q('sys-poff')) q('sys-poff').hidden = !on; if (q('sys-ptest')) q('sys-ptest').hidden = !on;
+}
+// ---- Sao lưu hằng tuần ----
+async function backupStatusUI() {
+  const el = document.getElementById('sys-bk'); if (!el) return;
+  try {
+    const b = await apiFetch('/admin/backup/status'), lb = await idbGet('meta', 'lastBackup').catch(() => 0);
+    el.innerHTML = b.enabled ? `✓ Tự động mỗi ${['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][b.schedule.weekday]} ${b.schedule.hour}:00 → nhánh <b>${esc(b.branch)}</b> (đã mã hoá).<br>Lần gần nhất: ${b.lastAt ? fmtDate(dsOf(b.lastAt)) + ' ' + hmOf(b.lastAt) + ' · ' + esc(b.lastWeek) + ' · ' + (b.lastCount || 0).toLocaleString('vi-VN') + ' mục' : 'chưa có'}${b.lastError && b.lastErrorAt > (b.lastAt || 0) ? `<br><span style="color:var(--crit)">⚠ Lỗi: ${esc(b.lastError)}</span>` : ''}`
+      : `Chưa bật sao lưu GitHub (cần đặt <b>GITHUB_TOKEN</b> trên Railway). Hãy tải tệp sao lưu thủ công hằng tuần.${lb ? '<br>Lần tải tệp gần nhất: ' + fmtDate(dsOf(lb)) : ''}`;
+    const r = document.getElementById('sys-bkrun'); if (r) r.hidden = !b.enabled;
+  } catch (e) { el.textContent = 'Không đọc được trạng thái: ' + e.message; }
+}
+async function backupRunNow() {
+  const r = document.getElementById('sys-bkrun'); if (r) { r.disabled = true; r.textContent = 'Đang sao lưu…'; }
+  try { const x = await apiFetch('/admin/backup/run', { method: 'POST', body: '{}' }); toast('✓ Đã sao lưu ' + x.tuan + ' · ' + (x.so_muc || 0).toLocaleString('vi-VN') + ' mục lên GitHub'); }
+  catch (e) { toast('Sao lưu chưa được: ' + e.message); }
+  if (r) { r.disabled = false; r.textContent = '🗄️ Sao lưu ngay'; } backupStatusUI();
+}
+// Nhắc sao lưu: quá 7 ngày chưa có bản sao (tệp tải về hoặc sao lưu GitHub) → nhắc 1 lần/ngày khi mở app
+async function backupReminder() {
+  if (MODE !== 'idb') return;
+  try {
+    const lb = (await idbGet('meta', 'lastBackup')) || 0, rd = await idbGet('meta', 'bkRemind'); if (rd === today()) return;
+    let srv = 0; if (IDB.cfg.url && isOnline()) { try { const b = await apiFetch('/admin/backup/status'); if (b.enabled) srv = b.lastAt || 0; } catch (e) { } }
+    if (Date.now() - Math.max(lb, srv) < 7 * 864e5) return;
+    await idbSet('meta', 'bkRemind', today());
+    toast('🗄️ Đã hơn 7 ngày chưa sao lưu dữ liệu. Bấm nút trạng thái (góc trên) → Tải tệp sao lưu.');
+  } catch (e) { }
 }
 // ---- Tệp sách trên máy khi chạy độc lập ----
 async function idbSaveFile(file) { const id = 'idb_' + genId(); await idbSet('files', id, file); return { fileId: id, fileType: file.type || (/\.pdf$/i.test(file.name) ? 'application/pdf' : 'text/plain'), fileName: file.name, fileSize: file.size }; }
@@ -1236,7 +1359,7 @@ async function init() {
   route(); render();
   try { await idbBoot(); MODE = 'idb'; NOTE = ''; }
   catch (e) { MODE = 'memory'; NOTE = 'Trình duyệt không cho lưu dữ liệu trên máy (có thể đang ở chế độ ẩn danh). Dữ liệu chỉ tạm thời.'; }
-  render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') schedSync(800);
+  render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') { schedSync(800); rtKick(1200); setTimeout(pushRefresh, 4000); setTimeout(backupReminder, 9000); }
 }
 // ts: thời điểm sửa (mặc định: bây giờ). Dữ liệu mẫu dùng ts = 1 để luôn thua dữ liệu thật khi đồng bộ.
 async function put(col, id, data, ts) {
@@ -1263,8 +1386,8 @@ function toast(msg) { const t = document.getElementById('toast'); t.textContent 
 function monthNav() {
   return `<div class="monthnav"><button class="iconbtn" data-act="m-prev" aria-label="Tháng trước">‹</button><span class="m">${monthLabel(UI.month)}</span><button class="iconbtn" data-act="m-next" aria-label="Tháng sau">›</button></div>`;
 }
-const TITLES = { 'tong-quan': 'Trang chủ', 'tong-ket': 'Tổng kết tháng', 'ngan-sach': 'Ngân sách', 'danh-ba': 'Danh bạ quan hệ', 'muc-tieu': 'Mục tiêu', 'thoi-quen': 'Thói quen', 'ghi-chep': 'Ghi chép', 'tai-chinh': 'Tài chính', 'thu-chi': 'Thu chi', 'vay-no': 'Vay nợ', 'tiet-kiem': 'Tiết kiệm', 'tai-khoan': 'Tài khoản', 'tai-san': 'Tài sản', 'hoc-tap': 'Học tập', 'suc-khoe': 'Sức khỏe', 'lich': 'Lịch cá nhân', 'su-kien': 'Sự kiện', 'nhac-nho': 'Nhắc nhở', 'uong-thuoc': 'Lịch uống thuốc', 'tieng-anh': 'Tiếng Anh giao tiếp', 'the-tu': 'Thẻ từ vựng', 'khoa-hoc': 'Khóa học & chứng chỉ', 'doc-sach': 'Đọc sách', 'nhat-ky-hoc': 'Nhật ký học', 'ngay-ky-niem': 'Ngày kỷ niệm', 'ngay-le': 'Ngày lễ – Tết', 'ke-hoach': 'Kế hoạch' };
-const FIN_SUB = [['tai-chinh', 'Báo cáo'], ['thu-chi', 'Thu chi'], ['ngan-sach', 'Ngân sách'], ['vay-no', 'Vay nợ'], ['tiet-kiem', 'Tiết kiệm'], ['tai-san', 'Tài sản'], ['tai-khoan', 'Tài khoản']];
+const TITLES = { 'lich-su-gd': 'Lịch sử giao dịch', 'tong-quan': 'Trang chủ', 'tong-ket': 'Tổng kết tháng', 'ngan-sach': 'Ngân sách', 'danh-ba': 'Danh bạ quan hệ', 'muc-tieu': 'Mục tiêu', 'thoi-quen': 'Thói quen', 'ghi-chep': 'Ghi chép', 'tai-chinh': 'Tài chính', 'thu-chi': 'Thu chi', 'vay-no': 'Vay nợ', 'tiet-kiem': 'Tiết kiệm', 'tai-khoan': 'Tài khoản', 'tai-san': 'Tài sản', 'hoc-tap': 'Học tập', 'suc-khoe': 'Sức khỏe', 'lich': 'Lịch cá nhân', 'su-kien': 'Sự kiện', 'nhac-nho': 'Nhắc nhở', 'uong-thuoc': 'Lịch uống thuốc', 'tieng-anh': 'Tiếng Anh giao tiếp', 'the-tu': 'Thẻ từ vựng', 'khoa-hoc': 'Khóa học & chứng chỉ', 'doc-sach': 'Đọc sách', 'nhat-ky-hoc': 'Nhật ký học', 'ngay-ky-niem': 'Ngày kỷ niệm', 'ngay-le': 'Ngày lễ – Tết', 'ke-hoach': 'Kế hoạch' };
+const FIN_SUB = [['tai-chinh', 'Báo cáo'], ['thu-chi', 'Thu chi'], ['lich-su-gd', 'Lịch sử'], ['ngan-sach', 'Ngân sách'], ['vay-no', 'Vay nợ'], ['tiet-kiem', 'Tiết kiệm'], ['tai-san', 'Tài sản'], ['tai-khoan', 'Tài khoản']];
 
 function render() {
   syncAssetCats(); syncEvCats();
@@ -1278,7 +1401,7 @@ function render() {
   const v = document.getElementById('view'), hr = document.getElementById('hdr-right');
   if (MODE === 'loading') { v.innerHTML = `<div class="loading"><div class="spin"></div>Đang tải dữ liệu…</div>`; hr.innerHTML = ''; return; }
   hr.innerHTML = UI.tab === 'tong-ket' ? monthNav() : '';
-  const fn = { 'tong-quan': viewHome, 'tai-chinh': viewDash, 'thu-chi': viewTx, 'vay-no': viewLoans, 'tiet-kiem': viewSavings, 'tai-khoan': viewAccounts, 'tai-san': viewAssets, 'hoc-tap': viewLearn, 'tong-ket': viewReport, 'ngan-sach': viewBudget, 'danh-ba': viewContacts, 'muc-tieu': viewGoals, 'thoi-quen': viewHabits, 'ghi-chep': viewNotes, 'suc-khoe': viewHealth, 'lich': viewCal, 'nhac-nho': viewReminders, 'uong-thuoc': viewMeds, 'tieng-anh': viewEnglish, 'the-tu': viewCardsPage, 'khoa-hoc': viewCourses, 'doc-sach': viewBooks, 'nhat-ky-hoc': viewStudyLog, 'su-kien': viewEvents, 'ngay-ky-niem': viewAnnivs, 'ngay-le': viewHolidays, 'ke-hoach': viewTodos }[UI.tab];
+  const fn = { 'tong-quan': viewHome, 'tai-chinh': viewDash, 'thu-chi': viewTx, 'lich-su-gd': viewHistory, 'vay-no': viewLoans, 'tiet-kiem': viewSavings, 'tai-khoan': viewAccounts, 'tai-san': viewAssets, 'hoc-tap': viewLearn, 'tong-ket': viewReport, 'ngan-sach': viewBudget, 'danh-ba': viewContacts, 'muc-tieu': viewGoals, 'thoi-quen': viewHabits, 'ghi-chep': viewNotes, 'suc-khoe': viewHealth, 'lich': viewCal, 'nhac-nho': viewReminders, 'uong-thuoc': viewMeds, 'tieng-anh': viewEnglish, 'the-tu': viewCardsPage, 'khoa-hoc': viewCourses, 'doc-sach': viewBooks, 'nhat-ky-hoc': viewStudyLog, 'su-kien': viewEvents, 'ngay-ky-niem': viewAnnivs, 'ngay-le': viewHolidays, 'ke-hoach': viewTodos }[UI.tab];
   const SUB = { fin: FIN_SUB, cal: [['lich', 'Lịch tháng'], ['nhac-nho', 'Nhắc nhở'], ['su-kien', 'Sự kiện'], ['uong-thuoc', 'Uống thuốc'], ['ngay-ky-niem', 'Ngày kỷ niệm'], ['ngay-le', 'Ngày lễ – Tết'], ['danh-ba', 'Danh bạ']], learn: [['hoc-tap', 'Tổng quan'], ['tieng-anh', 'Tiếng Anh'], ['the-tu', 'Thẻ từ'], ['khoa-hoc', 'Khóa học'], ['doc-sach', 'Đọc sách'], ['nhat-ky-hoc', 'Nhật ký học']], plan: [['ke-hoach', '✅ Việc cần làm'], ['thoi-quen', '🔁 Thói quen'], ['muc-tieu', '🎯 Mục tiêu'], ['ghi-chep', '📔 Ghi chép']] }[grp];
   document.getElementById('fab').style.display = UI.tab === 'tong-ket' ? 'none' : '';
   netUI();
@@ -1286,7 +1409,7 @@ function render() {
   v.innerHTML = (SUB ? `<div class="subnav">${SUB.map(([h, l]) => `<a href="#${h}" class="${UI.tab === h ? 'on' : ''}">${l}</a>`).join('')}</div>` : '') + (grp === 'cal' || grp === 'learn' ? sampleBar() : '') + fn();
   if (UI.tab === 'suc-khoe') bindHChart();
   const sn = v.querySelector('.subnav'), sa = sn && sn.querySelector('a.on'); if (sa) sn.scrollLeft = sa.offsetLeft - (sn.clientWidth - sa.offsetWidth) / 2;
-  const si = document.getElementById('tx-search');
+  const si = document.getElementById('tx-search') || document.getElementById('hist-q');
   if (si && render._focusSearch) { si.focus(); si.setSelectionRange(si.value.length, si.value.length); render._focusSearch = false; }
 }
 
@@ -4322,6 +4445,77 @@ function viewTx() {
   h += `<div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="csv">📋 Sao chép CSV (${list.length} dòng)</button>${Object.values(S.txns).some(x => x.sample) ? '<button class="btn sm danger" data-act="fin-sample-del">Xoá giao dịch mẫu</button>' : ''}</div>`;
   return h;
 }
+// ================= LỊCH SỬ GIAO DỊCH (sao kê mọi tài khoản, số dư sau từng giao dịch) =================
+function histState() { return UI.hist || (UI.hist = { mode: 'ledger', acc: '', type: 'all', range: '90', q: '', limit: 200 }); }
+const HIST_RANGES = [['30', '30 ngày'], ['90', '3 tháng'], ['365', '12 tháng'], ['year', 'Năm nay'], ['all', 'Tất cả']];
+function histFrom(r) { const td = today(); return r === 'all' ? '' : r === 'year' ? td.slice(0, 4) + '-01-01' : addDays(td, -Number(r) + 1); }
+// Mỗi dòng = 1 ảnh hưởng lên 1 tài khoản (chuyển khoản giữa 2 tài khoản đang xem → 2 dòng)
+function histRows() {
+  const H = histState(), accs = accList(), sel = H.acc ? [H.acc] : accs.map(a => a.id), set = new Set(sel);
+  const rows = [];
+  for (const id in S.txns) {
+    const t = S.txns[id]; if (!t || !t.date) continue;
+    // Xem nhiều tài khoản: chuyển khoản nội bộ (cả 2 đầu đều đang xem) gộp thành 1 dòng ⇄, không tính vào tiền vào/ra
+    if (t.type === 'transfer' && !H.acc && set.has(t.accountId) && set.has(t.toAccountId)) { rows.push({ id, t, acc: t.accountId, v: 0, xfer: true }); continue; }
+    for (const [acc, v] of txEffects(t)) if (set.has(acc)) rows.push({ id, t, acc, v });
+  }
+  rows.sort((x, y) => x.t.date.localeCompare(y.t.date) || (x.t.created || 0) - (y.t.created || 0) || x.id.localeCompare(y.id));
+  const bal = {}; sel.forEach(a => { bal[a] = Number((S.accounts[a] || {}).opening) || 0; });
+  let tot = sel.reduce((s, a) => s + bal[a], 0);
+  rows.forEach(r => { bal[r.acc] += r.v; tot += r.v; r.bal = H.acc ? bal[r.acc] : tot; });
+  return rows;
+}
+function histMatch(r, H) {
+  if (H.type === 'in' && !(r.v > 0)) return false; if (H.type === 'out' && !(r.v < 0)) return false; if (r.xfer && H.type !== 'all' && H.type !== 'transfer') return false; if (H.type === 'transfer' && r.t.type !== 'transfer') return false;
+  if (H.q) { const q = H.q.toLowerCase(), [, title] = txTitle(r.t); if (![title, r.t.note, r.t.category, accName(r.acc), String(r.t.amount)].some(x => x && String(x).toLowerCase().includes(q))) return false; }
+  return true;
+}
+function histVisible() {
+  const H = histState(), from = histFrom(H.range), all = histRows(), inRange = all.filter(r => !from || r.t.date >= from);
+  const before = all.filter(r => from && r.t.date < from), open = before.length ? before[before.length - 1].bal : (H.acc ? Number((S.accounts[H.acc] || {}).opening) || 0 : accList().reduce((s, a) => s + (Number(a.opening) || 0), 0));
+  const vin = inRange.filter(r => r.v > 0).reduce((s, r) => s + r.v, 0), vout = inRange.filter(r => r.v < 0).reduce((s, r) => s - r.v, 0);
+  return { H, from, open, vin, vout, close: open + vin - vout, list: inRange.filter(r => histMatch(r, H)).reverse() };
+}
+function histCsv() {
+  const { list } = histVisible();
+  return ['Ngày,Loại,Nội dung,Tài khoản,Danh mục,Ghi chú,Tiền vào,Tiền ra,Số dư sau GD'].concat(list.map(r => { const [, title] = txTitle(r.t); return [fmtDate(r.t.date), r.t.type, title, accName(r.acc), r.t.category || '', r.t.note || '', r.v > 0 ? r.v : '', r.v < 0 ? -r.v : '', r.bal].map(x => '"' + String(x).replace(/"/g, '""') + '"').join(','); })).join('\n');
+}
+function viewHistory() {
+  const H = histState(), accs = accList(), WD = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  let h = `<div class="seg" style="margin-bottom:10px">${[['ledger', '📜 Sao kê'], ['recent', '🕘 Mới nhập gần đây']].map(([k, l]) => `<button class="${H.mode === k ? 'on' : ''}" data-act="hist-mode" data-k="${k}">${l}</button>`).join('')}</div>`;
+  if (!Object.keys(S.txns).length) return h + `<div class="card empty">Chưa có giao dịch nào. Bấm + để thêm.</div>`;
+  if (H.mode === 'recent') {
+    const list = Object.entries(S.txns).map(([id, t]) => ({ id, t, ts: DOC_TS['txns/' + id] > 1 ? DOC_TS['txns/' + id] : (t.created || 0) })).sort((a, b) => b.ts - a.ts).slice(0, 60);
+    h += `<div class="card"><h2>🕘 60 giao dịch nhập / sửa gần nhất</h2><p class="sub" style="margin-top:0">Sắp theo thời điểm nhập hoặc sửa (kể cả từ thiết bị khác qua đồng bộ).</p><div class="list">` + list.map(({ id, t, ts }) => {
+      const [ic, title] = txTitle(t), sg = txSign(t);
+      return `<div class="item" data-act="tx-edit" data-id="${id}"><div class="ic">${ic}</div><div class="main"><div class="t1">${esc(title)}</div><div class="t2">${ts > 1 ? '✏️ ' + hmOf(ts) + ' ' + fmtDate(dsOf(ts)) + ' · ' : ''}GD ngày ${fmtDate(t.date)}${t.type === 'transfer' ? ' · ' + esc(accName(t.accountId)) + ' → ' + esc(accName(t.toAccountId)) : ' · ' + esc(accName(t.accountId))}${t.note ? ' · ' + esc(t.note) : ''}</div></div><div class="amt num ${sg > 0 ? 'pos' : sg < 0 ? 'neg' : ''}">${sg > 0 ? '+' : sg < 0 ? '−' : ''}${fmt(t.amount)}</div></div>`;
+    }).join('') + `</div></div>`;
+    return h;
+  }
+  const V = histVisible();
+  h += `<div class="card txflt"><div class="grid2"><div class="f" style="margin-bottom:8px"><select id="hist-acc"><option value="">Tất cả tài khoản</option>${accs.map(a => `<option value="${a.id}" ${H.acc === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></div>
+    <div class="f" style="margin-bottom:8px"><input id="hist-q" placeholder="Tìm nội dung, ghi chú, số tiền…" value="${esc(H.q)}"></div></div>
+    <div class="seg" style="margin-bottom:8px">${HIST_RANGES.map(([k, l]) => `<button class="${H.range === k ? 'on' : ''}" data-act="hist-range" data-k="${k}">${l}</button>`).join('')}</div>
+    <div class="seg">${[['all', 'Tất cả'], ['in', 'Tiền vào'], ['out', 'Tiền ra'], ['transfer', 'Chuyển khoản']].map(([k, l]) => `<button class="${H.type === k ? 'on' : ''}" data-act="hist-type" data-k="${k}">${l}</button>`).join('')}</div></div>`;
+  h += `<div class="svhero"><div class="row between"><span class="hl">${H.acc ? esc(accName(H.acc)) : 'Tất cả tài khoản'}</span><span class="svlive">● ${V.from ? fmtDate(V.from) + ' – ' + fmtDate(today()) : 'Toàn bộ'}</span></div><div class="hv num">${fmt(V.close)}</div>
+    <div class="svk"><div><span>Số dư đầu kỳ</span><b class="num">${fmt(V.open)}</b></div><div><span>Tiền vào</span><b class="num pos">+${fmt(V.vin)}</b></div><div><span>Tiền ra</span><b class="num neg">−${fmt(V.vout)}</b></div></div></div>`;
+  if (!V.list.length) return h + `<div class="card empty">Không có giao dịch phù hợp bộ lọc.</div>`;
+  let curM = '', out = '';
+  const shown = V.list.slice(0, H.limit), mSum = {};
+  V.list.forEach(r => { const m = r.t.date.slice(0, 7), x = mSum[m] || (mSum[m] = { n: 0, vin: 0, vout: 0 }); x.n++; if (r.v > 0) x.vin += r.v; else if (r.v < 0) x.vout -= r.v; });
+  shown.forEach(r => {
+    const m = r.t.date.slice(0, 7);
+    if (m !== curM) { if (curM) out += `</div></div>`; curM = m; const x = mSum[m]; out += `<div class="card"><h2 style="font-size:14px">Tháng ${m.slice(5)}/${m.slice(0, 4)} <span class="muted" style="font-weight:400;font-size:12px">· ${x.n} GD · <span class="pos">+${fmtShort(x.vin)}</span> · <span class="neg">−${fmtShort(x.vout)}</span></span></h2><div class="list">`; }
+    const [ic, title] = txTitle(r.t), [y, mo, d] = r.t.date.split('-').map(Number);
+    const sub = [WD[new Date(y, mo - 1, d).getDay()] + ', ' + fmtDate(r.t.date), !H.acc && !r.xfer ? accName(r.acc) : '', r.t.category, r.t.note].filter(Boolean).map(esc).join(' · ');
+    out += `<div class="item" data-act="tx-edit" data-id="${r.id}"><div class="ic">${ic}</div><div class="main"><div class="t1">${esc(title)}</div><div class="t2">${sub}</div></div><div style="text-align:right"><div class="amt num ${r.xfer ? '' : r.v > 0 ? 'pos' : 'neg'}">${r.xfer ? '⇄ ' + fmt(r.t.amount) : (r.v > 0 ? '+' : '−') + fmt(Math.abs(r.v))}</div><div class="muted num" style="font-size:11px">SD ${fmt(r.bal)}</div></div></div>`;
+  });
+  h += out + `</div></div>`;
+  if (V.list.length > shown.length) h += `<div class="actions" style="justify-content:center"><button class="btn sm" data-act="hist-more">Xem thêm (${V.list.length - shown.length} dòng)</button></div>`;
+  h += `<div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="hist-csv">📋 Sao chép CSV (${V.list.length} dòng)</button></div>
+    <div class="muted" style="font-size:12px;padding:4px 2px">SD = số dư sau giao dịch${H.acc ? ' của tài khoản' : ' (cộng mọi tài khoản)'}, tính từ số dư ban đầu. Chạm một dòng để sửa.</div>`;
+  return h;
+}
 function txCard(id, t) {
   const [ic, title] = txTitle(t), sg = txSign(t), acc = S.accounts[t.accountId];
   const mono = (t.type === 'income' || t.type === 'expense') ? catMono(t.category, t.type === 'income' ? 'var(--inc)' : 'var(--exp)') : `<span class="mono cat" style="background:#eef1fa">${ic}</span>`;
@@ -4488,6 +4682,11 @@ document.addEventListener('click', e => {
     case 'tx-edit': e.stopPropagation(); txForm(id); break;
     case 'tx-filter': UI.txFilter = el.dataset.k; UI.txCat = ''; render(); break;
     case 'csv': copyText(csvMonth(), 'CSV'); break;
+    case 'hist-mode': histState().mode = el.dataset.k; render(); break;
+    case 'hist-type': histState().type = el.dataset.k; histState().limit = 200; render(); break;
+    case 'hist-range': histState().range = el.dataset.k; histState().limit = 200; render(); break;
+    case 'hist-more': histState().limit += 300; render(); break;
+    case 'hist-csv': copyText(histCsv(), 'CSV'); break;
     case 'backup': copyText(JSON.stringify({ version: 2, exported: new Date().toISOString(), ...Object.fromEntries(COLS.map(c => [c, S[c]])) }, null, 1), 'bản sao lưu'); break;
     case 'loan-new': loanForm(); break;
     case 'loan-open': UI.loanId = id; if (location.hash !== '#vay-no') location.hash = '#vay-no'; else render(); window.scrollTo(0, 0); break;
@@ -4562,6 +4761,8 @@ document.addEventListener('input', e => {
   if (e.target.id === 'asof' && e.target.value) { UI.asOf = e.target.value; render(); }
   if (e.target.id === 'tx-cat-sel') { UI.txCat = e.target.value; render(); }
   if (e.target.id === 'tx-acc-sel') { UI.txAcc = e.target.value; render(); }
+  if (e.target.id === 'hist-acc') { histState().acc = e.target.value; histState().limit = 200; render(); }
+  if (e.target.id === 'hist-q') { clearTimeout(searchT); const v = e.target.value; searchT = setTimeout(() => { histState().q = v; histState().limit = 200; render._focusSearch = true; render(); }, 250); }
   if (e.target.id === 'ct-g') { UI.ctGroup = e.target.value; render(); }
   if (e.target.id === 'card-deck') { UI.cardDeck = e.target.value; render(); }
   if (e.target.id === 'tx-search') { clearTimeout(searchT); const v = e.target.value; searchT = setTimeout(() => { UI.txSearch = v; render._focusSearch = true; render(); }, 250); }
