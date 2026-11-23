@@ -987,7 +987,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.5.0';
+const APP_VER = '1.5.1';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1397,7 +1397,7 @@ const saveL = () => idbSet('meta', 'auth', AUTH.L).catch(() => { });
 async function authStatus() { try { const r = await fetch(authBase() + '/auth/status', { cache: 'no-store' }); if (r.ok) AUTH.st = await r.json(); } catch (e) { } return AUTH.st; }
 async function authBoot() {
   AUTH.L = (await idbGet('meta', 'auth').catch(() => null)) || {};
-  if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); return; }
+  if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); credsRefresh().then(() => { if (AUTH.mode === 'unlock') lockRender(); }); return; }
   lsLock(false); lockHide();
   if (authBase() && navigator.onLine) authStatus().then(st => { if (st && st.setup && !(AUTH.L && AUTH.L.on)) lockShow('login', 'Hệ thống đã bật tài khoản chủ. Đăng nhập để dùng và đồng bộ dữ liệu.'); });
 }
@@ -1459,13 +1459,26 @@ async function lockRender() {
 }
 function lockMsg(m, err) { AUTH.msg = m; AUTH.err = err !== false; lockRender(); }
 // ---- Mở khoá trên máy (chạy cả khi mất mạng) ----
-function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
+function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); credsRefresh(); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
+// Đồng bộ danh sách vân tay của máy này với máy chủ: vân tay đã bị xoá khỏi tài khoản (VD máy bị mất) thì không dùng được nữa
+async function credsRefresh() {
+  if (!navigator.onLine || !IDB.cfg.token || !AUTH.L || !(AUTH.L.creds || []).length) return;
+  try {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+    const r = await fetch(authBase() + '/auth/me', { cache: 'no-store', signal: ctl.signal, headers: { Authorization: 'Bearer ' + IDB.cfg.token } }); clearTimeout(t);
+    if (!r.ok) return; const me = await r.json();
+    const keep = AUTH.L.creds.filter(c => me.passkeys.some(p => c.startsWith(p.id)));
+    if (keep.length !== AUTH.L.creds.length) { AUTH.L.creds = keep; await saveL(); }
+  } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
+}
 async function unlockBio() {
   try {
+    await credsRefresh();
+    if (!(AUTH.L.creds || []).length) { lockMsg('Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong Tài khoản & bảo mật.'); return; }
     const ids = AUTH.L.creds || [];
     const c = await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rpId: location.hostname, allowCredentials: ids.map(id => ({ type: 'public-key', id: b64u(id) })), userVerification: 'required', timeout: 60000 } });
     if (c && ids.includes(c.id)) unlocked(); else lockMsg('Khoá truy cập không thuộc máy này.');
-  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Đã huỷ hoặc hết thời gian xác thực.' : 'Không mở được bằng vân tay: ' + (e.message || e.name)); }
+  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : 'Không mở được bằng vân tay: ' + (e.message || e.name)); }
 }
 async function unlockPw(pw) {
   if (Date.now() < AUTH.waitUntil) return lockMsg(`Sai nhiều lần – thử lại sau ${Math.ceil((AUTH.waitUntil - Date.now()) / 1000)} giây.`);
@@ -1492,7 +1505,7 @@ async function loginPasskey(btn) {
     const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
     const r = await authPost('/auth/passkey/login', { flow, response: credJSON(c), device: IDB.device, name: devName() });
     await authSaved(r, null, c.id);
-  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Đã huỷ hoặc hết thời gian xác thực.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e.message || 'Đăng nhập không thành công')); }
+  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được – vân tay không khớp, đã huỷ, hoặc máy này chưa bật vân tay cho tài khoản (hãy đăng nhập bằng mật khẩu rồi bật).' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e.message || 'Đăng nhập không thành công')); }
   finally { if (btn) btn.disabled = false; }
 }
 async function authReset(tok, pw, pw2) {
