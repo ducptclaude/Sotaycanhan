@@ -946,7 +946,7 @@ function assetValueAsOf(a, asOf, td) {
 const COLS = ['accounts', 'txns', 'loans', 'savings', 'settings', 'health', 'events', 'todos', 'goals', 'assets', 'cards', 'study', 'habits', 'journal', 'notes', 'contacts', 'meds', 'courses', 'books'];
 const S = { accounts: {}, txns: {}, loans: {}, savings: {}, settings: {}, health: {}, events: {}, todos: {}, goals: {}, assets: {}, cards: {}, study: {}, habits: {}, journal: {}, notes: {}, contacts: {}, meds: {}, courses: {}, books: {} };
 const got = new Set();
-let MODE = 'loading', ROOT = null, loadTimer = null, NOTE = '';
+let MODE = 'loading', NOTE = '';
 const UI = { tab: 'tong-quan', month: ymOf(today()), txFilter: 'all', txSearch: '', loanId: null, calMonth: ymOf(today()), calDay: today(), hMetric: 'weight', hRange: 90, planSeg: 'todo', showDone: false, learnSeg: 'path', openWeek: null, cardQ: '', cardDeck: '', noteQ: '', ctQ: '', ctGroup: '', per: { mode: 'month', anchor: today(), from: '', to: '' }, txCat: '', txAcc: '', asOf: '', open: {}, openAll: false, accId: null };
 const TABS = { 'tong-quan': 'home', 'tong-ket': 'home', 'ngan-sach': 'fin', 'danh-ba': 'cal', 'su-kien': 'cal', 'nhac-nho': 'cal', 'uong-thuoc': 'cal', 'tieng-anh': 'learn', 'the-tu': 'learn', 'khoa-hoc': 'learn', 'doc-sach': 'learn', 'nhat-ky-hoc': 'learn', 'ngay-ky-niem': 'cal', 'ngay-le': 'cal', 'muc-tieu': 'plan', 'thoi-quen': 'plan', 'ghi-chep': 'plan', 'tai-chinh': 'fin', 'thu-chi': 'fin', 'vay-no': 'fin', 'tiet-kiem': 'fin', 'tai-khoan': 'fin', 'tai-san': 'fin', 'hoc-tap': 'learn', 'suc-khoe': 'health', 'lich': 'cal', 'ke-hoach': 'plan' };
 const EV_CATS = { work: ['Công việc', '💼'], meeting: ['Hẹn gặp', '🤝'], personal: ['Cá nhân', '🙂'], family: ['Gia đình', '👨‍👩‍👧'], party: ['Đám cưới / hỏi / tiệc', '💐'], anniv: ['Đám giỗ / tang lễ', '🕯️'], bill: ['Hóa đơn / đóng tiền', '💡'], vehicle: ['Xe cộ', '🚗'], doc: ['Giấy tờ / gia hạn', '🪪'], worship: ['Cúng lễ / tâm linh', '🙏'], health: ['Sức khỏe', '🩺'], sport: ['Thể thao', '🏃'], study: ['Học tập', '📚'], travel: ['Du lịch / công tác', '✈️'], other: ['Khác', '📌'] };
@@ -967,8 +967,8 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.2.0';
-const STANDALONE_HOST = /^https?:$/.test(location.protocol) && !(window.claude && typeof window.claude.use === 'function') && !/claude/i.test(location.hostname);
+const APP_VER = '1.3.0';
+const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
   return new Promise((res, rej) => {
@@ -1121,13 +1121,13 @@ function netState() {
   const on = isOnline();
   if (MODE === 'idb') {
     if (!on) return ['off', '🔴 Ngoại tuyến', IDB.pending ? IDB.pending + ' thay đổi chờ đồng bộ' : 'Dữ liệu lưu trên máy'];
-    if (!IDB.cfg.url) return ['on', '🟢 Trực tuyến', 'Lưu trên máy'];
+    if (!IDB.cfg.url) return ['on', '🟢 Trực tuyến', 'Chưa kết nối máy chủ'];
     if (IDB.syncing) return ['sync', '🔄 Đang đồng bộ…', ''];
     if (IDB.syncErr) return ['err', '🟠 Chưa đồng bộ', IDB.syncErr];
     if (IDB.pending) return ['wait', '🟡 Chờ đồng bộ', IDB.pending + ' thay đổi'];
     return ['on', '🟢 Đã đồng bộ', IDB.lastSyncAt ? hmOf(IDB.lastSyncAt) : ''];
   }
-  return on ? ['on', '🟢 Trực tuyến', MODE === 'db' ? 'Lưu theo tài khoản Claude' : ''] : ['off', '🔴 Ngoại tuyến', MODE === 'db' ? 'Thay đổi sẽ gửi khi có mạng' : ''];
+  return on ? ['on', '🟢 Trực tuyến', 'Dữ liệu tạm thời'] : ['off', '🔴 Ngoại tuyến', 'Dữ liệu tạm thời'];
 }
 function netUI() {
   const p = document.getElementById('netpill'); if (!p) return;
@@ -1160,7 +1160,6 @@ function showUpdateBar() { let b = document.getElementById('updbar'); if (!b) { 
 function backupObj() { const o = { app: 'so-ca-nhan', ver: APP_VER, exportedAt: new Date().toISOString(), data: {} }; COLS.forEach(c => { o.data[c] = S[c] || {}; }); return o; }
 async function downloadBackup() {
   const txt = JSON.stringify(backupObj(), null, 1), name = 'so-ca-nhan-sao-luu-' + today() + '.json';
-  if (!STANDALONE_HOST && window.claude && claude.use) { try { const dl = await claude.use('downloads'); if (dl) { await dl.save({ filename: name, data: txt }); toast('Đã lưu tệp ' + name); return; } } catch (e) { } }
   try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('Đã tạo tệp ' + name); }
   catch (e) { navigator.clipboard && navigator.clipboard.writeText(txt).then(() => toast('Đã sao chép dữ liệu sao lưu vào bộ nhớ tạm.')).catch(() => toast('Không tạo được tệp sao lưu.')); }
 }
@@ -1175,10 +1174,10 @@ async function restoreBackup(file, mode) {
 function sysStatusHTML() {
   const [k, l, sub] = netState();
   return `<div class="sysrow"><span>Kết nối</span><b class="st-${k}">${l}${sub ? ' · ' + esc(sub) : ''}</b></div>
-    <div class="sysrow"><span>Nơi lưu dữ liệu</span><b>${MODE === 'idb' ? '📱 Trên thiết bị (IndexedDB)' : MODE === 'db' ? '☁️ Tài khoản Claude' : '⚠ Tạm thời (chưa lưu)'}</b></div>
+    <div class="sysrow"><span>Nơi lưu dữ liệu</span><b>${MODE === 'idb' ? '📱 Trên thiết bị' + (IDB.cfg.url ? ' + ☁️ máy chủ đồng bộ' : '') : '⚠ Tạm thời (chưa lưu)'}</b></div>
     ${MODE === 'idb' ? `<div class="sysrow"><span>Thay đổi chờ đồng bộ</span><b>${IDB.pending}</b></div><div class="sysrow"><span>Đồng bộ gần nhất</span><b>${IDB.lastSyncAt ? fmtDate(dsOf(IDB.lastSyncAt)) + ' ' + hmOf(IDB.lastSyncAt) : 'Chưa'}</b></div>` : ''}
     ${MODE === 'idb' && IDB.cfg.url ? `<div class="sysrow"><span>Đồng bộ khi đóng app</span><b>${bgSyncSupported() ? '✓ Có – trình duyệt tự gửi khi có mạng' : 'Không hỗ trợ (iPhone/Safari) – mở app để đồng bộ'}</b></div>` : ''}
-    <div class="sysrow"><span>Chạy ngoại tuyến</span><b>${navigator.serviceWorker && navigator.serviceWorker.controller ? '✓ Sẵn sàng (đã lưu giao diện)' : STANDALONE_HOST ? 'Đang chuẩn bị…' : 'Không áp dụng trong Claude'}</b></div>`;
+    <div class="sysrow"><span>Chạy ngoại tuyến</span><b>${navigator.serviceWorker && navigator.serviceWorker.controller ? '✓ Sẵn sàng (đã lưu giao diện)' : STANDALONE_HOST ? 'Đang chuẩn bị…' : 'Cần mở qua địa chỉ https://'}</b></div>`;
 }
 async function sysForm() {
   let est = ''; try { const e = await navigator.storage.estimate(); est = (e.usage / 1048576).toFixed(1) + ' MB đã dùng'; } catch (e) { }
@@ -1186,7 +1185,7 @@ async function sysForm() {
   openModal(`<h3>⚙️ Ứng dụng & dữ liệu<button class="iconbtn" data-x>✕</button></h3>
     <div class="card" style="margin:0 0 12px" id="sys-live">${sysStatusHTML()}</div>
     ${STANDALONE_HOST ? `<div class="f"><label>📲 Cài vào màn hình chính</label>${inst ? '<div class="banner">✓ Đang chạy như ứng dụng đã cài.</div>' : _installEvt ? '<button type="button" class="btn primary" id="sys-inst">Cài đặt ứng dụng</button>' : isIOS() ? '<div class="banner">iPhone/iPad: mở bằng <b>Safari</b> → bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) → <b>Thêm vào MH chính</b> → <b>Thêm</b>.</div>' : '<div class="banner">Android/Chrome: bấm menu <b>⋮</b> → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b>).</div>'}</div>` : ''}
-    ${MODE === 'idb' ? `<div class="f"><label>🔄 Máy chủ đồng bộ (tuỳ chọn – để dùng chung nhiều thiết bị)</label><input id="sys-url" placeholder="VD: https://sync.ten-mien-cua-ban.vn" value="${esc(IDB.cfg.url)}"><input id="sys-tok" placeholder="Mã truy cập (token)" value="${esc(IDB.cfg.token)}" style="margin-top:6px" type="password"><div class="actions" style="justify-content:flex-start;margin-top:8px"><button type="button" class="btn sm primary" id="sys-save">Lưu & đồng bộ</button><button type="button" class="btn sm" id="sys-sync">Đồng bộ ngay</button>${IDB.cfg.url ? '<button type="button" class="btn sm" id="sys-off">Tắt đồng bộ</button>' : ''}</div><div class="muted" style="font-size:12px;margin-top:4px">Không có máy chủ: app vẫn chạy đầy đủ, dữ liệu lưu trên máy này.</div></div>` : ''}
+    ${MODE === 'idb' ? `<div class="f"><label>🔄 Máy chủ đồng bộ (URL + mã SYNC_TOKEN)</label><input id="sys-url" placeholder="VD: https://sotaycanhan-production.up.railway.app" value="${esc(IDB.cfg.url || (STANDALONE_HOST ? location.origin : ''))}"><input id="sys-tok" placeholder="Mã truy cập (token)" value="${esc(IDB.cfg.token)}" style="margin-top:6px" type="password"><div class="actions" style="justify-content:flex-start;margin-top:8px"><button type="button" class="btn sm primary" id="sys-save">Lưu & đồng bộ</button><button type="button" class="btn sm" id="sys-sync">Đồng bộ ngay</button>${IDB.cfg.url ? '<button type="button" class="btn sm" id="sys-off">Tắt đồng bộ</button>' : ''}</div><div class="muted" style="font-size:12px;margin-top:4px">Không có máy chủ: app vẫn chạy đầy đủ, dữ liệu lưu trên máy này.</div></div>` : ''}
     <div class="f"><label>💾 Sao lưu & khôi phục</label><div class="actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button type="button" class="btn sm" id="sys-exp">📤 Tải tệp sao lưu (.json)</button><label class="btn sm" style="cursor:pointer">📥 Khôi phục từ tệp<input type="file" id="sys-imp" accept=".json,application/json" hidden></label></div><label class="check" style="margin-top:6px;font-size:12.5px"><input type="checkbox" id="sys-rep"> Thay thế toàn bộ dữ liệu hiện có (mặc định: gộp thêm)</label></div>
     <div class="muted" style="font-size:12px">Phiên bản ${APP_VER}${est ? ' · ' + est : ''}</div>
     <div class="actions"><button type="button" class="btn" data-x>Đóng</button></div>`, sh => {
@@ -1202,62 +1201,22 @@ async function sysForm() {
 }
 // ---- Tệp sách trên máy khi chạy độc lập ----
 async function idbSaveFile(file) { const id = 'idb_' + genId(); await idbSet('files', id, file); return { fileId: id, fileType: file.type || (/\.pdf$/i.test(file.name) ? 'application/pdf' : 'text/plain'), fileName: file.name, fileSize: file.size }; }
-async function fileURL(id) { if (String(id).startsWith('idb_')) { const b = await idbGet('files', id); return b ? URL.createObjectURL(b) : ''; } return '/_blob/' + id; }
+async function fileURL(id) { if (String(id).startsWith('idb_')) { const b = await idbGet('files', id); return b ? URL.createObjectURL(b) : ''; } return ''; }
 
 async function init() {
   route(); render();
-  if (STANDALONE_HOST) {
-    try { await idbBoot(); MODE = 'idb'; NOTE = ''; }
-    catch (e) { MODE = 'memory'; NOTE = 'Trình duyệt không cho lưu dữ liệu trên máy (có thể đang ở chế độ ẩn danh). Dữ liệu chỉ tạm thời.'; }
-    render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') schedSync(800); return;
-  }
-  loadTimer = setTimeout(() => { if (!got.size) { NOTE = 'Chưa kết nối được dữ liệu. Kiểm tra mạng, dữ liệu sẽ tự tải khi kết nối lại.'; render(); } }, 10000);
-  let db = null, user = null, uid = null;
-  try { if (window.claude && typeof claude.use === 'function') { [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); } } catch (e) { }
-  try { uid = user ? await user.id() : null; } catch (e) { }
-  if (!db || !uid) {
-    clearTimeout(loadTimer); MODE = 'memory';
-    NOTE = 'Chế độ thử: dữ liệu chưa được lưu. Mở trang này trong Claude (đã đăng nhập) để lưu lâu dài.';
-    render(); return;
-  }
-  MODE = 'db';
-  ROOT = db.doc('data/users/' + uid + '/app');
-  COLS.forEach(c => {
-    ROOT.collection(c).onSnapshot(snap => {
-      const m = {}; snap.docs.forEach(d => { m[d.id] = d.data(); });
-      S[c] = m; got.add(c);
-      if (!snap.metadata.fromCache && NOTE) { NOTE = ''; }
-      clearTimeout(loadTimer);
-      queueRender();
-    }, err => {
-      got.add(c); clearTimeout(loadTimer);
-      NOTE = 'Không tải được dữ liệu (' + esc(err && err.code) + '). Hãy tải lại trang sau.';
-      queueRender();
-    });
-  });
+  try { await idbBoot(); MODE = 'idb'; NOTE = ''; }
+  catch (e) { MODE = 'memory'; NOTE = 'Trình duyệt không cho lưu dữ liệu trên máy (có thể đang ở chế độ ẩn danh). Dữ liệu chỉ tạm thời.'; }
+  render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') schedSync(800);
 }
-async function withRetry(fn) {
-  try { return await fn(); }
-  catch (e) {
-    if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); return await fn(); }
-    throw e;
-  }
-}
-function writeErr(e) {
-  const c = e && e.code;
-  toast(c === 'quota_exceeded' ? 'Bộ nhớ dữ liệu đã đầy, hãy xoá bớt giao dịch cũ.' :
-    c === 'invalid_argument' ? 'Không ghi được dữ liệu (không có quyền hoặc dữ liệu lỗi).' :
-      'Lưu thất bại, vui lòng thử lại.');
-}
-async function put(col, id, data) {
-  if (MODE === 'idb') { S[col] = { ...S[col], [id]: data }; queueRender(); try { await idbWriteDoc(col, id, data, Date.now()); schedSync(); } catch (e) { toast('Không lưu được vào bộ nhớ máy: ' + (e && e.message || 'lỗi')); throw e; } return; }
-  if (MODE === 'db') { try { await withRetry(() => ROOT.collection(col).doc(id).set(data)); } catch (e) { writeErr(e); throw e; } }
-  else { S[col] = { ...S[col], [id]: data }; queueRender(); }
+// ts: thời điểm sửa (mặc định: bây giờ). Dữ liệu mẫu dùng ts = 1 để luôn thua dữ liệu thật khi đồng bộ.
+async function put(col, id, data, ts) {
+  if (MODE === 'idb') { S[col] = { ...S[col], [id]: data }; queueRender(); try { await idbWriteDoc(col, id, data, ts || Date.now()); schedSync(); } catch (e) { toast('Không lưu được vào bộ nhớ máy: ' + (e && e.message || 'lỗi')); throw e; } return; }
+  S[col] = { ...S[col], [id]: data }; queueRender();
 }
 async function del(col, id) {
   if (MODE === 'idb') { const m = { ...S[col] }; delete m[id]; S[col] = m; queueRender(); try { await idbWriteDoc(col, id, null, Date.now()); schedSync(); } catch (e) { toast('Không xoá được trong bộ nhớ máy.'); throw e; } return; }
-  if (MODE === 'db') { try { await withRetry(() => ROOT.collection(col).doc(id).delete()); } catch (e) { writeErr(e); throw e; } }
-  else { const m = { ...S[col] }; delete m[id]; S[col] = m; queueRender(); }
+  const m = { ...S[col] }; delete m[id]; S[col] = m; queueRender();
 }
 
 // ================= GIAO DIỆN CHUNG =================
@@ -1288,13 +1247,13 @@ function render() {
   document.getElementById('note').innerHTML = NOTE ? `<div class="banner">${NOTE}</div>` : '';
   document.getElementById('fab').setAttribute('aria-label', { home: 'Thêm nhanh', fin: 'Thêm giao dịch', health: 'Ghi chỉ số sức khỏe', cal: 'Thêm sự kiện', learn: UI.learnSeg === 'cards' ? 'Thêm thẻ từ' : 'Ghi giờ học', plan: 'Thêm' }[grp]);
   const v = document.getElementById('view'), hr = document.getElementById('hdr-right');
-  if (MODE === 'loading' || (MODE === 'db' && !got.size)) { v.innerHTML = `<div class="loading"><div class="spin"></div>Đang tải dữ liệu…</div>`; hr.innerHTML = ''; return; }
+  if (MODE === 'loading') { v.innerHTML = `<div class="loading"><div class="spin"></div>Đang tải dữ liệu…</div>`; hr.innerHTML = ''; return; }
   hr.innerHTML = UI.tab === 'tong-ket' ? monthNav() : '';
   const fn = { 'tong-quan': viewHome, 'tai-chinh': viewDash, 'thu-chi': viewTx, 'vay-no': viewLoans, 'tiet-kiem': viewSavings, 'tai-khoan': viewAccounts, 'tai-san': viewAssets, 'hoc-tap': viewLearn, 'tong-ket': viewReport, 'ngan-sach': viewBudget, 'danh-ba': viewContacts, 'muc-tieu': viewGoals, 'thoi-quen': viewHabits, 'ghi-chep': viewNotes, 'suc-khoe': viewHealth, 'lich': viewCal, 'nhac-nho': viewReminders, 'uong-thuoc': viewMeds, 'tieng-anh': viewEnglish, 'the-tu': viewCardsPage, 'khoa-hoc': viewCourses, 'doc-sach': viewBooks, 'nhat-ky-hoc': viewStudyLog, 'su-kien': viewEvents, 'ngay-ky-niem': viewAnnivs, 'ngay-le': viewHolidays, 'ke-hoach': viewTodos }[UI.tab];
   const SUB = { fin: FIN_SUB, cal: [['lich', 'Lịch tháng'], ['nhac-nho', 'Nhắc nhở'], ['su-kien', 'Sự kiện'], ['uong-thuoc', 'Uống thuốc'], ['ngay-ky-niem', 'Ngày kỷ niệm'], ['ngay-le', 'Ngày lễ – Tết'], ['danh-ba', 'Danh bạ']], learn: [['hoc-tap', 'Tổng quan'], ['tieng-anh', 'Tiếng Anh'], ['the-tu', 'Thẻ từ'], ['khoa-hoc', 'Khóa học'], ['doc-sach', 'Đọc sách'], ['nhat-ky-hoc', 'Nhật ký học']], plan: [['ke-hoach', '✅ Việc cần làm'], ['thoi-quen', '🔁 Thói quen'], ['muc-tieu', '🎯 Mục tiêu'], ['ghi-chep', '📔 Ghi chép']] }[grp];
   document.getElementById('fab').style.display = UI.tab === 'tong-ket' ? 'none' : '';
   netUI();
-  if ((MODE === 'memory' || MODE === 'db' || MODE === 'idb') && ['settings', 'events', 'meds', 'courses', 'books', 'study'].every(c => MODE === 'memory' || got.has(c)) && !(S.settings.samples2 && S.settings.samples2.done) && !_seeding) setTimeout(seedSamples2, 0);
+  if ((MODE === 'memory' || MODE === 'idb') && ['settings', 'events', 'meds', 'courses', 'books', 'study'].every(c => MODE === 'memory' || got.has(c)) && !(S.settings.samples2 && S.settings.samples2.done) && !_seeding) setTimeout(seedSamples2, 0);
   v.innerHTML = (SUB ? `<div class="subnav">${SUB.map(([h, l]) => `<a href="#${h}" class="${UI.tab === h ? 'on' : ''}">${l}</a>`).join('')}</div>` : '') + (grp === 'cal' || grp === 'learn' ? sampleBar() : '') + fn();
   if (UI.tab === 'suc-khoe') bindHChart();
   const sn = v.querySelector('.subnav'), sa = sn && sn.querySelector('a.on'); if (sa) sn.scrollLeft = sa.offsetLeft - (sn.clientWidth - sa.offsetWidth) / 2;
@@ -2975,7 +2934,7 @@ function bookForm(id, preset) {
       if (pages && cur > pages) return toast('Trang hiện tại vượt tổng số trang.');
       let fx = {}; const fi = sh.querySelector('#b-file'), rmf = sh.querySelector('#b-rmf');
       if (rmf && rmf.checked) fx = { fileId: '', fileType: '', fileName: '', fileSize: 0 };
-      if (fi && fi.files && fi.files[0]) { try { toast('Đang tải tệp lên…'); fx = await uploadBookFile(fi.files[0]); } catch (er) { return toast(er && er.message === 'big' ? 'Tệp quá 20 MB.' : er && er.message === 'noassets' ? 'Chỉ đính kèm được khi mở app trong Claude (đã đăng nhập).' : 'Tải tệp thất bại, thử lại.'); } }
+      if (fi && fi.files && fi.files[0]) { try { toast('Đang tải tệp lên…'); fx = await uploadBookFile(fi.files[0]); } catch (er) { return toast(er && er.message === 'big' ? 'Tệp quá 50 MB.' : er && er.message === 'nostore' ? 'Trình duyệt không cho lưu tệp (chế độ ẩn danh?).' : 'Tải tệp thất bại, thử lại.'); } }
       await put('books', id || genId(), { ...(id ? S.books[id] : { created: Date.now(), log: {} }), ...fx, title: q('#b-t'), author: q('#b-a'), genre: q('#b-g'), sub: q('#b-sub'), status: q('#b-s'), format: q('#b-f'), pages, cur, rating: Number(q('#b-r')), start: q('#b-st'), finish: q('#b-s') === 'done' ? (q('#b-fi') || today()) : q('#b-fi'), takeaways: sh.querySelector('#b-tk').value.trim(), quote: q('#b-q'), updated: Date.now() });
       closeModal(); toast('Đã lưu sách.');
     })(); });
@@ -3306,18 +3265,16 @@ async function closeReader(silent) {
   } catch (e) { }
 }
 
-let ASSETS = null; (async () => { try { if (window.claude && claude.use) ASSETS = await claude.use('assets'); } catch (e) { } })();
 async function uploadBookFile(file) {
   if (MODE === 'idb') { if (file.size > 50 * 1024 * 1024) throw new Error('big'); return idbSaveFile(file); }
-  if (!ASSETS) throw new Error('noassets');
-  if (file.size > 20 * 1024 * 1024) throw new Error('big');
-  const r = await ASSETS.upload(file); return { fileId: r.id, fileType: r.contentType || file.type, fileName: file.name, fileSize: r.sizeBytes || file.size };
+  throw new Error('nostore');
 }
 
 // ================= DỮ LIỆU MẪU (LỊCH & HỌC TẬP) =================
 let _seeding = false;
 async function seedSamples2() {
   if (_seeding || (S.settings.samples2 && S.settings.samples2.done)) return; _seeding = true;
+  const putS = (c, id, x) => put(c, id, x, 1); // ts = 1: dữ liệu thật & lệnh xoá từ máy khác luôn thắng
   const td = today(), d = k => addDays(td, k), sm = { sample: true, created: Date.now() };
   const nextWd = w => { let x = td; for (let i = 0; i < 7; i++) { if (wdOf(x) === w) return x; x = addDays(x, 1); } return td; };
   const lun = lunarOf(td), lunM = lun[1], lunNext = lunM === 12 ? 1 : lunM + 1;
@@ -3366,14 +3323,14 @@ async function seedSamples2() {
   const now = Date.now();
   Object.values(med).forEach(m => { m.log[d(-1)] = Object.fromEntries(m.times.map(t => [t, 1])); const past = m.times.filter(t => tsOf(td, t) < now); m.log[td] = Object.fromEntries(past.slice(0, m === med.sx_md3 ? Math.max(0, past.length - 1) : past.length).map(t => [t, 1])); });
   try {
-    for (const [id, x] of Object.entries(ev)) await put('events', id, { ...x, ...sm });
-    for (const [id, x] of Object.entries(med)) await put('meds', id, { ...x, ...sm });
-    for (const [id, x] of Object.entries(cs)) await put('courses', id, { ...x, ...sm });
-    for (const [id, x] of Object.entries(bk)) await put('books', id, { ...x, ...sm, updated: Date.now() });
-    for (const [id, x] of Object.entries(st)) await put('study', id, { ...x, ...sm });
-    if (!enState().start) await put('settings', 'english', { start: d(-10), sample: true, done: { 1: true }, tasks: { '1-0': true, '1-1': true, '1-2': true, '1-3': true, '1-4': true, '2-0': true, '2-1': true }, evals: { 1: { listen: 7, speak: 6, read: 7.5, write: 6, vocab: 7, date: d(-4), note: 'Nói còn chậm' } }, tests: {} });
-    if (!learnSet().bookGoal) await put('settings', 'learn', { ...learnSet(), bookGoal: 12 });
-    await put('settings', 'samples2', { done: true, at: Date.now() });
+    for (const [id, x] of Object.entries(ev)) await putS('events', id, { ...x, ...sm });
+    for (const [id, x] of Object.entries(med)) await putS('meds', id, { ...x, ...sm });
+    for (const [id, x] of Object.entries(cs)) await putS('courses', id, { ...x, ...sm });
+    for (const [id, x] of Object.entries(bk)) await putS('books', id, { ...x, ...sm, updated: Date.now() });
+    for (const [id, x] of Object.entries(st)) await putS('study', id, { ...x, ...sm });
+    if (!enState().start) await putS('settings', 'english', { start: d(-10), sample: true, done: { 1: true }, tasks: { '1-0': true, '1-1': true, '1-2': true, '1-3': true, '1-4': true, '2-0': true, '2-1': true }, evals: { 1: { listen: 7, speak: 6, read: 7.5, write: 6, vocab: 7, date: d(-4), note: 'Nói còn chậm' } }, tests: {} });
+    if (!learnSet().bookGoal) await putS('settings', 'learn', { ...learnSet(), bookGoal: 12 });
+    await putS('settings', 'samples2', { done: true, at: Date.now() });
   } catch (e) { }
   _seeding = false;
 }
@@ -3945,7 +3902,7 @@ function assetForm(id) {
       const l = sh.querySelector('#a2-tname').value.trim(); if (!l) return toast('Nhập tên loại tài sản.');
       const ex = Object.entries(AS_TYPES).find(([, v]) => v[0].toLowerCase() === l.toLowerCase()); if (ex) { fillTypes(ex[0]); paint(true); tog('#a2-tbox', false); return toast('Loại "' + l + '" đã có, đã chọn.'); }
       const k = 'x_' + genId(), t = { k, l, i: sh.querySelector('#a2-ticon').value, g: grp.value, q: sh.querySelector('#a2-tq').checked, u: '' };
-      try { await put('settings', 'main', { ...(S.settings.main || {}), assetTypes: [...customTypes(), t] }); syncAssetCats(); if (MODE !== 'db') { S.settings.main = { ...(S.settings.main || {}), assetTypes: [...customTypes().filter(x => x.k !== k), t] }; syncAssetCats(); } fillTypes(k); paint(false); tog('#a2-tbox', false); toast('Đã thêm loại "' + l + '".'); } catch (e) { }
+      try { await put('settings', 'main', { ...(S.settings.main || {}), assetTypes: [...customTypes(), t] }); syncAssetCats(); { S.settings.main = { ...(S.settings.main || {}), assetTypes: [...customTypes().filter(x => x.k !== k), t] }; syncAssetCats(); } fillTypes(k); paint(false); tog('#a2-tbox', false); toast('Đã thêm loại "' + l + '".'); } catch (e) { }
     };
     sh.querySelector('#a2-gok').onclick = async () => {
       const l = sh.querySelector('#a2-gname').value.trim(); if (!l) return toast('Nhập tên nhóm.');
@@ -4044,7 +4001,7 @@ function viewAccounts() {
   } else h += `<div class="card empty">Chưa có tài khoản.</div>`;
   h += `<div class="actions" style="justify-content:flex-start;margin:4px 0 12px"><button class="btn primary" data-act="acc-new">+ Thêm tài khoản</button></div>`;
   h += `<div class="card"><h2>Danh mục thu chi & tài sản <button class="btn sm" data-act="cats-edit">Sửa</button></h2><div class="sub"><b>Thu:</b> ${incCats().map(esc).join(', ')}</div><div class="sub" style="margin-top:6px"><b>Chi:</b> ${expCats().map(esc).join(', ')}</div></div>`;
-  h += `<div class="card"><h2>Dữ liệu tài chính</h2><p class="sub" style="margin-top:0">${MODE === 'db' ? '✓ Dữ liệu lưu riêng tư theo tài khoản Claude của bạn, đồng bộ giữa các thiết bị.' : MODE === 'idb' ? '✓ Dữ liệu lưu trên thiết bị này (dùng được cả khi không có mạng). Sao lưu & đồng bộ: bấm nút trạng thái ở góc trên.' : '⚠ Chế độ thử – dữ liệu sẽ mất khi đóng trang.'}</p>
+  h += `<div class="card"><h2>Dữ liệu tài chính</h2><p class="sub" style="margin-top:0">${MODE === 'idb' ? (IDB.cfg.url ? '✓ Dữ liệu lưu trên thiết bị (dùng được khi mất mạng) và đồng bộ qua máy chủ ' + esc(IDB.cfg.url.replace(/^https?:\/\//, '')) + '.' : '✓ Dữ liệu lưu trên thiết bị này. Chưa kết nối máy chủ đồng bộ: bấm nút trạng thái ở góc trên → Máy chủ đồng bộ.') : '⚠ Chế độ thử – dữ liệu sẽ mất khi đóng trang.'}</p>
     <div class="actions" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn sm" data-act="sys-open">💾 Sao lưu / khôi phục</button><button class="btn sm" data-act="fin-import">📥 Nạp số liệu Sổ tay</button>${Object.values(S.txns).some(x => x.sample) ? '<button class="btn sm" data-act="fin-sample-del">Xoá giao dịch mẫu</button>' : ''}<button class="btn sm" data-act="backup">📋 Sao lưu (JSON)</button><button class="btn sm danger" data-act="fin-wipe">Xoá toàn bộ dữ liệu tài chính</button></div></div>`;
   return h;
 }

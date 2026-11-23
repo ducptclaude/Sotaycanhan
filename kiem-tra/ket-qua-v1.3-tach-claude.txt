@@ -1,0 +1,14 @@
+Kiểm tra bản 1.3.0 – tách khỏi Claude, đồng bộ qua máy chủ Railway (server.js, URL + SYNC_TOKEN)
+1. Tách Claude: kể cả khi trang có window.claude, app vẫn chạy chế độ máy + máy chủ (MODE idb), không còn mã Claude (ROOT/ASSETS)
+2. Nhiều thiết bị – dữ liệu mẫu không đè dữ liệu thật:
+   a. Máy A xoá 1 sự kiện mẫu, đổi mục tiêu đọc sách 12 → 30, sửa 1 sự kiện mẫu, đồng bộ
+   b. Máy B mới tinh (tự tạo dữ liệu mẫu) rồi kết nối: sự kiện đã xoá vẫn xoá · mục tiêu = 30 · nhận bản sửa của A
+   c. Máy chủ giữ đúng dữ liệu thật · d. Máy A không bị ảnh hưởng
+   (bản 1.2.0 trở về trước: máy mới đè cài đặt và làm hiện lại mục mẫu đã xoá – đã sửa)
+3. Online/Offline + đồng bộ:
+   a. Ô địa chỉ máy chủ điền sẵn địa chỉ đang chạy app, chỉ cần nhập mã SYNC_TOKEN
+   b. Lưu & đồng bộ → 🟢 Đã đồng bộ, chờ 0
+   c. Mất mạng: 🔴 Ngoại tuyến · 1 thay đổi chờ đồng bộ + thanh báo mất kết nối
+   d. Có mạng lại: tự gửi lên máy chủ, máy A nhận được · 🟢 Đã đồng bộ
+4. Bộ đồng bộ cũ 8/8 đạt · bộ máy chủ mất dữ liệu 6/6 đạt
+Lỗi JS: []

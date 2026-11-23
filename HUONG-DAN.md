@@ -1,5 +1,7 @@
 # Sổ Cá Nhân – Ứng dụng PWA chạy cả khi không có mạng
 
+> Từ bản **1.3.0**, app **chạy độc lập, không phụ thuộc Claude**: dữ liệu lưu trên từng thiết bị và đồng bộ qua máy chủ Railway của bạn (**URL + mã SYNC_TOKEN**).
+
 ## Trong thư mục
 | Tệp | Vai trò |
 |---|---|
@@ -14,7 +16,7 @@
 | `kiem-tra/` | Kết quả kiểm tra ngắt mạng thực tế + ảnh chụp |
 
 ## 1. Đưa lên mạng (bắt buộc có HTTPS)
-PWA chỉ cài và chạy offline được khi mở qua **https://**. Mở tệp trực tiếp trên máy hoặc mở trong Claude thì không cài được.
+PWA chỉ cài và chạy offline được khi mở qua **https://**. Mở tệp trực tiếp trên máy thì không cài được.
 Cách nhanh nhất, miễn phí:
 1. Vào **https://app.netlify.com/drop**.
 2. Kéo thả **cả thư mục** này (đã giải nén) vào trang → nhận địa chỉ dạng `https://ten-ngau-nhien.netlify.app`.
@@ -39,9 +41,14 @@ Kiểm tra máy chủ: mở `https://sotaycanhan-production.up.railway.app/healt
 - **iPhone/iPad (Safari):** mở địa chỉ bằng Safari → nút **Chia sẻ** → **Thêm vào MH chính** → **Thêm**.
 - Mở app **một lần khi có mạng** để app lưu giao diện. Sau đó dùng được khi mất mạng.
 
-## 3. Chuyển dữ liệu từ bản trong Claude sang
-1. Mở bản trong Claude → bấm nút trạng thái 🟢 ở góc trên → **Tải tệp sao lưu (.json)**.
-2. Mở app PWA → nút trạng thái → **Khôi phục từ tệp** → chọn tệp vừa tải.
+## 3. Kết nối thiết bị với máy chủ Railway
+Làm **một lần trên mỗi thiết bị**:
+1. Mở app qua `https://sotaycanhan-production.up.railway.app` (nên cài vào màn hình chính).
+2. Bấm nút trạng thái ở góc trên → mục **🔄 Máy chủ đồng bộ (URL + mã SYNC_TOKEN)**.
+3. Ô địa chỉ đã **điền sẵn** địa chỉ máy chủ → nhập **mã SYNC_TOKEN** → **Lưu & đồng bộ**.
+4. Thấy **🟢 Đã đồng bộ** là xong. Thiết bị mới sẽ nhận toàn bộ dữ liệu từ máy chủ; dữ liệu mẫu trên máy mới **không đè** dữ liệu thật.
+
+**Chuyển dữ liệu cũ từ bản trong Claude (nếu có):** mở bản trong Claude → nút trạng thái → **Tải tệp sao lưu (.json)** → mở app Railway → nút trạng thái → **Khôi phục từ tệp** → dữ liệu tự đồng bộ lên máy chủ.
 
 ## 4. Khi mất mạng
 - Vẫn xem, thêm, sửa, xoá mọi thứ như bình thường. Dữ liệu lưu ngay trên máy (IndexedDB).
@@ -62,6 +69,7 @@ Khi đã cài máy chủ đồng bộ, Service Worker (`sw.js`) tự đồng b�
 - Xem tình trạng: bấm nút trạng thái ở góc trên → dòng **Đồng bộ khi đóng app**.
 
 ## 5. Lưu ý
+- **Tệp sách đính kèm (PDF, TXT)** chỉ lưu trên thiết bị đã tải lên, không đồng bộ sang máy khác (thông tin sách, tiến độ đọc vẫn đồng bộ).
 - Dữ liệu nằm trên **từng thiết bị**. Nên **tải tệp sao lưu** định kỳ hoặc cài máy chủ đồng bộ (thư mục `server/`).
 - Trên iPhone, Safari có thể xoá dữ liệu của trang **chưa cài** nếu lâu không mở. Hãy cài vào màn hình chính để tránh việc này.
 - Xoá dữ liệu trình duyệt hoặc gỡ app sẽ xoá dữ liệu trên máy đó.
