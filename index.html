@@ -967,7 +967,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.0.0';
+const APP_VER = '1.1.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol) && !(window.claude && typeof window.claude.use === 'function') && !/claude/i.test(location.hostname);
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1011,14 +1011,51 @@ async function idbBoot() {
   try { if (navigator.storage && navigator.storage.persist) { const p = await navigator.storage.persisted(); if (!p) await navigator.storage.persist(); } } catch (e) { }
 }
 // ---- Đồng bộ với máy chủ (tuỳ chọn) ----
+// Trang và Service Worker (sw.js) dùng chung khoá 'scn-sync' nên không bao giờ gửi trùng cùng lúc.
+// Khi app đang mở: trang tự đồng bộ. Khi app ẩn/đóng hoặc mất mạng: bàn giao cho Service Worker.
+const withSyncLock = fn => (navigator.locks && navigator.locks.request) ? navigator.locks.request('scn-sync', fn) : fn();
+async function idbReloadState() { const rows = await idbAll('docs'); COLS.forEach(c => { S[c] = {}; }); rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) S[v.col][v.id] = v.data; }); queueRender(); }
+async function swRegReady() { if (_swReg) return _swReg; try { return ('serviceWorker' in navigator) ? (await navigator.serviceWorker.getRegistration()) || null : null; } catch (e) { return null; } }
+const bgSyncSupported = () => typeof SyncManager !== 'undefined' && 'serviceWorker' in navigator;
+// Nhờ trình duyệt gọi Service Worker đồng bộ khi có mạng (kể cả khi đã đóng app). Trả true nếu đăng ký được.
+async function bgSyncRegister() {
+  if (MODE !== 'idb' || !IDB.cfg.url) return false;
+  try { const reg = await swRegReady(); if (reg && reg.sync) { await reg.sync.register('scn-sync'); return true; } } catch (e) { }
+  return false;
+}
+// Trang bị ẩn/đóng mà còn thay đổi chưa gửi: Background Sync nếu trình duyệt hỗ trợ, nếu không thì nhắn thẳng cho Service Worker
+async function handoffSync() {
+  if (MODE !== 'idb' || !IDB.cfg.url || !IDB.pending) return;
+  if (await bgSyncRegister()) return;
+  try { const c = navigator.serviceWorker && navigator.serviceWorker.controller; if (c) c.postMessage({ type: 'scn-sync' }); } catch (e) { }
+}
+// Đồng bộ định kỳ khi app đóng (Chrome/Edge, app đã cài) – kéo dữ liệu mới từ máy khác về. Tự tắt khi không có máy chủ.
+async function periodicSyncSetup() {
+  try {
+    const reg = await swRegReady(); if (!reg || !reg.periodicSync) return;
+    if (MODE !== 'idb' || !IDB.cfg.url) { await reg.periodicSync.unregister('scn-periodic'); return; }
+    const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if (st.state === 'granted') await reg.periodicSync.register('scn-periodic', { minInterval: 6 * 60 * 60 * 1000 });
+  } catch (e) { }
+}
+// Nhận kết quả đồng bộ do Service Worker thực hiện → cập nhật dữ liệu đang hiển thị
+async function onSwMessage(m) {
+  if (!m || MODE !== 'idb') return;
+  if (m.type === 'scn-synced') {
+    if (m.changed) await idbReloadState();
+    IDB.lastSync = m.lastSync || 0; IDB.lastSyncAt = m.at || Date.now(); IDB.syncErr = ''; IDB.pending = await idbCount('outbox'); netUI();
+  } else if (m.type === 'scn-sync-error') { IDB.syncErr = m.msg || 'Lỗi đồng bộ'; netUI(); }
+}
 let _syncT = null;
 function schedSync(ms) { clearTimeout(_syncT); _syncT = setTimeout(() => syncNow(), ms == null ? 1500 : ms); }
 async function syncNow(manual) {
   if (MODE !== 'idb') return;
   if (!IDB.cfg.url) { if (manual) toast('Chưa cấu hình máy chủ đồng bộ. Dữ liệu vẫn lưu an toàn trên máy.'); return; }
-  if (!isOnline()) { if (manual) toast('Đang ngoại tuyến – sẽ tự đồng bộ khi có mạng.'); return; }
+  if (!isOnline()) { bgSyncRegister(); if (manual) toast('Đang ngoại tuyến – sẽ tự đồng bộ khi có mạng.'); return; }
   if (IDB.syncing) return; IDB.syncing = true; IDB.syncErr = ''; netUI();
   try {
+    await withSyncLock(async () => {
+    IDB.lastSync = (await idbGet('meta', 'lastSync')) || 0; // Service Worker có thể vừa đồng bộ xong – lấy mốc mới nhất
     const box = await idbAll('outbox'), ops = box.slice(0, 500).map(([, v]) => v), maxKey = box.length ? box[Math.min(box.length, 500) - 1][0] : null;
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 20000);
     const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/sync', { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}) }, body: JSON.stringify({ device: IDB.device, since: IDB.lastSync, ops }) });
@@ -1026,26 +1063,28 @@ async function syncNow(manual) {
     if (r.status === 401 || r.status === 403) throw new Error('Sai mã truy cập (token)');
     if (!r.ok) throw new Error('Máy chủ báo lỗi ' + r.status);
     const res = await r.json();
-    const local = new Map((await idbAll('docs')).map(([k, v]) => [k, v]));
     let changed = 0;
     await idbReq(['docs', 'outbox', 'meta'], 'readwrite', t => {
       const ds = t.objectStore('docs');
-      (res.changes || []).forEach(ch => { const k = ch.col + '/' + ch.id, cur = local.get(k); if (!S[ch.col]) return; if (!cur || (Number(ch.ts) || 0) >= (Number(cur.ts) || 0)) { ds.put(ch.del ? { col: ch.col, id: ch.id, del: true, ts: ch.ts } : { col: ch.col, id: ch.id, data: ch.data, ts: ch.ts }, k); changed++; } });
+      // So sánh với bản đang có ngay trong giao dịch ghi → không đè mất sửa đổi vừa nhập trong lúc chờ máy chủ
+      (res.changes || []).forEach(ch => { if (!ch || !S[ch.col]) return; const k = ch.col + '/' + ch.id, g = ds.get(k); g.onsuccess = () => { const cur = g.result; if (!cur || (Number(ch.ts) || 0) >= (Number(cur.ts) || 0)) { ds.put(ch.del ? { col: ch.col, id: ch.id, del: true, ts: ch.ts } : { col: ch.col, id: ch.id, data: ch.data, ts: ch.ts }, k); changed++; } }; });
       if (maxKey != null) t.objectStore('outbox').delete(IDBKeyRange.upperBound(maxKey));
       t.objectStore('meta').put(res.now || 0, 'lastSync'); t.objectStore('meta').put(Date.now(), 'lastSyncAt');
     });
-    if (changed) { const rows = await idbAll('docs'); COLS.forEach(c => { S[c] = {}; }); rows.forEach(([, v]) => { if (v && !v.del && S[v.col]) S[v.col][v.id] = v.data; }); queueRender(); }
+    if (changed) await idbReloadState();
     IDB.lastSync = res.now || 0; IDB.lastSyncAt = Date.now(); IDB.pending = await idbCount('outbox');
     if (IDB.pending && box.length > 500) schedSync(100);
     if (manual) toast('✓ Đã đồng bộ' + (changed ? ' · nhận ' + changed + ' thay đổi' : ''));
+    });
   } catch (e) {
     IDB.syncErr = e && e.name === 'AbortError' ? 'Hết thời gian chờ máy chủ' : e instanceof TypeError ? 'Không kết nối được máy chủ đồng bộ' : (e && e.message) || 'Không kết nối được máy chủ';
-    if (e instanceof TypeError || (e && e.name === 'AbortError')) netProbe();
+    if (e instanceof TypeError || (e && e.name === 'AbortError')) { netProbe(); bgSyncRegister(); } // lỗi mạng: trình duyệt sẽ tự thử lại qua Service Worker
     if (manual) toast('Đồng bộ chưa được: ' + IDB.syncErr);
   } finally { IDB.syncing = false; netUI(); }
 }
 setInterval(() => { if (MODE === 'idb' && isOnline() && IDB.cfg.url && IDB.cfg.auto !== false) syncNow(); }, 60000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && MODE === 'idb') { netProbe(); schedSync(300); } });
+document.addEventListener('visibilitychange', () => { if (MODE !== 'idb') return; if (document.hidden) handoffSync(); else { netProbe(); schedSync(300); } });
+window.addEventListener('pagehide', () => handoffSync());
 // ---- Trạng thái Online / Offline (kiểm tra thực tế, không chỉ dựa vào navigator.onLine) ----
 let _wasOnline = navigator.onLine, NET_OK = navigator.onLine;
 const isOnline = () => navigator.onLine && NET_OK;
@@ -1060,7 +1099,7 @@ function netChange(ok) {
   if (was === now) { netUI(); return; }
   _wasOnline = now; netUI();
   if (now) { toast('🟢 Đã có Internet trở lại' + (MODE === 'idb' && IDB.cfg.url ? ' – đang đồng bộ…' : '')); if (MODE === 'idb') schedSync(200); }
-  else toast('🔴 Mất kết nối Internet – app chuyển sang chế độ ngoại tuyến, dữ liệu vẫn lưu trên máy.');
+  else { toast('🔴 Mất kết nối Internet – app chuyển sang chế độ ngoại tuyến, dữ liệu vẫn lưu trên máy.'); if (MODE === 'idb' && IDB.pending) bgSyncRegister(); }
 }
 setInterval(() => { if (STANDALONE_HOST && !document.hidden) netProbe(); }, 20000);
 function netState() {
@@ -1092,12 +1131,13 @@ const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.
 function swRegister() {
   if (!STANDALONE_HOST || !('serviceWorker' in navigator) || !/^https:|^http:\/\/(localhost|127\.0\.0\.1)/.test(location.href)) return;
   navigator.serviceWorker.register('./sw.js').then(reg => {
-    _swReg = reg;
+    _swReg = reg; periodicSyncSetup(); if (IDB.pending) bgSyncRegister();
     const watch = w => { if (!w) return; w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) { _swWaiting = w; showUpdateBar(); } }); };
     if (reg.waiting && navigator.serviceWorker.controller) { _swWaiting = reg.waiting; showUpdateBar(); }
     reg.addEventListener('updatefound', () => watch(reg.installing));
     setInterval(() => reg.update().catch(() => { }), 60 * 60 * 1000);
   }).catch(() => { });
+  navigator.serviceWorker.addEventListener('message', e => onSwMessage(e.data));
   const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || !hadCtl) return; reloaded = true; location.reload(); });
 }
 function showUpdateBar() { let b = document.getElementById('updbar'); if (!b) { b = document.createElement('div'); b.id = 'updbar'; document.body.appendChild(b); } b.innerHTML = `<span>✨ Có phiên bản mới của ứng dụng.</span><button class="btn sm primary" data-act="sw-update">Cập nhật</button>`; b.classList.add('show'); }
@@ -1122,6 +1162,7 @@ function sysStatusHTML() {
   return `<div class="sysrow"><span>Kết nối</span><b class="st-${k}">${l}${sub ? ' · ' + esc(sub) : ''}</b></div>
     <div class="sysrow"><span>Nơi lưu dữ liệu</span><b>${MODE === 'idb' ? '📱 Trên thiết bị (IndexedDB)' : MODE === 'db' ? '☁️ Tài khoản Claude' : '⚠ Tạm thời (chưa lưu)'}</b></div>
     ${MODE === 'idb' ? `<div class="sysrow"><span>Thay đổi chờ đồng bộ</span><b>${IDB.pending}</b></div><div class="sysrow"><span>Đồng bộ gần nhất</span><b>${IDB.lastSyncAt ? fmtDate(dsOf(IDB.lastSyncAt)) + ' ' + hmOf(IDB.lastSyncAt) : 'Chưa'}</b></div>` : ''}
+    ${MODE === 'idb' && IDB.cfg.url ? `<div class="sysrow"><span>Đồng bộ khi đóng app</span><b>${bgSyncSupported() ? '✓ Có – trình duyệt tự gửi khi có mạng' : 'Không hỗ trợ (iPhone/Safari) – mở app để đồng bộ'}</b></div>` : ''}
     <div class="sysrow"><span>Chạy ngoại tuyến</span><b>${navigator.serviceWorker && navigator.serviceWorker.controller ? '✓ Sẵn sàng (đã lưu giao diện)' : STANDALONE_HOST ? 'Đang chuẩn bị…' : 'Không áp dụng trong Claude'}</b></div>`;
 }
 async function sysForm() {
@@ -1137,9 +1178,9 @@ async function sysForm() {
     sh.querySelectorAll('[data-x]').forEach(b => b.onclick = closeModal);
     const q = s => sh.querySelector(s);
     if (q('#sys-inst')) q('#sys-inst').onclick = async () => { const e = _installEvt; if (!e) return; e.prompt(); try { await e.userChoice; } catch (er) { } _installEvt = null; closeModal(); };
-    if (q('#sys-save')) q('#sys-save').onclick = async () => { const url = q('#sys-url').value.trim(); if (url && !/^https?:\/\//i.test(url)) return toast('Địa chỉ phải bắt đầu bằng https://'); IDB.cfg = { ...IDB.cfg, url, token: q('#sys-tok').value.trim() }; await idbSet('meta', 'sync', IDB.cfg); toast('Đã lưu cấu hình.'); syncNow(true); };
+    if (q('#sys-save')) q('#sys-save').onclick = async () => { const url = q('#sys-url').value.trim(); if (url && !/^https?:\/\//i.test(url)) return toast('Địa chỉ phải bắt đầu bằng https://'); IDB.cfg = { ...IDB.cfg, url, token: q('#sys-tok').value.trim() }; await idbSet('meta', 'sync', IDB.cfg); toast('Đã lưu cấu hình.'); syncNow(true); periodicSyncSetup(); };
     if (q('#sys-sync')) q('#sys-sync').onclick = () => syncNow(true);
-    if (q('#sys-off')) q('#sys-off').onclick = async () => { IDB.cfg = { ...IDB.cfg, url: '' }; await idbSet('meta', 'sync', IDB.cfg); netUI(); closeModal(); toast('Đã tắt đồng bộ. Dữ liệu vẫn lưu trên máy.'); };
+    if (q('#sys-off')) q('#sys-off').onclick = async () => { IDB.cfg = { ...IDB.cfg, url: '' }; await idbSet('meta', 'sync', IDB.cfg); periodicSyncSetup(); netUI(); closeModal(); toast('Đã tắt đồng bộ. Dữ liệu vẫn lưu trên máy.'); };
     q('#sys-exp').onclick = downloadBackup;
     q('#sys-imp').onchange = e => { const f = e.target.files[0]; if (f) { const rep = q('#sys-rep').checked; closeModal(); restoreBackup(f, rep ? 'replace' : 'merge'); } };
   });

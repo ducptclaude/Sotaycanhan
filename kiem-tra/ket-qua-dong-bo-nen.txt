@@ -1,0 +1,13 @@
+Kiểm tra đồng bộ qua Service Worker – phiên bản 1.1.0 (Chromium, máy chủ server/sync-server.js có token)
+0. SW điều khiển trang: true | APP_VER 1.1.0 | bộ nhớ đệm scn-v1.1.0-shell
+1. Trang tự đồng bộ: lỗi = "" | chờ = 0 | máy chủ 50 bản ghi
+2. SW nhận tin nhắn từ trang & gửi hàng đợi: sent 1, pending 0 | máy chủ có ghi chú | pill 🟢 Đã đồng bộ
+3. SW kéo thay đổi của máy 2 về: changed 1 | trang hiển thị ngay không cần tải lại
+4. Trang và SW đồng bộ cùng lúc (khoá scn-sync): chờ = 0 | máy chủ đủ 30/30 bản ghi | không lỗi
+5a. Mất mạng → nhập giao dịch 250.000: chờ = 1 | đã đăng ký Background Sync "scn-sync" | máy chủ chưa có
+5b. ĐÓNG APP (0 tab mở)
+5c. Có mạng lại khi app đang đóng → SW tự gửi, máy chủ nhận giao dịch: true
+6. Mở lại app: chờ = 0 | có giao dịch | pill 🟢 Đã đồng bộ
+7. Sai token: SW báo "Sai mã truy cập (token)", không thử lại vô hạn | pill 🟠 Chưa đồng bộ
+8. Bảng trạng thái có dòng "Đồng bộ khi đóng app: ✓ Có – trình duyệt tự gửi khi có mạng"
+Lỗi JS: []

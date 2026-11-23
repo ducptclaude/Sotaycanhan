@@ -5,7 +5,7 @@
 |---|---|
 | `index.html` | Toàn bộ ứng dụng |
 | `manifest.webmanifest` | Thông tin để cài lên màn hình chính (tên, biểu tượng, màu) |
-| `sw.js` | Service Worker: lưu giao diện, biểu tượng, phông chữ để mở khi mất mạng |
+| `sw.js` | Service Worker: lưu giao diện để mở khi mất mạng + đồng bộ nền với máy chủ |
 | `icons/` | Biểu tượng cho Android, iPhone, trình duyệt |
 | `_headers` | Cấu hình bộ nhớ đệm cho Netlify / Cloudflare Pages |
 | `server/` | Máy chủ đồng bộ mẫu (tuỳ chọn) |
@@ -33,6 +33,19 @@ Cách khác: GitHub Pages, Cloudflare Pages, Vercel. Chỉ cần đưa nguyên c
 - Vẫn xem, thêm, sửa, xoá mọi thứ như bình thường. Dữ liệu lưu ngay trên máy (IndexedDB).
 - Góc trên hiện **🔴 Ngoại tuyến · n thay đổi chờ đồng bộ**, kèm thanh thông báo đỏ.
 - Có mạng lại: hiện **🟢 Đã có Internet trở lại**. Nếu đã cài máy chủ đồng bộ, app tự đồng bộ.
+
+## 4b. Đồng bộ khi đã đóng app (từ bản 1.1.0)
+Khi đã cài máy chủ đồng bộ, Service Worker (`sw.js`) tự đồng bộ cả khi app **không mở**:
+| Tình huống | Cách hoạt động | Thiết bị hỗ trợ |
+|---|---|---|
+| Nhập khi mất mạng rồi đóng app | Có mạng lại, trình duyệt tự gửi thay đổi lên máy chủ (Background Sync) | Android, Chrome, Edge |
+| Thoát app khi còn thay đổi chưa gửi | Service Worker gửi tiếp sau khi app đã ẩn | Mọi trình duyệt (iPhone chỉ trong vài giây) |
+| Máy khác vừa sửa dữ liệu | Định kỳ khoảng 6 giờ, kéo dữ liệu mới về (Periodic Sync) | App **đã cài** trên Android/Chrome |
+| Lỗi mạng hoặc máy chủ tạm lỗi | Trình duyệt tự thử lại sau | Android, Chrome, Edge |
+
+- Trang và Service Worker dùng chung một khoá nên **không bao giờ gửi trùng** cùng lúc.
+- **iPhone/Safari** chưa hỗ trợ đồng bộ nền: mở app là app tự đồng bộ.
+- Xem tình trạng: bấm nút trạng thái ở góc trên → dòng **Đồng bộ khi đóng app**.
 
 ## 5. Lưu ý
 - Dữ liệu nằm trên **từng thiết bị**. Nên **tải tệp sao lưu** định kỳ hoặc cài máy chủ đồng bộ (thư mục `server/`).
