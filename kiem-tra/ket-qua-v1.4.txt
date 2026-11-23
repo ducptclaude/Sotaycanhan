@@ -1,0 +1,19 @@
+Kiểm tra bản 1.4.0 – đồng bộ tức thời, Postgres, thông báo đẩy, sao lưu GitHub, lịch sử giao dịch
+A. Độ trễ đồng bộ (2 máy, 5 lần đo)
+   Trước (1.3.1): máy chủ nhận 1,6 s · máy B nhận TB 44,1 s (38,8–55,4 s)
+   Sau  (1.4.0): máy chủ nhận 0,5 s · máy B nhận TB 0,6 s (0,6–0,7 s)
+   Máy chủ khởi động lại → app tự nối lại kênh tức thời sau 4 s, nhận thay đổi mới ngay
+B. Lưu trữ Postgres (DATABASE_URL): khởi động lại máy chủ → dữ liệu, khoá thông báo, trạng thái sao lưu còn nguyên
+   Postgres khởi động chậm → máy chủ thử kết nối lại ~40 s
+C. Thông báo đẩy (dịch vụ push giả HTTPS, giải mã RFC 8291):
+   có chữ ký VAPID · nội dung "Chi 150.000 đ · Ăn uống · Phở · từ Android · Chrome"
+   gom 4 mục liền nhau thành 1 thông báo · không báo khi chỉ sửa / dữ liệu mẫu · không báo thiết bị đang mở app
+   không báo lại thiết bị nguồn · đăng ký hết hạn (410) tự xoá · tắt thông báo có hiệu lực · không có mã → 401
+   Trình duyệt: nhận push → hiện thông báo đúng nội dung + tự kéo dữ liệu về nền
+D. Sao lưu GitHub (GitHub giả): nhánh mồ côi sao-luu-du-lieu · 1 commit / lần · AES-256-GCM (không lộ nội dung)
+   chuỗi băm nối đúng · giải mã + so SHA-256 ✓ · xuất tệp khôi phục được trong app
+   cố ý sửa 1 bản → bản đó và mọi bản sau báo SAI · mã sai → báo không khớp
+E. Lịch sử giao dịch: số dư sau từng GD đúng (VCB 10tr + 20tr − 2tr − 1,5tr = 26,5tr; tất cả TK 29,03tr)
+   chuyển khoản nội bộ gộp 1 dòng ⇄ · lọc tài khoản / kỳ / loại · tìm kiếm · "Mới nhập gần đây" theo giờ nhập
+F. Hồi quy (chế độ tệp và Postgres): đồng bộ 8/8 · tách Claude & nhiều máy đạt · nút đồng bộ 8/8 · máy chủ mất dữ liệu 6/6
+Lỗi JS: []

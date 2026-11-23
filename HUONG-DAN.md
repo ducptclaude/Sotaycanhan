@@ -11,7 +11,7 @@
 | `icons/` | Biểu tượng cho Android, iPhone, trình duyệt |
 | `_headers` | Cấu hình bộ nhớ đệm cho Netlify / Cloudflare Pages |
 | `server.js` | Máy chủ gộp: phục vụ app + đồng bộ (dùng cho Railway) |
-| `server/` | Lõi đồng bộ (`sync-core.js`) + máy chủ chỉ đồng bộ (`sync-server.js`) |
+| `server/` | Lõi đồng bộ, lưu trữ (tệp/Postgres), thông báo đẩy, sao lưu GitHub, công cụ kiểm tra sao lưu |
 | `package.json`, `railway.json` | Cấu hình chạy trên Railway |
 | `kiem-tra/` | Kết quả kiểm tra ngắt mạng thực tế + ảnh chụp |
 
@@ -25,16 +25,22 @@ Cách nhanh nhất, miễn phí:
 Cách khác: GitHub Pages, Cloudflare Pages, Vercel. Chỉ cần đưa nguyên các tệp lên.
 
 ## 1b. Chạy trên Railway (app + đồng bộ cùng một địa chỉ) – đang dùng
-Repo đã có sẵn `server.js`, `package.json` và `railway.json`. Railway tự chạy `node server.js`: vừa phục vụ app, vừa đồng bộ qua `/sync`.
-Địa chỉ hiện tại: **https://sotaycanhan-production.up.railway.app**
+Địa chỉ: **https://sotaycanhan-production.up.railway.app** · Vùng: **Southeast Asia (Singapore)**.
+Repo có sẵn `server.js`, `package.json`, `railway.json`: Railway tự cài thư viện và chạy `node server.js`.
 
-Cần làm **một lần** trên Railway (mở dự án → chọn dịch vụ):
-1. **Variables** → thêm `SYNC_TOKEN` = một chuỗi bí mật dài (VD 32 ký tự ngẫu nhiên). Chưa đặt thì app vẫn chạy nhưng **đồng bộ bị tắt** (báo "Máy chủ chưa đặt SYNC_TOKEN").
-2. **Volume** → bấm chuột phải vào dịch vụ → **Attach Volume** → Mount path: `/data`. Railway tự báo đường dẫn cho máy chủ, dữ liệu lưu ở `/data/data.json`.
-   - Không gắn Volume: mỗi lần triển khai lại, dữ liệu trên máy chủ **bị xoá**. App tự phát hiện và **gửi lại toàn bộ dữ liệu từ thiết bị**, nhưng nếu không còn thiết bị nào giữ dữ liệu thì sẽ mất. **Nên gắn Volume.**
-3. Trong app: nút trạng thái → **Máy chủ đồng bộ** → địa chỉ `https://sotaycanhan-production.up.railway.app` + mã `SYNC_TOKEN` → **Lưu & đồng bộ**. Làm trên từng thiết bị.
+### Biến môi trường trên Railway (dịch vụ Sotaycanhan → Variables)
+| Biến | Bắt buộc | Ý nghĩa |
+|---|---|---|
+| `SYNC_TOKEN` | ✅ | Mã đồng bộ (nhập vào app trên từng thiết bị). Chưa đặt → đồng bộ tắt. |
+| `DATABASE_URL` | ✅ khuyên dùng | `${{Postgres.DATABASE_URL}}` – lưu dữ liệu vào Postgres, **không mất khi triển khai lại**. Không có thì cần Volume `/data`. |
+| `GITHUB_TOKEN` | Tuỳ chọn | Bật **sao lưu hằng tuần lên GitHub** (xem mục 6). |
+| `BACKUP_KEY` | Tuỳ chọn | Khoá mã hoá bản sao lưu. Không đặt thì dùng `SYNC_TOKEN` – **nên đặt riêng** để đổi `SYNC_TOKEN` không ảnh hưởng bản sao cũ. |
+| `BACKUP_WEEKDAY`, `BACKUP_HOUR` | Tuỳ chọn | Lịch sao lưu (mặc định Chủ nhật 20 giờ, giờ Việt Nam; 0 = Chủ nhật … 6 = Thứ 7). |
 
-Kiểm tra máy chủ: mở `https://sotaycanhan-production.up.railway.app/health` → thấy `"sync":true` là đã bật đồng bộ.
+Kiểm tra máy chủ: mở `…/health` → `"sync":true` (đồng bộ bật) · `"storage":"postgres"` (lưu bền vững) · `"push":true` · `"backup":true` (đã đặt GITHUB_TOKEN).
+
+### Đổi vùng (region) an toàn
+Trước khi đổi: app → nút trạng thái → **☁️ Tải bản sao máy chủ** (toàn bộ dữ liệu máy chủ, khôi phục được bằng **Khôi phục từ tệp**). Sau đó Railway → Settings → Regions → chọn vùng mới. Dùng Postgres thì dữ liệu nằm ở dịch vụ Postgres, không phụ thuộc vùng của app.
 
 ## 2. Cài vào màn hình chính
 - **Android (Chrome):** mở địa chỉ → menu ⋮ → **Cài đặt ứng dụng**. Hoặc bấm nút trạng thái trên app → **Cài đặt ứng dụng**.
@@ -67,6 +73,40 @@ Khi đã cài máy chủ đồng bộ, Service Worker (`sw.js`) tự đồng b�
 - Trang và Service Worker dùng chung một khoá nên **không bao giờ gửi trùng** cùng lúc.
 - **iPhone/Safari** chưa hỗ trợ đồng bộ nền: mở app là app tự đồng bộ.
 - Xem tình trạng: bấm nút trạng thái ở góc trên → dòng **Đồng bộ khi đóng app**.
+
+## 4c. Đồng bộ tức thời (từ bản 1.4.0)
+- App đang mở giữ một kênh kết nối với máy chủ: **máy khác thêm/sửa → máy này nhận sau khoảng 0,6 giây** (trước đây tới 60 giây).
+- Mất kênh (máy chủ khởi động lại, mạng chập chờn) → tự nối lại sau vài giây; trong lúc đó vẫn tự hỏi máy chủ mỗi 15 giây.
+- Bảng trạng thái có dòng **Đồng bộ tức thời: ⚡ Đang kết nối**.
+
+## 4d. Thông báo đẩy
+- Bật trên **từng thiết bị**: nút trạng thái → **🔔 Bật thông báo** → cho phép → **Gửi thử** để kiểm tra.
+- Nhận thông báo khi **thiết bị khác thêm dữ liệu mới** (VD "Chi 150.000 đ · Ăn uống · từ Android · Chrome"), nhiều mục liền nhau gom thành 1 thông báo; thiết bị đang mở app thì không báo (đã thấy ngay). Bấm thông báo → mở **Lịch sử giao dịch**.
+- Nhận thông báo **sao lưu hằng tuần** (thành công / lỗi / nhắc tải tệp nếu chưa bật GitHub).
+- **iPhone/iPad:** cần iOS 16.4+, **Thêm vào MH chính** rồi mở app từ biểu tượng mới bật được.
+
+## 4e. Lịch sử giao dịch (Tài chính → Lịch sử)
+- **📜 Sao kê:** mọi giao dịch của một hoặc tất cả tài khoản, **số dư sau từng giao dịch (SD)**, tổng theo tháng; lọc 30 ngày / 3 tháng / 12 tháng / năm nay / tất cả; tiền vào / tiền ra / chuyển khoản; tìm theo nội dung, ghi chú, số tiền; sao chép CSV.
+- Xem tất cả tài khoản: chuyển khoản nội bộ hiện 1 dòng ⇄, không tính vào tiền vào/ra.
+- **🕘 Mới nhập gần đây:** 60 giao dịch nhập/sửa mới nhất (kể cả từ thiết bị khác) kèm giờ nhập.
+
+## 6. Sao lưu hằng tuần lên GitHub (chuỗi số hoá để kiểm tra)
+Máy chủ tự sao lưu mỗi tuần vào nhánh **`sao-luu-du-lieu`** của repo (nhánh riêng, không ảnh hưởng code):
+- Dữ liệu **mã hoá AES-256-GCM** (repo đang công khai – không ai đọc được nếu không có mã).
+- `danh-muc.json`: mỗi bản có **SHA-256** của dữ liệu + **chuỗi băm** nối các tuần → sửa, xoá hay chèn bất kỳ bản nào đều bị phát hiện.
+
+**Bật (một lần):**
+1. GitHub → Settings → Developer settings → **Fine-grained tokens** → Generate new token: Repository access = **Only select repositories → Sotaycanhan**; Permissions → **Contents: Read and write**; đặt hạn dùng (VD 1 năm).
+2. Railway → Variables → thêm `GITHUB_TOKEN` = token vừa tạo (và nên thêm `BACKUP_KEY` = một mã ngẫu nhiên dài, **lưu cẩn thận** – mất là không giải mã được).
+3. App → nút trạng thái → **🗄️ Sao lưu ngay** để chạy thử.
+
+**Kiểm tra / giải mã** (trên máy có Node.js, trong thư mục repo):
+```
+node server/kiem-tra-sao-luu.js
+node server/kiem-tra-sao-luu.js --khoa-tep "C:\Users\<tên>\Documents\SoCaNhan-SYNC_TOKEN.txt"
+node server/kiem-tra-sao-luu.js --khoa-tep "<tệp chứa mã>" --xuat moi-nhat
+```
+Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử từng bản và so SHA-256 · lệnh 3 xuất bản mới nhất ra tệp `.json` → app → **Khôi phục từ tệp**. Tệp chứa mã: `BACKUP_KEY` nếu có đặt, nếu không là `SYNC_TOKEN`.
 
 ## 5. Lưu ý
 - **Tệp sách đính kèm (PDF, TXT)** chỉ lưu trên thiết bị đã tải lên, không đồng bộ sang máy khác (thông tin sách, tiến độ đọc vẫn đồng bộ).

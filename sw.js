@@ -8,7 +8,7 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.3.1';
+const VERSION = 'scn-v1.4.0';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
@@ -32,6 +32,7 @@ self.addEventListener('fetch', e => {
   }
   if (url.origin !== location.origin) return; // máy chủ đồng bộ & nguồn khác: để trình duyệt tự xử lý
   if (url.pathname.endsWith('/sw.js')) return;
+  if (/^\/(sync|events|health|admin|push)(\/|$)/.test(url.pathname)) return; // API máy chủ: luôn đi thẳng, không lưu đệm (luồng /events không bao giờ kết thúc)
   // Mở trang: trả bản đã lưu ngay (chạy offline), đồng thời cập nhật nền
   if (req.mode === 'navigate') {
     e.respondWith(caches.match('./index.html', { ignoreSearch: true }).then(hit => {
@@ -182,4 +183,24 @@ self.addEventListener('periodicsync', e => {
 self.addEventListener('message', e => {
   if (e.data === 'skip') { self.skipWaiting(); return; }
   if (e.data && e.data.type === 'scn-sync') e.waitUntil(swSync('message').catch(err => reportErr('message', err)));
+});
+
+// ================= THÔNG BÁO ĐẨY =================
+// Máy chủ gửi khi thiết bị khác thêm dữ liệu / sao lưu tuần. Nếu có sync:true → kéo dữ liệu mới về nền luôn.
+self.addEventListener('push', e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
+  const show = self.registration.showNotification(d.title || 'Sổ Cá Nhân', {
+    body: d.body || '', icon: './icons/icon-192.png', badge: './icons/favicon-32.png', tag: d.tag || 'scn', renotify: true,
+    data: { url: d.url || './', kind: d.kind || '' }, lang: 'vi'
+  });
+  e.waitUntil(Promise.all([show, d.sync ? swSync('push').catch(err => reportErr('push', err)) : null]));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href, hash = new URL(url).hash;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const c = cs.find(w => w.url.startsWith(self.registration.scope));
+    if (c) { c.postMessage({ type: 'scn-open', hash }); return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });
