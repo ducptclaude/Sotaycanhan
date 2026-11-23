@@ -1,0 +1,4 @@
+data/
+server/data.json
+*.tmp
+node_modules/

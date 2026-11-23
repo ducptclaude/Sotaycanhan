@@ -1,0 +1,15 @@
+Kiểm tra máy chủ gộp server.js – phiên bản 1.2.0 (Chromium, cùng địa chỉ app + /sync)
+A. Phục vụ tệp
+   / · /sw.js · /manifest.webmanifest (application/manifest+json) · /icons/* : 200
+   /server.js · /server/* · /package.json · /data/* · /kiem-tra/* · ../ (mã hoá) : 404 (không lộ tệp hệ thống)
+   Nén gzip trang chính 640 KB → 187 KB · ETag + 304 · index.html & sw.js: Cache-Control no-cache
+   Chưa đặt SYNC_TOKEN: /sync trả 503 "Máy chủ chưa đặt SYNC_TOKEN", app vẫn chạy
+B. Đồng bộ (8 bước như ket-qua-dong-bo-nen.txt, trên cùng địa chỉ): 8/8 đạt, không lỗi JS
+C. Máy chủ mất dữ liệu (triển khai lại không có Volume)
+   1. Trước sự cố: máy chủ 52 bản ghi, epoch máy 1 = máy chủ
+   2. Máy chủ mới: 0 bản ghi, epoch mới
+   3. Trang phát hiện reset → tự gửi lại 52/52 · mục đã xoá giữ trạng thái đã xoá · chờ 0 · không lỗi
+   4. Máy 2 mới: nhận đủ dữ liệu, không có mục đã xoá, số giao dịch khớp máy 1
+   5. Sự cố lần 2, Service Worker phát hiện → tự gửi lại 52 bản ghi
+   6. Máy 2 (epoch cũ) đồng bộ sau sự cố: mục đã xoá không hồi sinh, không lỗi
+Lỗi JS: []
