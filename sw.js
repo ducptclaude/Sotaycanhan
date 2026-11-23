@@ -8,7 +8,7 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.1.0';
+const VERSION = 'scn-v1.2.0';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
@@ -94,7 +94,7 @@ async function postSync(cfg, body) {
   } catch (e) { throw new SyncError(e && e.name === 'AbortError' ? 'Hết thời gian chờ máy chủ' : 'Không kết nối được máy chủ đồng bộ', true); }
   finally { clearTimeout(to); }
   if (r.status === 401 || r.status === 403) throw new SyncError('Sai mã truy cập (token)', false);
-  if (!r.ok) throw new SyncError('Máy chủ báo lỗi ' + r.status, r.status >= 500 || r.status === 429);
+  if (!r.ok) { let m = ''; try { m = (await r.json()).error || ''; } catch (e) { } throw new SyncError(/[À-ỹ]/.test(m) ? m : 'Máy chủ báo lỗi ' + r.status, r.status >= 500 || r.status === 429); }
   try { return await r.json(); } catch (e) { throw new SyncError('Máy chủ trả dữ liệu không hợp lệ', false); }
 }
 
@@ -118,7 +118,16 @@ function applyChanges(db, res, maxKey) {
     if (maxKey != null) t.objectStore('outbox').delete(IDBKeyRange.upperBound(maxKey));
     t.objectStore('meta').put(res.now || 0, 'lastSync');
     t.objectStore('meta').put(Date.now(), 'lastSyncAt');
+    if (res.epoch) t.objectStore('meta').put(res.epoch, 'epoch');
   }).then(() => changed);
+}
+// Máy chủ báo dữ liệu đã bị xoá/tạo mới (reset): đưa TOÀN BỘ dữ liệu trên máy (kể cả mục đã xoá) vào hàng đợi để gửi lại
+function requeueAll(db, epoch) {
+  return dbTx(db, ['docs', 'outbox', 'meta'], 'readwrite', t => {
+    const ob = t.objectStore('outbox'), c = t.objectStore('docs').openCursor();
+    c.onsuccess = () => { const cur = c.result; if (!cur) return; const v = cur.value; if (v && COLS.has(v.col)) ob.add({ op: v.del ? 'del' : 'put', col: v.col, id: v.id, data: v.del ? null : v.data, ts: v.ts }); cur.continue(); };
+    t.objectStore('meta').put(0, 'lastSync'); t.objectStore('meta').put(epoch || '', 'epoch');
+  });
 }
 
 async function doSync(reason) {
@@ -127,11 +136,15 @@ async function doSync(reason) {
     const cfg = (await dbGet(db, 'meta', 'sync')) || {};
     if (!cfg.url) return { skipped: true };
     const device = (await dbGet(db, 'meta', 'device')) || 'sw';
-    let since = (await dbGet(db, 'meta', 'lastSync')) || 0, changed = 0, sent = 0;
+    let since = (await dbGet(db, 'meta', 'lastSync')) || 0, epoch = (await dbGet(db, 'meta', 'epoch')) || '', changed = 0, sent = 0, resets = 0;
     for (let round = 0; round < MAX_ROUNDS; round++) {
       const box = await dbFirst(db, 'outbox', BATCH);
       const ops = box.map(([, v]) => v), maxKey = box.length ? box[box.length - 1][0] : null;
-      const res = await postSync(cfg, { device, since, ops });
+      const res = await postSync(cfg, { device, since, epoch, ops });
+      if (res.reset) {
+        if (resets++) throw new SyncError('Máy chủ liên tục yêu cầu đồng bộ lại', false);
+        await requeueAll(db, res.epoch); since = 0; epoch = res.epoch || ''; continue;
+      }
       changed += await applyChanges(db, res, maxKey);
       since = res.now || 0; sent += ops.length;
       if (box.length < BATCH) break; // hết hàng đợi

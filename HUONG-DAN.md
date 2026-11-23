@@ -8,7 +8,9 @@
 | `sw.js` | Service Worker: lưu giao diện để mở khi mất mạng + đồng bộ nền với máy chủ |
 | `icons/` | Biểu tượng cho Android, iPhone, trình duyệt |
 | `_headers` | Cấu hình bộ nhớ đệm cho Netlify / Cloudflare Pages |
-| `server/` | Máy chủ đồng bộ mẫu (tuỳ chọn) |
+| `server.js` | Máy chủ gộp: phục vụ app + đồng bộ (dùng cho Railway) |
+| `server/` | Lõi đồng bộ (`sync-core.js`) + máy chủ chỉ đồng bộ (`sync-server.js`) |
+| `package.json`, `railway.json` | Cấu hình chạy trên Railway |
 | `kiem-tra/` | Kết quả kiểm tra ngắt mạng thực tế + ảnh chụp |
 
 ## 1. Đưa lên mạng (bắt buộc có HTTPS)
@@ -19,6 +21,18 @@ Cách nhanh nhất, miễn phí:
 3. (Tuỳ chọn) Đăng nhập Netlify để giữ trang lâu dài và đổi tên miền.
 
 Cách khác: GitHub Pages, Cloudflare Pages, Vercel. Chỉ cần đưa nguyên các tệp lên.
+
+## 1b. Chạy trên Railway (app + đồng bộ cùng một địa chỉ) – đang dùng
+Repo đã có sẵn `server.js`, `package.json` và `railway.json`. Railway tự chạy `node server.js`: vừa phục vụ app, vừa đồng bộ qua `/sync`.
+Địa chỉ hiện tại: **https://sotaycanhan-production.up.railway.app**
+
+Cần làm **một lần** trên Railway (mở dự án → chọn dịch vụ):
+1. **Variables** → thêm `SYNC_TOKEN` = một chuỗi bí mật dài (VD 32 ký tự ngẫu nhiên). Chưa đặt thì app vẫn chạy nhưng **đồng bộ bị tắt** (báo "Máy chủ chưa đặt SYNC_TOKEN").
+2. **Volume** → bấm chuột phải vào dịch vụ → **Attach Volume** → Mount path: `/data`. Railway tự báo đường dẫn cho máy chủ, dữ liệu lưu ở `/data/data.json`.
+   - Không gắn Volume: mỗi lần triển khai lại, dữ liệu trên máy chủ **bị xoá**. App tự phát hiện và **gửi lại toàn bộ dữ liệu từ thiết bị**, nhưng nếu không còn thiết bị nào giữ dữ liệu thì sẽ mất. **Nên gắn Volume.**
+3. Trong app: nút trạng thái → **Máy chủ đồng bộ** → địa chỉ `https://sotaycanhan-production.up.railway.app` + mã `SYNC_TOKEN` → **Lưu & đồng bộ**. Làm trên từng thiết bị.
+
+Kiểm tra máy chủ: mở `https://sotaycanhan-production.up.railway.app/health` → thấy `"sync":true` là đã bật đồng bộ.
 
 ## 2. Cài vào màn hình chính
 - **Android (Chrome):** mở địa chỉ → menu ⋮ → **Cài đặt ứng dụng**. Hoặc bấm nút trạng thái trên app → **Cài đặt ứng dụng**.

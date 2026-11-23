@@ -967,7 +967,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.1.0';
+const APP_VER = '1.2.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol) && !(window.claude && typeof window.claude.use === 'function') && !/claude/i.test(location.hostname);
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1046,6 +1046,15 @@ async function onSwMessage(m) {
     IDB.lastSync = m.lastSync || 0; IDB.lastSyncAt = m.at || Date.now(); IDB.syncErr = ''; IDB.pending = await idbCount('outbox'); netUI();
   } else if (m.type === 'scn-sync-error') { IDB.syncErr = m.msg || 'Lỗi đồng bộ'; netUI(); }
 }
+// Máy chủ báo dữ liệu đã bị xoá/tạo mới: đưa TOÀN BỘ dữ liệu trên máy (kể cả mục đã xoá) vào hàng đợi để gửi lại
+let _lastReset = 0;
+function idbRequeueAll(epoch) {
+  return idbReq(['docs', 'outbox', 'meta'], 'readwrite', t => {
+    const ob = t.objectStore('outbox'), c = t.objectStore('docs').openCursor();
+    c.onsuccess = () => { const cur = c.result; if (!cur) return; const v = cur.value; if (v && S[v.col]) ob.add({ op: v.del ? 'del' : 'put', col: v.col, id: v.id, data: v.del ? null : v.data, ts: v.ts }); cur.continue(); };
+    t.objectStore('meta').put(0, 'lastSync'); t.objectStore('meta').put(epoch || '', 'epoch');
+  });
+}
 let _syncT = null;
 function schedSync(ms) { clearTimeout(_syncT); _syncT = setTimeout(() => syncNow(), ms == null ? 1500 : ms); }
 async function syncNow(manual) {
@@ -1056,13 +1065,18 @@ async function syncNow(manual) {
   try {
     await withSyncLock(async () => {
     IDB.lastSync = (await idbGet('meta', 'lastSync')) || 0; // Service Worker có thể vừa đồng bộ xong – lấy mốc mới nhất
+    const epoch = (await idbGet('meta', 'epoch')) || '';
     const box = await idbAll('outbox'), ops = box.slice(0, 500).map(([, v]) => v), maxKey = box.length ? box[Math.min(box.length, 500) - 1][0] : null;
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 20000);
-    const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/sync', { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}) }, body: JSON.stringify({ device: IDB.device, since: IDB.lastSync, ops }) });
+    const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/sync', { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}) }, body: JSON.stringify({ device: IDB.device, since: IDB.lastSync, epoch, ops }) });
     clearTimeout(to);
     if (r.status === 401 || r.status === 403) throw new Error('Sai mã truy cập (token)');
-    if (!r.ok) throw new Error('Máy chủ báo lỗi ' + r.status);
+    if (!r.ok) { let m = ''; try { m = (await r.json()).error || ''; } catch (e) { } throw new Error(/[À-ỹ]/.test(m) ? m : 'Máy chủ báo lỗi ' + r.status); }
     const res = await r.json();
+    if (res.reset) { // dữ liệu máy chủ đã bị xoá/tạo mới → gửi lại toàn bộ dữ liệu trên máy
+      if (Date.now() - _lastReset < 15000) throw new Error('Máy chủ liên tục yêu cầu đồng bộ lại');
+      _lastReset = Date.now(); await idbRequeueAll(res.epoch); IDB.lastSync = 0; IDB.pending = await idbCount('outbox'); schedSync(50); return;
+    }
     let changed = 0;
     await idbReq(['docs', 'outbox', 'meta'], 'readwrite', t => {
       const ds = t.objectStore('docs');
@@ -1070,6 +1084,7 @@ async function syncNow(manual) {
       (res.changes || []).forEach(ch => { if (!ch || !S[ch.col]) return; const k = ch.col + '/' + ch.id, g = ds.get(k); g.onsuccess = () => { const cur = g.result; if (!cur || (Number(ch.ts) || 0) >= (Number(cur.ts) || 0)) { ds.put(ch.del ? { col: ch.col, id: ch.id, del: true, ts: ch.ts } : { col: ch.col, id: ch.id, data: ch.data, ts: ch.ts }, k); changed++; } }; });
       if (maxKey != null) t.objectStore('outbox').delete(IDBKeyRange.upperBound(maxKey));
       t.objectStore('meta').put(res.now || 0, 'lastSync'); t.objectStore('meta').put(Date.now(), 'lastSyncAt');
+      if (res.epoch) t.objectStore('meta').put(res.epoch, 'epoch');
     });
     if (changed) await idbReloadState();
     IDB.lastSync = res.now || 0; IDB.lastSyncAt = Date.now(); IDB.pending = await idbCount('outbox');

@@ -1,0 +1,13 @@
+{
+  "name": "so-ca-nhan",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Sổ Cá Nhân – ứng dụng PWA + máy chủ đồng bộ (không cần thư viện ngoài)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
