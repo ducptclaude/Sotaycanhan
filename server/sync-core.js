@@ -10,7 +10,7 @@
 const path = require('path'), crypto = require('crypto');
 const { createFileStore } = require('./store');
 
-function createSync({ file, store, token, allowOrigin = '*', allowNoToken = false, maxBody = 20e6, onChange = null }) {
+function createSync({ file, store, token, allowOrigin = '*', allowNoToken = false, maxBody = 20e6, onChange = null, check = null }) {
   if (!store) store = createFileStore({ dir: path.dirname(file), files: { 'sync-db': file } });
   let db = null;
   try { db = JSON.parse(store.get('sync-db')); } catch (e) { }
@@ -25,6 +25,7 @@ function createSync({ file, store, token, allowOrigin = '*', allowNoToken = fals
   const cors = { 'Access-Control-Allow-Origin': allowOrigin, 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', 'Access-Control-Max-Age': '86400', 'Vary': 'Origin' };
   const send = (res, code, obj, extra) => { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors, ...(extra || {}) }); res.end(JSON.stringify(obj)); };
   const tokenOk = h => {
+    if (check) return check(h); // có tài khoản chủ: kiểm tra phiên đăng nhập (server/auth.js)
     if (!token) return allowNoToken;
     const a = Buffer.from(String(h || '')), b = Buffer.from('Bearer ' + token);
     return a.length === b.length && crypto.timingSafeEqual(a, b);
@@ -32,7 +33,7 @@ function createSync({ file, store, token, allowOrigin = '*', allowNoToken = fals
   // Kiểm tra quyền chung cho mọi đường dẫn cần mã. Trả true nếu được phép; nếu không thì đã trả lỗi.
   function auth(req, res) {
     if (!token && !allowNoToken) { send(res, 503, { error: 'Máy chủ chưa đặt SYNC_TOKEN' }); return false; }
-    if (!tokenOk(req.headers.authorization)) { send(res, 401, { error: 'unauthorized' }); return false; }
+    if (!tokenOk(req.headers.authorization)) { send(res, 401, { error: check ? 'Chưa đăng nhập hoặc phiên đã hết hạn' : 'unauthorized' }); return false; }
     return true;
   }
   function readJson(req, res, cb) {
@@ -103,6 +104,8 @@ function createSync({ file, store, token, allowOrigin = '*', allowNoToken = fals
     return { app: 'so-ca-nhan', source: 'server', exportedAt: new Date().toISOString(), epoch: db.epoch, seq: db.seq, count: n, data };
   }
   const isLive = d => !!d && [...streams].some(s => s.device === d);
-  return { handle, flush, close: async () => { flush(); await store.flush(); }, store, auth, readJson, send, broadcast, snapshot, isLive, info: () => ({ seq: db.seq, docs: Object.keys(db.docs).length, epoch: db.epoch, live: streams.size }) };
+  // Ngắt kênh tức thời (thiết bị bị thu hồi / đăng xuất / đổi mật khẩu) – thiết bị sẽ phải xác thực lại
+  const dropStreams = (mode, device) => { for (const s of [...streams]) if (mode === 'all' || (mode === 'device' && s.device === device) || (mode === 'others' && s.device !== device)) { try { s.res.end(); } catch (e) { } streams.delete(s); } };
+  return { dropStreams, handle, flush, close: async () => { flush(); await store.flush(); }, store, auth, readJson, send, broadcast, snapshot, isLive, info: () => ({ seq: db.seq, docs: Object.keys(db.docs).length, epoch: db.epoch, live: streams.size }) };
 }
 module.exports = { createSync };

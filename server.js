@@ -6,18 +6,20 @@
      DATABASE_URL  (khuyên dùng) Postgres → dữ liệu bền vững qua mọi lần triển khai lại. Không có: lưu tệp (cần Volume)
      SYNC_FILE     tệp dữ liệu khi không dùng Postgres. Mặc định: <Volume>/data.json hoặc ./data/data.json
      GITHUB_TOKEN  bật sao lưu hằng tuần lên nhánh GitHub (xem server/backup.js)
+   Đăng nhập: /auth/* (server/auth.js) – có tài khoản chủ thì dữ liệu chỉ mở bằng phiên đăng nhập.
    Đường dẫn: /  /index.html  /sw.js  /manifest.webmanifest  /icons/*  ·  POST /sync  ·  GET /events  ·  /push/*  ·  /admin/*  ·  GET /health */
 const http = require('http'), fs = require('fs'), path = require('path'), zlib = require('zlib'), crypto = require('crypto');
 const { createSync } = require('./server/sync-core');
 const { openStore } = require('./server/store');
 const { createPush } = require('./server/push');
 const { createBackup } = require('./server/backup');
+const { createAuth } = require('./server/auth');
 
 const ROOT = __dirname, PORT = Number(process.env.PORT || 8080);
 const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
 const SYNC_FILE = process.env.SYNC_FILE || (VOLUME ? path.join(VOLUME, 'data.json') : path.join(ROOT, 'data', 'data.json'));
 const ON_RAILWAY = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
-let sync = null, push = null, backup = null, store = null;
+let sync = null, push = null, backup = null, store = null, auth = null;
 
 // ---- Tệp tĩnh: CHỈ các tệp của ứng dụng (không lộ server/, data/, kiem-tra/…) ----
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml' };
@@ -53,6 +55,7 @@ function serveStatic(req, res) {
 
 const server = http.createServer((req, res) => {
   try {
+    if (auth.handle(req, res, sync)) return;
     if (sync.handle(req, res)) return;
     if (push.handle(req, res)) return;
     if (backup.handle(req, res)) return;
@@ -63,13 +66,15 @@ const server = http.createServer((req, res) => {
 
 (async () => {
   store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
-  sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '*', onChange: c => push && push.onChange(c) });
+  auth = createAuth({ store });
+  sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '*', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
+  auth.setOnRevoke((mode, device) => sync.dropStreams(mode, device));
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
   push = createPush({ store, sync, isLive: d => sync.isLive(d), subject: process.env.PUSH_SUBJECT || (domain ? 'https://' + domain : 'mailto:so-ca-nhan@example.com') });
   backup = createBackup({ store, sync, push });
   const _h = sync.handle; // /health: thêm nơi lưu trữ để kiểm tra từ xa
   sync.handle = (req, res) => {
-    if (req.method === 'GET' && req.url.split('?')[0] === '/health') { const i = sync.info(); sync.send(res, 200, { ok: true, seq: i.seq, docs: i.docs, sync: !!process.env.SYNC_TOKEN, storage: store.kind === 'postgres' ? 'postgres' : VOLUME ? 'volume' : 'tam-thoi', live: i.live, push: push.enabled, backup: backup.enabled }); return true; }
+    if (req.method === 'GET' && req.url.split('?')[0] === '/health') { const i = sync.info(); sync.send(res, 200, { ok: true, seq: i.seq, docs: i.docs, sync: !!process.env.SYNC_TOKEN, storage: store.kind === 'postgres' ? 'postgres' : VOLUME ? 'volume' : 'tam-thoi', live: i.live, push: push.enabled, backup: backup.enabled, account: auth.info().setup }); return true; }
     return _h(req, res);
   };
   server.listen(PORT, () => {

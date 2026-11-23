@@ -8,7 +8,7 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.4.0';
+const VERSION = 'scn-v1.5.0';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
@@ -32,7 +32,7 @@ self.addEventListener('fetch', e => {
   }
   if (url.origin !== location.origin) return; // máy chủ đồng bộ & nguồn khác: để trình duyệt tự xử lý
   if (url.pathname.endsWith('/sw.js')) return;
-  if (/^\/(sync|events|health|admin|push)(\/|$)/.test(url.pathname)) return; // API máy chủ: luôn đi thẳng, không lưu đệm (luồng /events không bao giờ kết thúc)
+  if (/^\/(sync|events|health|admin|push|auth)(\/|$)/.test(url.pathname)) return; // API máy chủ: luôn đi thẳng, không lưu đệm (luồng /events không bao giờ kết thúc)
   // Mở trang: trả bản đã lưu ngay (chạy offline), đồng thời cập nhật nền
   if (req.mode === 'navigate') {
     e.respondWith(caches.match('./index.html', { ignoreSearch: true }).then(hit => {

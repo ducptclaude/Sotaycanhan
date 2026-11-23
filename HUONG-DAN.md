@@ -108,6 +108,25 @@ node server/kiem-tra-sao-luu.js --khoa-tep "<tệp chứa mã>" --xuat moi-nhat
 ```
 Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử từng bản và so SHA-256 · lệnh 3 xuất bản mới nhất ra tệp `.json` → app → **Khôi phục từ tệp**. Tệp chứa mã: `BACKUP_KEY` nếu có đặt, nếu không là `SYNC_TOKEN`.
 
+## 4f. Đăng nhập: ID / SĐT, mật khẩu, vân tay / Face ID (từ bản 1.5.0)
+**Tạo tài khoản chủ (một lần, trên máy đang đồng bộ):** nút trạng thái → **🔐 Tài khoản & bảo mật → Tạo tài khoản chủ** → nhập **ID** (chữ thường không dấu), **số điện thoại** (riêng tư), **mật khẩu ≥ 8 ký tự** → app hỏi **Bật mở khoá bằng vân tay / Face ID** → đồng ý.
+- Dữ liệu hiện có **giữ nguyên** cho tài khoản này.
+- Từ lúc đó, **mọi thiết bị phải đăng nhập** (ID hoặc SĐT + mật khẩu, hoặc vân tay / Face ID). Mã `SYNC_TOKEN` **không còn mở được dữ liệu** – chỉ dùng để **đặt lại mật khẩu** khi quên.
+- Các máy khác đang dùng mã cũ sẽ tự hiện màn hình **Đăng nhập** → đăng nhập 1 lần → tiếp tục đồng bộ như cũ.
+
+**Khoá app:** khoá khi mở app và sau **5 phút** không dùng (đổi được: 1 / 5 / 15 / 30 phút hoặc chỉ khi mở app). Mở bằng **👆 vân tay / Face ID / Windows Hello** hoặc mật khẩu – **chạy cả khi mất mạng**.
+
+**Tài khoản & bảo mật:** xem ID / SĐT · thêm/xoá vân tay của từng máy · danh sách **thiết bị đang đăng nhập** và **thu hồi** máy bị mất · đổi mật khẩu (kèm đăng xuất mọi máy khác) · sửa ID / SĐT · khoá ngay · đăng xuất (có tuỳ chọn xoá dữ liệu trên máy).
+
+**An toàn:** mật khẩu băm scrypt (máy chủ) và PBKDF2 (máy, để mở khi mất mạng) – không lưu dạng chữ · vân tay không rời khỏi máy (chuẩn WebAuthn / passkey, máy chủ chỉ giữ khoá công khai) · sai mật khẩu 5 lần → khoá 15 phút (tăng dần) · ID / SĐT không hiện ở bất kỳ đường dẫn công khai nào.
+
+**Quên mật khẩu:** màn hình đăng nhập → **Quên mật khẩu?** → nhập mã `SYNC_TOKEN` (trong Railway → Variables) + mật khẩu mới → mọi máy khác bị đăng xuất.
+
+**Lưu ý:**
+- Vân tay / Face ID gắn với tên miền `sotaycanhan-production.up.railway.app`. Đổi sang tên miền khác thì cần bật lại vân tay (mật khẩu vẫn dùng được).
+- iPhone/iPad: Face ID / Touch ID hoạt động trong Safari và app đã thêm vào MH chính (iOS 16+).
+- Khoá app là **khoá màn hình**: dữ liệu trên máy không bị mã hoá. Mất máy → vào máy khác → **Thu hồi** máy đó (máy mất sẽ không đồng bộ được nữa).
+
 ## 5. Lưu ý
 - **Tệp sách đính kèm (PDF, TXT)** chỉ lưu trên thiết bị đã tải lên, không đồng bộ sang máy khác (thông tin sách, tiến độ đọc vẫn đồng bộ).
 - Dữ liệu nằm trên **từng thiết bị**. Nên **tải tệp sao lưu** định kỳ hoặc cài máy chủ đồng bộ (thư mục `server/`).

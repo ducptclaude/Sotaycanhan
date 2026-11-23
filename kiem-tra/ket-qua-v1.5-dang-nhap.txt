@@ -1,0 +1,24 @@
+Kiểm tra bản 1.5.0 – tài khoản chủ, đăng nhập ID/SĐT + mật khẩu, vân tay/Face ID (WebAuthn – cảm biến giả lập), khoá app
+Chạy ở cả chế độ lưu tệp và Postgres – kết quả giống nhau.
+ 1. Chưa có tài khoản → bảng hiện "Tạo tài khoản chủ"
+ 2–3. Tạo tài khoản (ID DucPT → ducpt, SĐT +84 912 345 678 → 0912345678) → hỏi bật vân tay → đã bật · lưu mật khẩu mở khoá offline
+ 4. SYNC_TOKEN mở dữ liệu sau khi có tài khoản → 401 · phiên của máy A → 200 · dữ liệu cũ giữ nguyên
+ 5. Máy B đang dùng mã cũ → tự hiện màn hình Đăng nhập
+ 6–7. B sai mật khẩu → báo lỗi (giữ nguyên ô ID đã gõ) · đúng → vào app, nhận dữ liệu của A, có phiên riêng
+ 8. Máy mới C mở app → tự hiện Đăng nhập (có nút vân tay)
+10–11. A không dùng 1 phút → tự khoá → mở bằng vân tay
+12. Mở bằng mật khẩu: sai → báo lỗi · đúng → mở
+13. Ẩn app quá thời gian rồi quay lại → khoá
+14. Mở lại app → khoá NGAY khi tải trang (không lộ dữ liệu)
+15. Mất mạng → mở khoá bằng mật khẩu lưu trên máy, dữ liệu đủ
+16. Bảng Tài khoản & bảo mật: ID, SĐT, tự khoá, vân tay, thiết bị, đổi mật khẩu, sửa ID/SĐT
+17. A thu hồi B → B bị yêu cầu đăng nhập lại ngay khi đồng bộ
+18. Đăng nhập lại bằng vân tay (máy chủ xác minh chữ ký WebAuthn) → vào app, phiên mới dùng được
+19. Quên mật khẩu: mã SYNC_TOKEN sai → báo lỗi · đúng → đặt lại & vào app
+20. Sau khi đặt lại mật khẩu → mọi máy khác bị đăng xuất
+21–22. Sai 5 lần → khoá dò 15 phút (cả mật khẩu đúng cũng bị chặn trong thời gian khoá)
+Postgres: không có mật khẩu dạng chữ · phiên lưu dạng mã băm SHA-256 · khoá vân tay chỉ lưu khoá công khai
+Lỗi phát hiện & đã sửa khi kiểm tra: (1) tạo tài khoản không lưu mật khẩu mở khoá offline; (2) yêu cầu cũ trả 401 muộn làm khoá nhầm
+sau khi đăng nhập; (3) sai mật khẩu làm xoá ô ID đã gõ; (4) Service Worker lưu đệm /auth/ (trạng thái & thông tin tài khoản).
+Hồi quy: đồng bộ 8/8 · tách Claude & nhiều máy · nút đồng bộ 8/8 · tức thời/push/lịch sử · máy chủ mất dữ liệu 6/6 – đều đạt.
+Lỗi JS: []
