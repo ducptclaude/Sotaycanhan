@@ -1,0 +1,19 @@
+1. Lần đầu online – MODE = idb
+   Service Worker điều khiển trang: True
+   Bộ nhớ đệm: ['scn-v1.0.0-shell', 'scn-fonts']
+   Kiểm tra cài đặt (Chrome, hồ sơ thường): lỗi = []
+   Manifest lỗi: []
+2. Đồng bộ online: chờ = 0 | lỗi = '' | máy chủ có 51 bản ghi | pill = 🟢 Đã đồng bộ 09:23
+3. Đã tắt máy chủ web + máy chủ đồng bộ + ngắt mạng. navigator.onLine = False
+   Tải lại trang khi offline: OK, tiêu đề = Sổ Cá Nhân | pill = 🔴 Ngoại tuyến Dữ liệu lưu trên máy
+   Thanh báo offline: 📴 Mất kết nối Internet – bạn vẫn xem, nhập và sửa dữ liệu bình thường. Mọi thay 
+4. Nhập giao dịch khi offline: True | chờ đồng bộ = 2
+5. Tải lại lần 2 vẫn offline – dữ liệu còn: tiền = 150000 | sự kiện = True | chờ đồng bộ = 5
+   Máy chủ lúc này chưa có giao dịch mới: True
+   (tự phát hiện có mạng & đồng bộ sau 0 giây, không cần thao tác)
+6. Có mạng lại → tự đồng bộ: chờ = 0 | máy chủ có giao dịch = 150000 | sự kiện = True | pill = 🟢 Đã đồng bộ 09:23
+7. Thiết bị thứ 2 nhận dữ liệu: giao dịch = 150000 | tài khoản VCB = True
+8. Máy 1 nhận sửa từ máy 2: Sửa từ máy 2
+9. Sai token → báo lỗi rõ: Sai mã truy cập (token)
+10. Mở TAB MỚI khi offline (máy chủ web đã tắt): Sổ Cá Nhân | số giao dịch = 1 | sự kiện offline hiện trên lịch = True
+Lỗi JS: []
