@@ -34,8 +34,13 @@ const validId = id => /^[a-z0-9][a-z0-9._-]{2,31}$/.test(id);
 const validPhone = p => /^0\d{9,10}$/.test(p);
 
 function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpName = 'Sổ Cá Nhân' }) {
-  // Chính sách sinh trắc: mặc định CHỈ chấp nhận khoá gắn chặt với 1 thiết bị (không đồng bộ đám mây). BIO_ALLOW_SYNCED=1 để nới.
-  const ALLOW_SYNCED = process.env.BIO_ALLOW_SYNCED === '1';
+  // Chính sách sinh trắc (bản 1.12): iPhone (iCloud Keychain) & Android (Google Password Manager) LUÔN tạo khoá đồng bộ cho web →
+  // mặc định CHẤP NHẬN khoá đồng bộ nhưng BẮT BUỘC GẮN MÁY: mỗi khoá kèm 1 mã gắn máy bí mật (256 bit, chỉ lưu trên máy đã đăng ký,
+  // máy chủ giữ SHA-256). Máy khác dù nhận được khoá đồng bộ cũng không có mã → bị từ chối. BIO_DEVICE_ONLY=1: quay lại chỉ nhận khoá 1 thiết bị.
+  const ALLOW_SYNCED = process.env.BIO_DEVICE_ONLY !== '1';
+  const bindH = v => crypto.createHash('sha256').update(String(v || '')).digest('base64url');
+  const validBind = v => /^[A-Za-z0-9_-]{43}$/.test(String(v || ''));
+  const bindOk = (pk, v) => pk.bindHash ? validBind(v) && eq(bindH(v), pk.bindHash) : !(pk.deviceType === 'multiDevice' || pk.backedUp); // khoá cũ 1 thiết bị (chưa có mã) vẫn dùng được
   let acc = null; try { acc = JSON.parse(store.get('auth')); } catch (e) { }
   const save = () => store.set('auth', JSON.stringify(acc));
   // Chuyển khoá cũ (bản ≤ 1.8, lưu chung hồ sơ) sang CSDL sinh trắc riêng – đánh dấu 'chưa rõ loại' để kiểm lại khi dùng
@@ -109,9 +114,9 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
   }
   function takeFlow(id, type) { const f = flows.get(String(id || '')); flows.delete(String(id || '')); return f && f.type === type && f.exp > Date.now() ? f : null; }
   const me = s => ({ id: acc.id, phone: acc.phone || '', created: acc.created,
-    passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, mine: !!(s && p.device === s.device), provider: (aaguidInfo(p.aaguid) || {}).name || '' })),
+    passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, bound: !!p.bindHash, mine: !!(s && p.device === s.device), provider: (aaguidInfo(p.aaguid) || {}).name || '' })),
     stepUpLeft: s && acc.sessions[s.key] ? Math.max(0, Math.round((STEP_MS - (Date.now() - (acc.sessions[s.key].stepUp || 0))) / 1000)) : 0,
-    bioDb: bio.kind, bioPolicy: ALLOW_SYNCED ? 'allow-synced' : 'device-only',
+    bioDb: bio.kind, bioPolicy: ALLOW_SYNCED ? 'synced-bound' : 'device-only',
     sessions: Object.values(acc.sessions || {}).sort((a, b) => b.seen - a.seen).map(x => ({ sid: x.sid, name: x.name, via: x.via, created: x.created, seen: x.seen, current: s && x.sid === s.sid, device: x.device })) });
 
   function handle(req, res, sync) {
@@ -161,7 +166,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           succeeded(req); const token = newSession(req, q, url === '/auth/reset' ? 'reset' : 'password');
           return send(200, { ok: true, token, account: me(sessionOf('Bearer ' + token)) });
         }
-        // ===== SINH TRẮC THIẾT BỊ (vân tay / Face ID / Windows Hello) – CSDL riêng (server/bio-db.js), KHÔNG dùng passkey đồng bộ =====
+        // ===== SINH TRẮC THIẾT BỊ (vân tay / Face ID / Windows Hello) – CSDL riêng (server/bio-db.js), khoá GẮN MÁY bằng mã bí mật =====
         if (url === '/auth/bio/login-options' || url === '/auth/bio/unlock-options') {
           const unlock = url === '/auth/bio/unlock-options';
           if (unlock && !s) return send(401, { error: 'Chưa đăng nhập' });
@@ -176,6 +181,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           if (unlock && !s) return send(401, { error: 'Chưa đăng nhập' });
           const f = takeFlow(q.flow, unlock ? 'unlock' : 'login'), r = q.response || {}, pk = acc && bio.get(r.id);
           if (!f || !pk || (unlock && pk.device !== s.device)) { failed(req); return send(400, { error: 'Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản' }); }
+          if (!bindOk(pk, q.bind)) { failed(req); return send(403, { error: 'Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Google) – chỉ dùng được trên đúng máy đã bật. Hãy đăng nhập bằng mật khẩu rồi bật vân tay / Face ID cho máy này.', code: 'bind' }); }
           const { rpID, origin } = rp(req);
           const v = await WA.verifyAuthenticationResponse({ response: r, expectedChallenge: f.challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true,
             credential: { id: pk.id, publicKey: Buffer.from(pk.publicKey, 'base64url'), counter: pk.counter || 0, transports: pk.transports } }).catch(e => ({ verified: false, err: e.message }));
@@ -198,11 +204,11 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
             userName: 'so-ca-nhan', userDisplayName: 'Sổ Cá Nhân', userID: crypto.randomBytes(16), // KHÔNG cá nhân hoá: không ID/SĐT/tên trong khoá
             attestationType: 'none', timeout: 60000, preferredAuthenticatorType: 'localDevice', extensions: { credProps: true },
             supportedAlgorithmIDs: [-7, -257, -8], // ES256 trước (phổ biến trên vân tay / Face ID / Windows Hello), rồi RS256, Ed25519
-            excludeCredentials: bio.all().map(p => ({ id: p.id, transports: p.transports })),
+            excludeCredentials: bio.all().filter(p => p.device === s.device).map(p => ({ id: p.id, transports: p.transports })), // chỉ khoá của CHÍNH máy này (máy cùng iCloud/Google đã có bản sao khoá của máy khác vẫn bật được khoá riêng)
             // platform: cảm biến GẮN TRONG máy (không dùng khoá rời / điện thoại khác) · discouraged: KHÔNG tạo passkey lưu trong
             // trình quản lý mật khẩu (iCloud Keychain / Google) · required: bắt buộc xác thực sinh trắc / khoá màn hình của thiết bị
             authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'discouraged', requireResidentKey: false, userVerification: 'required' } });
-          return send(200, { flow: newFlow('register', options.challenge), options, policy: ALLOW_SYNCED ? 'allow-synced' : 'device-only' });
+          return send(200, { flow: newFlow('register', options.challenge), options, policy: ALLOW_SYNCED ? 'synced-bound' : 'device-only' });
         }
         if (url === '/auth/bio/register') {
           const f = takeFlow(q.flow, 'register'); if (!f) return send(400, { error: 'Yêu cầu đã hết hạn, thử lại' });
@@ -211,11 +217,12 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           if (!v.verified) return send(400, { error: 'Không đăng ký được: ' + (v.err || 'xác thực thất bại') });
           const ri = v.registrationInfo, c = ri.credential;
           const prov = aaguidInfo(ri.aaguid);
+          if (ALLOW_SYNCED && !validBind(q.bind)) return send(400, { error: 'Thiếu mã gắn máy – hãy tải lại app (bản mới) rồi bật lại' });
           if (!ALLOW_SYNCED && prov && prov.synced) return send(422, { error: `Khoá được tạo trong ${prov.name} (trình quản lý passkey đồng bộ đám mây) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu.`, code: 'synced' });
           if (!ALLOW_SYNCED && (ri.credentialDeviceType === 'multiDevice' || ri.credentialBackedUp)) // khoá đồng bộ đám mây (passkey) → từ chối
             return send(422, { error: 'Thiết bị / trình duyệt này chỉ tạo được khoá ĐỒNG BỘ đám mây (passkey iCloud / Google) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu.', code: 'synced' });
           await bio.put({ id: c.id, publicKey: b64u(c.publicKey), counter: c.counter, transports: c.transports || (q.response.response || {}).transports || [], device: s.device, name: String(q.name || 'Thiết bị').slice(0, 40),
-            deviceType: ri.credentialDeviceType, backedUp: ri.credentialBackedUp, aaguid: ri.aaguid || '', created: Date.now(), used: 0 });
+            deviceType: ri.credentialDeviceType, backedUp: ri.credentialBackedUp, aaguid: ri.aaguid || '', created: Date.now(), used: 0, bindHash: validBind(q.bind) ? bindH(q.bind) : '' });
           return send(200, { ok: true, deviceType: ri.credentialDeviceType, provider: prov ? prov.name : '', account: me(s) });
         }
         if (url === '/auth/bio/delete') { const pre = String(q.id || '-'); bio.removeWhere(p => p.id.startsWith(pre)); return send(200, { ok: true, account: me(s) }); }

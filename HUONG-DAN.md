@@ -147,6 +147,8 @@ Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử
 - Từ lúc đó, **mọi thiết bị phải đăng nhập** (ID hoặc SĐT + mật khẩu, hoặc vân tay / Face ID). Mã `SYNC_TOKEN` **không còn mở được dữ liệu** – chỉ dùng để **đặt lại mật khẩu** khi quên.
 - Các máy khác đang dùng mã cũ sẽ tự hiện màn hình **Đăng nhập** → đăng nhập 1 lần → tiếp tục đồng bộ như cũ.
 
+**Face ID / vân tay trên điện thoại (từ bản 1.12.0):** iPhone (iCloud Keychain) và Android (Google Password Manager) luôn tạo khoá sinh trắc dạng *đồng bộ* cho web app – khác app ngân hàng / VNeID là app cài đặt, được dùng thẳng chip bảo mật. App nhận khoá đồng bộ nhưng **gắn máy**: mỗi lần bật, app tạo 1 mã bí mật 256 bit chỉ lưu trên máy đó, máy chủ giữ bản băm SHA-256. Máy khác cùng tài khoản Apple / Google dù có bản sao khoá cũng không có mã → bị từ chối; máy đó đăng nhập bằng mật khẩu rồi bật Face ID riêng. Muốn quay lại chính sách cũ (chỉ nhận khoá 1 thiết bị, điện thoại không bật được): đặt biến Railway `BIO_DEVICE_ONLY=1`.
+
 **Giao diện đăng nhập (từ bản 1.11.0):** ảnh nền tài chính – **ảnh dọc** trên điện thoại / máy tính bảng dọc, **ảnh ngang** trên web (laptop, màn hình lớn); khung kính mờ (trên điện thoại ở phần trời tối phía trên, trên web ở bên trái). Ảnh nằm trong `assets/`, lưu sẵn để màn hình khoá hiện cả khi mất mạng. Thay ảnh: ghi đè `assets/dang-nhap-dien-thoai.webp` (dọc) và `assets/dang-nhap-web.webp` (ngang).
 
 **Khoá app:** khoá khi mở app và sau **5 phút** không dùng (đổi được: 1 / 5 / 15 / 30 phút hoặc chỉ khi mở app). Mở bằng **👆 vân tay / Face ID / Windows Hello** hoặc mật khẩu – **chạy cả khi mất mạng**.

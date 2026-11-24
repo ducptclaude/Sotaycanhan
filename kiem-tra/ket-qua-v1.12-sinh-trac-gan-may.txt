@@ -1,0 +1,8 @@
+✅ iPhone (khoá đồng bộ iCloud) BẬT ĐƯỢC Face ID — [{"bind":43,"allowSynced":true,"deviceType":"multiDevice"}] · máy chủ [{"deviceType":"multiDevice","backedUp":true}]
+✅ Mã gắn máy: máy giữ mã 256 bit, máy chủ CHỈ giữ bản băm
+✅ iPhone A mở khoá bằng Face ID: có mạng (máy chủ kiểm) & mất mạng (kiểm trên máy) — có mạng true · mất mạng true
+✅ iPhone A đăng nhập bằng Face ID → phiên "bio" — qua bio
+✅ iPhone C có BẢN SAO khoá đồng bộ → máy chủ TỪ CHỐI (không có mã gắn máy) — Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Google) – chỉ dùng được trên đúng máy đã bật. Hãy đăng nhập bằng mật khẩu rồi bật vân tay / Face ID cho máy này.
+✅ Tự đoán mã gắn máy (bản sao khoá + mã ngẫu nhiên) → 403 — 403 Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Google) – chỉ dùng đư
+✅ iPhone C bật Face ID của riêng mình → dùng được — khoá trên máy chủ: 2
+✅ Trang Tài khoản: chính sách "khoá gắn máy" + nhãn 🔗 gắn máy — CSDL sinh trắc riêng (file:sinh-trac.json) · khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được · kh
