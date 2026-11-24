@@ -108,6 +108,7 @@ details summary{cursor:pointer;color:var(--accent);font-size:13px;margin-top:8px
 .f input,.f select,.f textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:16px}
 .f textarea{min-height:70px;resize:vertical}
 .amt-input{font-size:24px!important;font-weight:700;font-variant-numeric:tabular-nums}
+.amt-input.chk{background:#fff6e0!important;border-color:#e0a800!important;box-shadow:0 0 0 2px rgba(224,168,0,.25)}
 .cats{display:flex;flex-wrap:wrap;gap:6px}
 .cats label{display:inline-flex}
 .cats input{position:absolute;opacity:0;pointer-events:none}
@@ -681,6 +682,14 @@ html.locked .lock{display:block}html.locked body{overflow:hidden}
 .acp .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--card2);color:var(--text2);margin-left:4px}.acp .tag.ok{background:#e3f4e8;color:#17803d}
 .acp .sw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;font-size:14px}.acp .sw input{width:20px;height:20px}
 .acp .fold{display:none;margin-top:8px}.acp .fold.open{display:block}
+.qk{display:flex;gap:8px;align-items:stretch}.qk input{flex:1;min-width:0}.qk .btn{white-space:nowrap}
+.qkhint{font-size:11.5px;color:var(--muted);margin:4px 2px 8px}
+.sug{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:0 0 10px;max-height:270px;overflow:auto;box-shadow:var(--shadow)}.sug:empty{display:none}
+.sug .it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--line);font-size:14px}.sug .it:last-child{border-bottom:0}.sug .it.on,.sug .it:hover{background:var(--card2)}.sug .it small{color:var(--muted);font-size:11.5px;text-align:right}
+.ocrbox{border:1px dashed var(--accent);border-radius:12px;padding:10px;margin:0 0 12px;background:color-mix(in srgb,var(--accent) 5%,transparent)}.ocrbox:empty{display:none}
+.ocrbox .row3{display:flex;gap:10px;align-items:flex-start}.ocrbox canvas{width:112px;height:auto;border-radius:8px;border:1px solid var(--line);flex:none;cursor:zoom-in}
+.ocrbox .kvs{flex:1;min-width:0;font-size:13px;line-height:1.5}.ocrbox .kvs b{font-size:15px}.ocrbox .warn{background:#fff6e0;border:1px solid #f0d58f;color:#7a4b00;border-radius:8px;padding:6px 9px;font-size:12.5px;margin-top:6px}.ocrbox .warn.err{background:#fde9e7;border-color:#f3b5ad;color:#b42318}
+.ocrbox .bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}.ocrbox .bar i{display:block;height:100%;background:var(--accent);transition:width .2s}
 .syncfab{position:fixed;right:24px;bottom:calc(142px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent);box-shadow:0 3px 10px rgba(0,0,0,.18);cursor:pointer;z-index:21;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;transition:transform .12s}
 .syncfab svg{width:22px;height:22px;display:block}
 .syncfab:active{transform:scale(.92)}
@@ -996,7 +1005,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.7.0';
+const APP_VER = '1.8.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1469,7 +1478,7 @@ async function lockRender() {
 }
 function lockMsg(m, err) { AUTH.msg = m; AUTH.err = err !== false; lockRender(); }
 // ---- Mở khoá trên máy (chạy cả khi mất mạng) ----
-function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); credsRefresh(); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
+function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); credsRefresh(); setTimeout(shareCheck, 300); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
 // Đồng bộ danh sách vân tay của máy này với máy chủ: vân tay đã bị xoá khỏi tài khoản (VD máy bị mất) thì không dùng được nữa
 async function credsRefresh() {
   if (!navigator.onLine || !IDB.cfg.token || !AUTH.L || !(AUTH.L.creds || []).length) return;
@@ -1687,6 +1696,133 @@ async function acctAct(act, el) {
     }
   } catch (e) { toast(e.message || 'Lỗi'); }
 }
+// ================= ĐỌC ẢNH GIAO DỊCH (OCR chạy trên máy: Tesseract.js + tiếng Việt, miễn phí, ảnh không rời máy) =================
+const OCR_BASE = new URL('vendor/ocr-7.0.0/', location.href).href; // khớp phiên bản tesseract.js trong package.json (server.js phục vụ từ node_modules)
+const deac = s => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase();
+const deacK = s => deac(s).replace(/[^a-z0-9]/g, '');
+function loadScript(src) { return new Promise((res, rej) => { if (window.Tesseract) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('không tải được bộ đọc ảnh')); document.head.appendChild(s); }); }
+let _ocr = null, _ocrProg = null;
+function ocrWorker() {
+  if (_ocr) return _ocr;
+  _ocr = (async () => {
+    await loadScript(OCR_BASE + 'tesseract.min.js');
+    const w = await Tesseract.createWorker('vie', 1, { workerPath: OCR_BASE + 'worker.min.js', corePath: OCR_BASE + 'core', langPath: OCR_BASE + 'lang', logger: m => _ocrProg && _ocrProg(m) });
+    await w.setParameters({ preserve_interword_spaces: '1' });
+    return w;
+  })().catch(e => { _ocr = null; throw e; });
+  return _ocr;
+}
+// Tiền xử lý: xám, đảo màu giao diện tối, phóng to ảnh nhỏ, kéo giãn tương phản; kèm ảnh thu nhỏ màu (lưu / xem lại)
+async function ocrPrep(file) {
+  const bmp = await createImageBitmap(file);
+  let k = Math.min(2000, Math.max(1100, bmp.width)) / bmp.width; if (bmp.height * k > 6000) k = 6000 / bmp.height;
+  const W = Math.round(bmp.width * k), H = Math.round(bmp.height * k), c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0, W, H);
+  const d = x.getImageData(0, 0, W, H), p = d.data, n = p.length / 4, hist = new Uint32Array(256); let sum = 0;
+  for (let i = 0; i < p.length; i += 4) { const g = (p[i] * 299 + p[i + 1] * 587 + p[i + 2] * 114) / 1000 | 0; p[i] = g; sum += g; hist[g]++; }
+  const inv = sum / n < 110; let lo = 0, hi = 255, a = 0;
+  for (; lo < 254 && (a += hist[lo]) < n * 0.01; lo++); a = 0; for (; hi > 1 && (a += hist[hi]) < n * 0.01; hi--);
+  const sc = 255 / Math.max(1, hi - lo);
+  for (let i = 0; i < p.length; i += 4) { let g = (p[i] - lo) * sc; g = g < 0 ? 0 : g > 255 ? 255 : g; if (inv) g = 255 - g; p[i] = p[i + 1] = p[i + 2] = g; }
+  x.putImageData(d, 0, 0);
+  const tk = Math.min(1, 600 / bmp.width), t = document.createElement('canvas'); t.width = Math.round(bmp.width * tk); t.height = Math.round(bmp.height * tk); t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
+  const thumbBlob = await new Promise(r => t.toBlob(r, 'image/jpeg', 0.72));
+  return { canvas: c, thumb: t, thumbBlob, scale: t.width / W };
+}
+async function ocrReceipt(file, prog) {
+  _ocrProg = prog; const w = await ocrWorker(); const pre = await ocrPrep(file);
+  const { data } = await w.recognize(pre.canvas, {}, { blocks: true, text: true });
+  const p = parseReceipt(data.text), words = [];
+  (data.blocks || []).forEach(b => b.paragraphs.forEach(pa => pa.lines.forEach(l => l.words.forEach(x => words.push(x)))));
+  const dg = String(p.amount || ''), hit = p.amount ? words.filter(x => { const d = x.text.replace(/\D/g, ''); return d.length >= 3 && dg.includes(d); }) : [];
+  return { ...p, text: data.text, wconf: hit.length ? Math.round(Math.min(...hit.map(x => x.confidence))) : 0, boxes: hit.map(x => x.bbox), thumb: pre.thumb, thumbBlob: pre.thumbBlob, scale: pre.scale };
+}
+function drawThumb(c, res, low) { // ảnh thu nhỏ + khung tô quanh số tiền đã đọc
+  c.width = res.thumb.width; c.height = res.thumb.height; const x = c.getContext('2d'); x.drawImage(res.thumb, 0, 0);
+  x.lineWidth = Math.max(2, c.width / 150); x.strokeStyle = low ? '#e0a800' : '#17803d'; x.fillStyle = low ? 'rgba(255,200,0,.25)' : 'rgba(23,128,61,.18)';
+  res.boxes.forEach(b => { const r = [b.x0 * res.scale - 3, b.y0 * res.scale - 3, (b.x1 - b.x0) * res.scale + 6, (b.y1 - b.y0) * res.scale + 6]; x.fillRect(...r); x.strokeRect(...r); });
+}
+// Phân tích chữ của biên lai chuyển khoản / thanh toán → số tiền chính, thu/chi, ngày giờ, nội dung, người nhận, mã GD
+const RC_BAD = /(số\s*dư|so\s*du|balance|khả\s*dụng|phí|phi\s|fee|số\s*tài\s*khoản|tài\s*khoản|tai\s*khoan|stk|account|mã|ma\s*gd|tham\s*chiếu|reference|transaction\s*id|id\b|mã\s*khách|điện\s*thoại|sđt|hotline)/i;
+const RC_GOOD = /(số\s*tiền|so\s*tien|amount|tổng\s*tiền|tổng\s*cộng|total|thành\s*tiền|giá\s*trị|số\s*tiền\s*giao\s*dịch)/i;
+const RC_INCOME = /(nhận\s*tiền|nhan\s*tien|tiền\s*vào|ghi\s*có|được\s*cộng|received|credit|hoàn\s*tiền\s*vào|tài\s*khoản.*\+\s?\d)/i;
+const RC_MONEY = /([+\-−–]?)\s?(\d{1,3}(?:[.,]\d{3})+|\d{4,12})(?:\s?(vnd|vnđ|đ|₫|dong|đồng)\b|\s?(vnd|vnđ|đ|₫))?/gi;
+function parseReceipt(text) {
+  const lines = String(text || '').normalize('NFC').replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean), cands = [];
+  lines.forEach((ln, i) => {
+    let m; RC_MONEY.lastIndex = 0;
+    while ((m = RC_MONEY.exec(ln))) {
+      const rawNum = m[2], cur = (m[3] || m[4] || '').toLowerCase(), sign = m[1];
+      if (/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/.test(ln.slice(Math.max(0, m.index - 3), m.index + m[0].length + 6))) continue; // nằm trong ngày tháng
+      if (/\d{1,2}:\d{2}/.test(ln.slice(Math.max(0, m.index - 1), m.index + m[0].length + 3)) && !cur) continue; // giờ phút
+      const sep = /[.,]\d{3}$/.test(rawNum), val = Number(rawNum.replace(/[.,\s]/g, ''));
+      if (!val || val < 1000) continue;
+      let sc = 0;
+      if (RC_GOOD.test(ln) || (i > 0 && RC_GOOD.test(lines[i - 1]) && ln.length < 30)) sc += 6;
+      if (RC_BAD.test(ln)) sc -= 10;
+      if (cur) sc += 3; if (sign) sc += 2; if (sep) sc += 2;
+      if (ln.replace(m[0], '').replace(/[^A-Za-zÀ-ỹ0-9]/g, '').length <= 4) sc += 4; // dòng chỉ có số tiền (số tiền lớn giữa màn hình)
+      if (!sep && !cur && rawNum.length >= 7) sc -= 6; // dãy số dài không phân cách → số tài khoản / mã
+      if (i < 8) sc += 1;
+      cands.push({ val, sc, sign, i });
+    }
+  });
+  cands.sort((a, b) => b.sc - a.sc || a.i - b.i);
+  const best = cands[0] || null, all = lines.join('\n');
+  let type = 'expense'; if ((best && best.sign === '+') || RC_INCOME.test(all)) type = 'income'; if (best && /[\-−–]/.test(best.sign)) type = 'expense';
+  let date = '', time = '';
+  for (const d of all.matchAll(/(?<![\d.,])(\d{1,2})[\/\-.](\d{1,2})[\/\-.](20\d{2})(?![\d.,])/g)) { const dd = +d[1], mm = +d[2]; if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) { date = `${d[3]}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}`; break; } }
+  const tm = all.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/); if (tm) time = `${tm[1].padStart(2, '0')}:${tm[2]}`;
+  const pick = re => { for (let i = 0; i < lines.length; i++) { const m = lines[i].match(re); if (m) { const v = (m[1] || '').trim() || (lines[i + 1] || ''); return v.replace(/^[:\-–\s]+/, '').trim(); } } return ''; };
+  const note = pick(/(?:nội\s*dung(?:\s*chuyển\s*khoản)?|noi\s*dung|description|lời\s*nhắn|message|diễn\s*giải|(?:^|\s)nd\s*[:\-])\s*[:\-]?\s*(.*)$/i).slice(0, 100);
+  // loại hoá đơn / dịch vụ: ưu tiên dòng "Loại hóa đơn …", bỏ dòng tiêu đề "… thành công"
+  const svc = (pick(/loại\s*(?:h(?:óa|oá)\s*đơn|dịch\s*vụ)\s*[:\-]?\s*(.*)$/i) || pick(/^(?:dịch\s*vụ|nhà\s*cung\s*cấp)\s*[:\-]?\s*(.*)$/i)).replace(/thành\s*công/i, '').trim().slice(0, 60);
+  const party = pick(/(?:tên\s*người\s*nhận|người\s*nhận|người\s*thụ\s*hưởng|beneficiary|đơn\s*vị\s*nhận|nhà\s*cung\s*cấp|người\s*chuyển|^từ|from)\s*[:\-]?\s*(.*)$/i).slice(0, 60);
+  const ref = pick(/(?:mã\s*(?:giao\s*dịch|gd)|số\s*tham\s*chiếu|transaction\s*id|reference|mã\s*tham\s*chiếu)\s*[:\-]?\s*([A-Z0-9]{6,})/i);
+  return { amount: best ? best.val : null, type, date, time, note, party, ref, svc, confidence: !best ? 'không có' : best.sc >= 8 ? 'cao' : best.sc >= 4 ? 'trung bình' : 'thấp' };
+}
+// Đoán danh mục từ nội dung (không dấu)
+const CAT_HINTS = [[/\b(tien dien|dien|evn)\b/, 'Điện'], [/\b(tien nuoc|nuoc|cap nuoc)\b/, 'Nước'], [/\b(an uong|an trua|an sang|an toi|com|pho|bun|cafe|ca phe|tra sua|nha hang)\b/, 'Ăn uống'], [/\b(grab|xanh sm|taxi|xang|xang dau|gui xe|ve xe|dat xe|be|gojek|di lai)\b/, 'Đi lại'], [/\b(thue nha|tien nha|tien phong)\b/, 'Nhà ở'], [/\b(luong|salary)\b/, 'Lương'], [/\b(thuong|bonus)\b/, 'Thưởng'], [/\b(hoc phi|khoa hoc|sach)\b/, 'Giáo dục'], [/\b(thuoc|benh vien|kham benh|nha thuoc)\b/, 'Sức khỏe'], [/\b(shopee|lazada|tiki|mua sam|sieu thi)\b/, 'Mua sắm'], [/\b(dam cuoi|mung cuoi|dam gio|phung vieng|hieu hi)\b/, 'Hiếu hỉ'], [/\b(xem phim|cgv|giai tri|netflix)\b/, 'Giải trí']];
+function guessCat(type, text) {
+  const cats = type === 'income' ? incCats() : expCats(), d = deac(text);
+  for (const [re, c] of CAT_HINTS) if (re.test(d) && cats.includes(c)) return c;
+  // giao dịch cũ có ghi chú giống → dùng lại danh mục đó
+  const k = deacK(text).slice(0, 40); if (k.length >= 6) { const t = Object.values(S.txns).find(x => x.type === type && x.note && k.includes(deacK(x.note).slice(0, 12)) && deacK(x.note).length >= 6); if (t && cats.includes(t.category)) return t.category; }
+  return '';
+}
+// ---- Gõ nhanh: @chi@tiendien 845k ----
+const QTYPES = [['chi', 'expense', '💸 Chi (đã thanh toán)'], ['thu', 'income', '💰 Thu (đã nhận)'], ['chuyen', 'transfer', '🔁 Chuyển khoản giữa tài khoản']];
+function quickAmt(s) { // 845k · 1tr5 · 1,5tr · 2 triệu · 845.500 · 1ty
+  s = deac(s).replace(/\s+/g, ''); if (!s) return 0; let m;
+  if ((m = s.match(/^(\d+(?:[.,]\d+)?)(tr|trieu|m)(\d{1,3})?$/))) return Math.round(parseFloat(m[1].replace(',', '.')) * 1e6 + (m[3] ? Number(m[3].padEnd(3, '0')) * 1e3 : 0));
+  if ((m = s.match(/^(\d+(?:[.,]\d+)?)(k|nghin|ngan)$/))) return Math.round(parseFloat(m[1].replace(',', '.')) * 1e3);
+  if ((m = s.match(/^(\d+(?:[.,]\d+)?)(ty|b)$/))) return Math.round(parseFloat(m[1].replace(',', '.')) * 1e9);
+  if (/^\d{1,3}([.,]\d{3})+$/.test(s) || /^\d+$/.test(s)) return Number(s.replace(/\D/g, ''));
+  return 0;
+}
+function quickSug(v) {
+  const m = String(v || '').match(/^\s*@([^@\s]*)(@([^\s]*))?\s*(.*)$/); if (!m) return null;
+  const tq = deacK(m[1]), stage2 = m[2] != null, dq = deacK(m[3] || ''), amt = quickAmt(m[4] || '');
+  const types = QTYPES.filter(([k, , l]) => !tq || k.startsWith(tq) || deacK(l).startsWith(tq));
+  if (!stage2) return { stage: 1, type: (types[0] || QTYPES[0])[1], amt, items: types.map(([k, t, l]) => ({ kind: 'type', key: k, type: t, label: l, sub: '@' + k + '@…' })) };
+  const type = (types[0] || QTYPES[0])[1];
+  if (type === 'transfer') return { stage: 2, type, amt, items: [] };
+  const match = str => { const k = deacK(str); if (!dq) return 1; if (k.includes(dq)) return 3; const q2 = dq.replace(/^tien/, ''); if (q2.length >= 2 && k.includes(q2)) return 2.5; if (k.length >= 3 && dq.includes(k)) return 2; let i = 0; for (const ch of k) if (ch === dq[i]) i++; return i === dq.length ? 1 : 0; };
+  const items = [], cats = type === 'expense' ? expCats() : incCats();
+  const hintCat = dq ? (CAT_HINTS.find(([re]) => re.test(deac(m[3].replace(/[_\-]+/g, ' '))) || re.test(dq)) || [])[1] : '';
+  cats.forEach(c => { const sc = Math.max(match(c), c === hintCat ? 2.8 : 0); if (sc) items.push({ kind: 'cat', type, cat: c, label: (ICONS[c] || '•') + ' ' + c, sub: c === hintCat && match(c) < 2 ? 'Danh mục (theo từ khoá)' : 'Danh mục', sc: sc + 0.4 }); });
+  const H = {}; Object.values(S.txns).forEach(t => { if (t.type !== type || !t.note || t.sample) return; const key = t.category + '|' + deacK(t.note); const h = H[key] || (H[key] = { n: 0, last: t }); h.n++; if ((t.date || '') >= (h.last.date || '')) h.last = t; });
+  Object.values(H).forEach(h => { const t = h.last, sc = Math.max(match(t.note), match((t.category || '') + t.note)); if (sc) items.push({ kind: 'hist', type, cat: t.category, note: t.note, acc: t.accountId, label: '🕘 ' + t.note, sub: `${t.category || ''} · ${h.n} lần · gần nhất ${fmt(t.amount)}`, sc: sc + Math.min(h.n, 10) / 10 }); });
+  items.sort((a, b) => b.sc - a.sc);
+  if (dq && !items.some(x => x.sc >= 3)) { const raw = m[3].replace(/[_\-]+/g, ' ').trim(); if (raw) items.push({ kind: 'new', type, cat: (items[0] && items[0].cat) || '', note: raw, label: '➕ Ghi chú mới: "' + raw + '"', sub: items[0] ? 'danh mục ' + items[0].cat : '', sc: 0 }); }
+  return { stage: 2, type, amt, items: items.slice(0, 8) };
+}
+// ---- Ảnh chia sẻ từ app khác (Android: app ngân hàng → Chia sẻ → Sổ Cá Nhân) ----
+let _sharePending = false;
+async function shareCheck() {
+  if (!_sharePending || MODE !== 'idb' || (AUTH && AUTH.mode)) return; _sharePending = false;
+  try { const c = await caches.open('scn-share'), r = await c.match('./share-latest'); if (!r) return; const b = await r.blob(); await c.delete('./share-latest'); history.replaceState(null, '', '#thu-chi'); txForm(null, null, new File([b], 'chia-se.jpg', { type: b.type || 'image/jpeg' })); } catch (e) { }
+}
 // ---- Tệp sách trên máy khi chạy độc lập ----
 async function idbSaveFile(file) { const id = 'idb_' + genId(); await idbSet('files', id, file); return { fileId: id, fileType: file.type || (/\.pdf$/i.test(file.name) ? 'application/pdf' : 'text/plain'), fileName: file.name, fileSize: file.size }; }
 async function fileURL(id) { if (String(id).startsWith('idb_')) { const b = await idbGet('files', id); return b ? URL.createObjectURL(b) : ''; } return ''; }
@@ -1695,7 +1831,7 @@ async function init() {
   route(); render();
   try { await idbBoot(); MODE = 'idb'; NOTE = ''; await authBoot(); }
   catch (e) { MODE = 'memory'; NOTE = 'Trình duyệt không cho lưu dữ liệu trên máy (có thể đang ở chế độ ẩn danh). Dữ liệu chỉ tạm thời.'; lockHide(); }
-  render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') { schedSync(800); rtKick(1200); setTimeout(pushRefresh, 4000); setTimeout(backupReminder, 9000); }
+  render(); netUI(); swRegister(); netProbe(); if (MODE === 'idb') { schedSync(800); rtKick(1200); setTimeout(pushRefresh, 4000); setTimeout(backupReminder, 9000); setTimeout(shareCheck, 700); }
 }
 // ts: thời điểm sửa (mặc định: bây giờ). Dữ liệu mẫu dùng ts = 1 để luôn thua dữ liệu thật khi đồng bộ.
 async function put(col, id, data, ts) {
@@ -1711,7 +1847,8 @@ async function del(col, id) {
 let rq = false;
 function queueRender() { if (rq) return; rq = true; requestAnimationFrame(() => { rq = false; render(); }); }
 function route() {
-  const h = (location.hash || '').replace('#', '');
+  const raw = (location.hash || '').replace('#', ''), h = raw.split('&')[0];
+  if (/&nhan-anh/.test(raw)) { _sharePending = true; setTimeout(() => { if (typeof shareCheck === 'function') shareCheck(); }, 400); }
   UI.tab = TABS[h] ? h : 'tong-quan';
   if (UI.tab !== 'vay-no') UI.loanId = null;
   if (UI.tab !== 'tai-khoan') UI.accId = null;
@@ -1826,13 +1963,17 @@ function busy(btn, fn) { return async () => { if (btn.disabled) return; btn.disa
 function defaultAcc() { const a = accList(); const last = S.settings.main && S.settings.main.lastAcc; return (last && S.accounts[last]) ? last : (a[0] && a[0].id); }
 
 // ---------- Giao dịch ----------
-function txForm(id, preset) {
+function txForm(id, preset, shareImg) {
   if (!accList().length) { toast('Hãy tạo tài khoản trước.'); location.hash = '#tai-khoan'; return; }
   const ex = id ? S.txns[id] : null;
   if (ex && !['income', 'expense', 'transfer'].includes(ex.type)) return txInfo(id);
   const t = ex ? { ...ex } : { type: 'expense', amount: 0, accountId: defaultAcc(), toAccountId: '', category: '', date: today(), note: '', ...(preset || {}) };
   openModal(`<h3>${id ? 'Sửa giao dịch' : 'Thêm giao dịch'}<button class="iconbtn" data-x>✕</button></h3>
   <form id="txf">
+    ${id ? '' : `<div class="qk"><input id="f-quick" placeholder="Gõ nhanh: @chi@tiendien 845k" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="go"><button type="button" class="btn sm" id="f-ocr" title="Đính kèm ảnh giao dịch để tự đọc số tiền">📷 Ảnh GD</button></div>
+    <div class="qkhint">Gõ <b>@</b> chọn Thu/Chi, <b>@</b> tiếp theo chọn chi tiết (không cần dấu), cuối cùng số tiền: <b>845k · 1tr5 · 2,5tr</b>. Hoặc đính kèm / dán ảnh giao dịch để tự đọc.</div>
+    <div id="f-sug" class="sug"></div><input type="file" id="f-file" accept="image/*" hidden>`}
+    <div id="f-ocrbox" class="ocrbox"></div>
     <div class="seg" style="margin-bottom:12px" id="tt">${[['income', 'Thu'], ['expense', 'Chi'], ['transfer', 'Chuyển khoản']].map(([k, l]) => `<button type="button" data-k="${k}" class="${t.type === k ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="f"><label>Số tiền (₫)</label><input id="f-amt" data-amt inputmode="numeric" class="amt-input" value="${amtVal(t.amount)}" placeholder="0" autocomplete="off">
       <div class="quick"><button type="button" class="btn sm" data-zeros="1000" data-target="f-amt">×1.000</button><button type="button" class="btn sm" data-zeros="1000000" data-target="f-amt">×1 triệu</button></div></div>
@@ -1866,7 +2007,79 @@ function txForm(id, preset) {
     };
     sh.querySelectorAll('#tt button').forEach(b => b.onclick = () => { type = b.dataset.k; paint(); });
     paint();
-    if (!id) setTimeout(() => { const f = sh.querySelector('#f-amt'); if (f && f.isConnected) f.focus(); }, 50);
+    if (!id) setTimeout(() => { const f = sh.querySelector('#f-quick') || sh.querySelector('#f-amt'); if (f && f.isConnected) f.focus(); }, 50);
+    // ---- Ô gõ nhanh @thu/chi@chi tiết số tiền ----
+    let rc = null; // kết quả đọc ảnh biên lai (lưu kèm giao dịch)
+    const qEl = sh.querySelector('#f-quick'), sgEl = sh.querySelector('#f-sug'), amtEl = sh.querySelector('#f-amt'), noteEl = sh.querySelector('#f-note'), accEl = sh.querySelector('#f-acc');
+    const setAmt = n => { amtEl.value = amtVal(n); amtEl.dispatchEvent(new Event('input', { bubbles: true })); };
+    let sugList = [], sugIdx = 0;
+    const drawSug = () => {
+      const r = qEl ? quickSug(qEl.value) : null; sugList = r ? r.items : []; sugIdx = 0;
+      if (!r) { sgEl.innerHTML = ''; return; }
+      sgEl.innerHTML = sugList.map((it, i) => `<div class="it ${i === sugIdx ? 'on' : ''}" data-i="${i}"><span>${esc(it.label)}</span><small>${esc(it.sub || '')}</small></div>`).join('') || (r.stage === 2 ? `<div class="it" style="cursor:default"><span class="muted">Không có gợi ý – gõ tiếp hoặc chọn danh mục bên dưới</span></div>` : '');
+      sgEl.querySelectorAll('.it[data-i]').forEach(d => d.onmousedown = e => { e.preventDefault(); pickSug(+d.dataset.i); });
+    };
+    const pickSug = i => {
+      const it = sugList[i]; if (!it) return; const r = quickSug(qEl.value);
+      if (it.kind === 'type') { qEl.value = '@' + it.key + '@'; type = it.type; paint(); drawSug(); qEl.focus(); return; }
+      type = it.type; if (it.cat) cat = it.cat; paint();
+      if (it.note && !noteEl.value.trim()) noteEl.value = it.note;
+      if (it.acc && S.accounts[it.acc]) accEl.value = it.acc;
+      if (r && r.amt) setAmt(r.amt);
+      qEl.value = ''; sgEl.innerHTML = '';
+      toast(`✓ ${type === 'income' ? 'Thu' : 'Chi'} · ${it.cat || ''}${it.note ? ' · ' + it.note : ''}${r && r.amt ? ' · ' + fmt(r.amt) : ''}`);
+      (r && r.amt ? noteEl : amtEl).focus();
+    };
+    if (qEl) {
+      qEl.addEventListener('input', () => {
+        if (qEl.value.length > 60 && /\d/.test(qEl.value) && !qEl.value.startsWith('@')) { applyReceipt(parseReceipt(qEl.value), null); qEl.value = ''; sgEl.innerHTML = ''; return; } // dán nội dung tin nhắn / biên lai dạng chữ
+        drawSug();
+      });
+      qEl.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!sugList.length) return; sugIdx = (sugIdx + (e.key === 'ArrowDown' ? 1 : -1) + sugList.length) % sugList.length; sgEl.querySelectorAll('.it').forEach((d, i) => d.classList.toggle('on', i === sugIdx)); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (sugList.length) pickSug(sugIdx); else { const r = quickSug(qEl.value); if (r) { type = r.type || type; paint(); if (r.amt) setAmt(r.amt); qEl.value = ''; sgEl.innerHTML = ''; amtEl.focus(); } } }
+        else if (e.key === 'Escape') { sgEl.innerHTML = ''; }
+      });
+      qEl.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== qEl) sgEl.innerHTML = ''; }, 150));
+    }
+    // ---- Đính kèm ảnh giao dịch → tự đọc số tiền đã thanh toán / nhận ----
+    const box = sh.querySelector('#f-ocrbox');
+    const applyReceipt = (p, res) => {
+      if (!p || !p.amount) { box.innerHTML = `<div class="warn err">Không tìm thấy số tiền trong ${res ? 'ảnh' : 'nội dung'}. Hãy nhập tay hoặc thử ảnh rõ hơn.</div>`; return; }
+      type = p.type === 'income' ? 'income' : 'expense';
+      const g = guessCat(type, [p.note, p.party, p.svc].join(' ')), cs = type === 'income' ? incCats() : expCats();
+      cat = g || (cs.includes('Khác') ? 'Khác' : cat); // không đoán được → "Khác" (không gán bừa danh mục đầu tiên)
+      paint(); setAmt(p.amount);
+      if (p.date) sh.querySelector('#f-date').value = p.date;
+      if (!noteEl.value.trim()) noteEl.value = [p.note, p.party && p.party !== p.note ? (type === 'income' ? 'từ ' : '→ ') + p.party : ''].filter(Boolean).join(' ').slice(0, 120);
+      const low = res ? (res.wconf < 85 || p.confidence !== 'cao') : p.confidence !== 'cao';
+      const dup = p.ref && Object.entries(S.txns).find(([k, t]) => t.receipt && t.receipt.ref === p.ref);
+      rc = { ref: p.ref || '', party: p.party || '', conf: res ? res.wconf : null, via: res ? 'anh' : 'chu', thumb: res ? res.thumbBlob : null };
+      box.innerHTML = `<div class="row3">${res ? '<canvas id="f-thumb"></canvas>' : ''}<div class="kvs">
+        <div>${type === 'income' ? '💰 Đã nhận' : '💸 Đã thanh toán'} <b class="num ${type === 'income' ? 'pos' : 'neg'}">${type === 'income' ? '+' : '−'}${fmt(p.amount)}</b></div>
+        ${p.date ? `<div>📅 ${fmtDate(p.date)}${p.time ? ' ' + p.time : ''}</div>` : ''}${p.note ? `<div>📝 ${esc(p.note)}</div>` : ''}${p.party ? `<div>👤 ${esc(p.party)}</div>` : ''}${p.ref ? `<div class="muted">Mã GD ${esc(p.ref)}</div>` : ''}
+        <div class="muted" style="font-size:11.5px">${res ? 'Độ tin cậy số tiền ' + res.wconf + '%' : 'Đọc từ nội dung đã dán'} · đã điền sẵn bên dưới, kiểm tra rồi bấm Lưu</div></div></div>
+        ${low ? '<div class="warn">⚠ Chưa chắc chắn – hãy đối chiếu số tiền (ô vàng trên ảnh) trước khi lưu.</div>' : ''}
+        ${dup ? `<div class="warn err">⚠ Biên lai này (mã ${esc(p.ref)}) có vẻ đã nhập ngày ${fmtDate(dup[1].date)}: ${fmt(dup[1].amount)}.</div>` : ''}`;
+      if (res) { const c = box.querySelector('#f-thumb'); drawThumb(c, res, low); c.onclick = () => { const u = URL.createObjectURL(res.thumbBlob || new Blob()); window.open(u, '_blank'); }; }
+      amtEl.classList.toggle('chk', low);
+    };
+    const runOcr = async file => {
+      if (!file || !/^image\//.test(file.type || 'image/')) return toast('Hãy chọn tệp ảnh.');
+      box.innerHTML = `<div id="f-oprog">⏳ Đang chuẩn bị bộ đọc ảnh…<div class="bar"><i style="width:3%"></i></div></div>`;
+      const pr = sh.querySelector('#f-oprog'), bar = () => sh.querySelector('#f-oprog .bar i');
+      try {
+        const res = await ocrReceipt(file, m => { if (!pr.isConnected) return; const pct = Math.round((m.progress || 0) * 100);
+          const lb = /loading|load/i.test(m.status) ? 'Đang tải bộ đọc ảnh (chỉ lần đầu, ~2,6 MB)…' : /initializ/i.test(m.status) ? 'Đang khởi động…' : 'Đang đọc ảnh…';
+          pr.firstChild.nodeValue = '⏳ ' + lb + ' ' + pct + '%'; const b = bar(); if (b) b.style.width = Math.max(3, pct) + '%'; });
+        if (!box.isConnected) return; applyReceipt(res, res);
+      } catch (e) { box.innerHTML = `<div class="warn err">Không đọc được ảnh: ${esc(e.message || 'lỗi')}. ${navigator.onLine ? '' : 'Lần đầu dùng cần có mạng để tải bộ đọc ảnh.'}</div>`; }
+    };
+    if (sh.querySelector('#f-ocr')) { const fi = sh.querySelector('#f-file'); sh.querySelector('#f-ocr').onclick = () => fi.click(); fi.onchange = () => { if (fi.files[0]) runOcr(fi.files[0]); fi.value = ''; }; }
+    if (!id) sh.addEventListener('paste', e => { const f = [...(e.clipboardData && e.clipboardData.files || [])].find(x => /^image\//.test(x.type)); if (f) { e.preventDefault(); runOcr(f); } });
+    if (shareImg) setTimeout(() => runOcr(shareImg), 100);
+    if (ex && ex.receipt) { const rb = document.createElement('div'); rb.className = 'muted'; rb.style.cssText = 'font-size:12.5px;margin:-4px 0 10px'; rb.innerHTML = `🧾 Nhập từ ${ex.receipt.via === 'chu' ? 'nội dung dán' : 'ảnh giao dịch'}${ex.receipt.ref ? ' · mã GD ' + esc(ex.receipt.ref) : ''}${ex.receipt.file ? ' · <a href="#" id="f-rimg">xem ảnh</a>' : ''}`; box.after(rb);
+      const a = rb.querySelector('#f-rimg'); if (a) a.onclick = async e => { e.preventDefault(); const u = await fileURL(ex.receipt.file); if (u) window.open(u, '_blank'); else toast('Ảnh được lưu trên thiết bị đã nhập, không có trên máy này.'); }; }
     const save = sh.querySelector('#f-save');
     sh.querySelector('#txf').addEventListener('submit', e => { e.preventDefault(); busy(save, async () => {
       const amount = parseAmt(sh.querySelector('#f-amt').value);
@@ -1876,6 +2089,12 @@ function txForm(id, preset) {
       if (type === 'transfer' && accountId === toAccountId) return toast('Hai tài khoản phải khác nhau.');
       const data = { type, amount, accountId, date, note: sh.querySelector('#f-note').value.trim(), created: ex && ex.created ? ex.created : Date.now(), ...(ex && ex.sample ? { sample: true } : {}) };
       if (type === 'transfer') data.toAccountId = toAccountId; else data.category = cat;
+      if (ex && ex.receipt) data.receipt = ex.receipt;
+      if (rc) { // nhập từ ảnh / nội dung biên lai: lưu mã GD (chống nhập trùng) + ảnh thu nhỏ trên máy này
+        data.receipt = { ref: rc.ref, party: rc.party, conf: rc.conf, via: rc.via, at: Date.now() };
+        if (rc.thumb && MODE === 'idb') { try { data.receipt.file = (await idbSaveFile(new File([rc.thumb], 'bien-lai.jpg', { type: 'image/jpeg' }))).fileId; } catch (e) { } }
+        // TODO (bản sau): gắn giao dịch với một "mục" (dự án / hạng mục) – trường data.item
+      }
       const tid = id || genId();
       await put('txns', tid, data);
       const st = S.settings.main || {};

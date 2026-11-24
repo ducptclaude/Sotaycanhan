@@ -36,6 +36,20 @@ for (const rel of PUBLIC) {
     cache: rel.startsWith('icons/') ? 'public, max-age=604800' : 'no-cache'
   });
 }
+// ---- Đọc ảnh biên lai (OCR) chạy TRÊN MÁY người dùng: phục vụ Tesseract.js + dữ liệu tiếng Việt từ node_modules ----
+// Đường dẫn có số phiên bản → lưu đệm lâu dài; chỉ phục vụ đúng các tệp liệt kê dưới đây.
+const OCR_VER = (() => { try { return require('tesseract.js/package.json').version; } catch (e) { return ''; } })();
+if (OCR_VER) {
+  const nm = p => path.join(ROOT, 'node_modules', p), V = '/vendor/ocr-' + OCR_VER + '/';
+  const map = { 'tesseract.min.js': nm('tesseract.js/dist/tesseract.min.js'), 'worker.min.js': nm('tesseract.js/dist/worker.min.js'), 'lang/vie.traineddata.gz': nm('@tesseract.js-data/vie/4.0.0_best_int/vie.traineddata.gz') };
+  for (const v of ['', 'simd-', 'relaxedsimd-']) for (const e of ['.wasm.js', '.js', '.wasm']) map['core/tesseract-core-' + v + 'lstm' + e] = nm('tesseract.js-core/tesseract-core-' + v + 'lstm' + e);
+  for (const [rel, src] of Object.entries(map)) {
+    let buf; try { buf = fs.readFileSync(src); } catch (e) { continue; }
+    const js = rel.endsWith('.js'), wasm = rel.endsWith('.wasm');
+    FILES.set(V + rel, { type: js ? 'text/javascript; charset=utf-8' : wasm ? 'application/wasm' : 'application/octet-stream', buf, gz: js || wasm ? zlib.gzipSync(buf, { level: 9 }) : null,
+      etag: '"' + crypto.createHash('sha1').update(buf).digest('base64').slice(0, 16) + '"', cache: 'public, max-age=31536000, immutable' });
+  }
+}
 const APP_VERSION = (() => { try { return require('./package.json').version; } catch (e) { return ''; } })();
 // Header bảo mật: chống nhúng trang (clickjacking), bắt buộc HTTPS, tắt quyền không dùng tới
 const SEC = { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
@@ -65,6 +79,7 @@ const server = http.createServer((req, res) => {
     if (push.handle(req, res)) return;
     if (backup.handle(req, res)) return;
     if (serveStatic(req, res)) return;
+    if (req.method === 'POST' && req.url.split('?')[0] === '/share-target') { req.resume(); res.writeHead(303, { Location: '/#thu-chi', ...SEC }); res.end(); return; } // dự phòng khi Service Worker chưa chạy
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', ...SEC }); res.end('Không tìm thấy');
   } catch (e) { console.error(e); if (!res.headersSent) res.writeHead(500); res.end(); }
 });

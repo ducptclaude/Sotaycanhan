@@ -99,6 +99,25 @@ Mỗi khi có **dữ liệu mới** (nhập trên bất kỳ máy nào, kể c�
 - Không báo khi: sửa mục cũ, dữ liệu mẫu, khôi phục dữ liệu cũ, thay đổi cài đặt.
 - Tuỳ chọn từng máy (👤 → 🔔 Thông báo): bật/tắt báo dữ liệu mới · **báo cả mục do chính máy này nhập** · **hiện số tiền & số dư** (tắt → hiện •••, hợp khi lo người khác nhìn màn hình khoá).
 
+## 4d3. Thêm thu chi nhanh: đính kèm ảnh giao dịch & gõ nhanh (từ bản 1.8.0)
+**📷 Ảnh GD – tự đọc số tiền đã thanh toán / đã nhận** (form Thêm giao dịch):
+- Bấm **📷 Ảnh GD** chọn ảnh chụp màn hình chuyển khoản / thanh toán / nhận tiền, hoặc **dán ảnh** (Ctrl+V), hoặc trên Android: app ngân hàng → **Chia sẻ → Sổ Cá Nhân**.
+- App tự đọc: **số tiền**, **Chi (đã thanh toán) / Thu (đã nhận)**, ngày giờ, nội dung chuyển khoản, người nhận/người chuyển, mã giao dịch; đoán danh mục (điện, nước, lương, xăng…; không đoán được → "Khác") rồi **điền sẵn** – kiểm tra rồi bấm Lưu.
+- Khung **xanh** quanh số tiền trên ảnh = chắc chắn; khung **vàng** + ô số tiền tô vàng = cần đối chiếu lại.
+- Cùng mã giao dịch đã nhập → cảnh báo **trùng**. Ảnh thu nhỏ lưu **trên máy đã nhập** (không gửi lên máy chủ).
+- Chạy **ngay trên điện thoại** (Tesseract + tiếng Việt), **miễn phí**, ảnh **không rời máy**; lần đầu tải bộ đọc ~2,9 MB, sau đó dùng được cả khi **mất mạng**.
+- Cũng có thể **dán nội dung tin nhắn biến động số dư** vào ô gõ nhanh → app tự phân tích.
+
+**Gõ nhanh** (ô trên cùng của form): `@thu/chi@chi tiết số-tiền`
+| Gõ | Kết quả |
+|---|---|
+| `@c` | gợi ý 💸 Chi · 🔁 Chuyển khoản |
+| `@chi@tiendien 845k` → Enter | Chi · Điện · 845.000 |
+| `@chi@dien` | gợi ý danh mục Điện + các lần chi trước có chữ "điện" (chọn → điền lại ghi chú & tài khoản cũ) |
+| `@thu@luong 20tr5` | Thu · Lương · 20.500.000 |
+| `@chi@xang 1,5tr` | Chi · Đi lại · 1.500.000 |
+Gõ **không dấu** được; số tiền: `845k`, `1tr5`, `2,5tr`, `2 trieu`, `845.500`, `1ty`; ↑ ↓ chọn gợi ý, Enter để áp dụng.
+
 ## 4e. Lịch sử giao dịch (Tài chính → Lịch sử)
 - **📜 Sao kê:** mọi giao dịch của một hoặc tất cả tài khoản, **số dư sau từng giao dịch (SD)**, tổng theo tháng; lọc 30 ngày / 3 tháng / 12 tháng / năm nay / tất cả; tiền vào / tiền ra / chuyển khoản; tìm theo nội dung, ghi chú, số tiền; sao chép CSV.
 - Xem tất cả tài khoản: chuyển khoản nội bộ hiện 1 dòng ⇄, không tính vào tiền vào/ra.

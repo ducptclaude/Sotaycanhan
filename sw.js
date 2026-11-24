@@ -8,29 +8,42 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.7.0';
-const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts';
+const VERSION = 'scn-v1.8.0';
+const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts', OCR = 'scn-ocr', SHARE = 'scn-share';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.registration.active ? null : self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== RUNTIME && k !== FONTS).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== RUNTIME && k !== FONTS && k !== OCR && k !== SHARE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 function fromNetAndStore(req, cacheName) {
   return fetch(req).then(res => { if (res && (res.ok || res.type === 'opaque')) { const cp = res.clone(); caches.open(cacheName).then(c => c.put(req, cp)); } return res; });
 }
 self.addEventListener('fetch', e => {
-  const req = e.request; if (req.method !== 'GET') return;
-  const url = new URL(req.url);
+  const req = e.request, url = new URL(req.url);
+  // Ảnh chia sẻ từ app khác (VD app ngân hàng → Chia sẻ → Sổ Cá Nhân, Android): giữ ảnh rồi mở form thêm giao dịch
+  if (req.method === 'POST' && url.origin === location.origin && url.pathname.endsWith('/share-target')) {
+    e.respondWith((async () => {
+      try { const fd = await req.formData(), f = fd.getAll('image').find(x => x && x.size); if (f) await (await caches.open(SHARE)).put('./share-latest', new Response(f, { headers: { 'Content-Type': f.type || 'image/jpeg' } })); } catch (er) { }
+      return Response.redirect('./#thu-chi&nhan-anh', 303);
+    })());
+    return;
+  }
+  if (req.method !== 'GET') return;
   // Phông chữ Google: cache-first
   if (/fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) {
     e.respondWith(caches.match(req).then(hit => hit || fromNetAndStore(req, FONTS).catch(() => new Response('', { status: 504 }))));
     return;
   }
   if (url.origin !== location.origin) return; // máy chủ đồng bộ & nguồn khác: để trình duyệt tự xử lý
+  // Bộ đọc ảnh (Tesseract + tiếng Việt, ~2,6 MB): lưu đệm riêng, giữ qua các lần cập nhật app → tải 1 lần, dùng offline
+  if (url.pathname.includes('/vendor/ocr-')) {
+    e.respondWith(caches.match(req, { cacheName: OCR }).then(hit => hit || fetch(req).then(res => { if (res.ok) { const cp = res.clone(); caches.open(OCR).then(c => c.put(req, cp)); } return res; })));
+    return;
+  }
   if (url.pathname.endsWith('/sw.js')) return;
   if (/^\/(sync|events|health|admin|push|auth)(\/|$)/.test(url.pathname)) return; // API máy chủ: luôn đi thẳng, không lưu đệm (luồng /events không bao giờ kết thúc)
   // Mở trang: trả bản đã lưu ngay (chạy offline), đồng thời cập nhật nền
