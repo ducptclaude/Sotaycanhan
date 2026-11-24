@@ -1,0 +1,24 @@
+Kiểm tra bản 1.8.0 – đính kèm ảnh giao dịch (OCR trên máy: Tesseract.js 7 + tiếng Việt) & gõ nhanh @thu/chi@chi tiết
+Ảnh mẫu: 10 biên lai giả lập (xem nghiên cứu) – CHƯA kiểm tra với ảnh biên lai thật
+✅ Đính kèm ảnh chuyển tiền (lần đầu, tải bộ đọc ảnh) — 1.2 s · số tiền 1.500.000 · expense · 2026-11-24 · ghi chú "Tra tien vat tu cong trinh → NGUYEN VAN BINH"
+✅ Lưu giao dịch kèm mã GD + ảnh thu nhỏ trên máy (không đoán bừa danh mục Ăn uống) — {"amount":1500000,"ref":"FT26328001234","file":true,"via":"anh","cat":"Khác","note":"Tra tien vat tu cong trinh → NGUYEN VAN BINH"}
+✅ Ảnh nhận lương (chụp lại màn hình) → Thu, danh mục Lương — 0.8 s · 20.000.000 · income · Lương · "Luong thang 11 2026 từ CONG TY CP XAY DUNG Z"
+✅ Ảnh giao diện tối — 3.250.000
+✅ Ảnh có số dư & phí gây nhiễu → lấy đúng số tiền 500.000 — 500.000
+✅ Ảnh hoá đơn điện (nén Zalo) → danh mục Điện — 845.500 · Điện
+✅ Ảnh mờ nghiêng (khó) → tô vàng & yêu cầu kiểm tra nếu không chắc — số tiền 20.000 · tô vàng true · có cảnh báo
+✅ Nhập lại cùng biên lai → cảnh báo trùng mã GD — ⚠ Biên lai này (mã FT26328001234) có vẻ đã nhập ngày 24/11/2026: 1.500.000 ₫.
+✅ Dán ảnh (Ctrl+V) → đọc 12.000.000 — 12.000.000
+✅ Dán nội dung tin nhắn ngân hàng → Thu 5.000.000 + nội dung ND — 5.000.000 · income · 2026-11-24 · "Hoan tien tam ung cong trinh"
+✅ Gõ "@c" → gợi ý Chi / Chuyển khoản — 💸 Chi (đã thanh toán) @chi@… | 🔁 Chuyển khoản giữa tài khoản @chuyen@…
+✅ "@chi@tiendien 845k" + Enter → Chi · Điện · 845.000 — gợi ý: 💡 Điện Danh mục | ➕ Ghi chú mới: "tiendien" danh mục Điện → expense · Điện · 845.000
+✅ Gợi ý từ lịch sử (không dấu "dien") → điền lại ghi chú + tài khoản lần trước — gợi ý: 💡 Điện Danh mục | 🕘 Tiền điện tháng 11 nhà Q7 Điện · 1 lần · gần nhất 845.000 ₫ → ghi chú "Tiền điện tháng 11 nhà Q7" · TK tm
+✅ "@thu@luong 20tr5" → Thu · Lương · 20.500.000 — income · Lương · 20.500.000
+✅ "@chi@an 1,5tr" → số tiền 1.500.000 — 1.500.000 · Ăn uống
+✅ "@chi@ 99000" → số tiền 99.000 — 99.000 · Ăn uống
+✅ "@chi@xang 2ty" → số tiền 2.000.000.000 · danh mục Đi lại — 2.000.000.000 · Đi lại
+✅ Chia sẻ ảnh từ app ngân hàng (Android) → mở form & tự đọc 2.345.000 — 2.345.000 · hash #thu-chi
+✅ MẤT MẠNG → vẫn đọc ảnh (bộ đọc đã lưu trên máy) — 1.0 s · 150.000
+Nghiên cứu (Node, 60 ảnh): ảnh gốc/nén/chụp lại 30/30 số tiền; khó: nhỏ-nén 10/10, moiré-loá 9/10, mờ-nghiêng 7° 4/10;
+ngưỡng tin cậy 85 → bắt 6/7 ảnh đọc sai để yêu cầu kiểm tra. Tải lần đầu ~2,9 MB, đọc ~1 s/ảnh.
+Hồi quy: đồng bộ 8/8 · nút đồng bộ 8/8 · tức thời/thông báo/lịch sử · trang Tài khoản 12/12 · thông báo biến động 12/12 · Lỗi JS: []
