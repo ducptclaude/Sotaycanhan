@@ -662,15 +662,41 @@ nav.tabs a.on{color:#fff;background:rgba(255,255,255,.16);font-weight:600}
 .netpill{display:flex;flex-direction:column;align-items:flex-end;border:1px solid var(--beige);background:#fff;border-radius:12px;padding:4px 10px;cursor:pointer;font:inherit;line-height:1.2;max-width:170px}
 .netpill b{font-size:11.5px;font-weight:600;white-space:nowrap}.netpill span{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
 .netpill.off{background:#fde9e7;border-color:#f3b5ad}.netpill.off b{color:#b42318}.netpill.err,.netpill.wait{background:#fff6e0;border-color:#f0d58f}.netpill.sync{background:#eef2fb}
-.lock{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow:auto;padding:28px 16px calc(28px + env(safe-area-inset-bottom))}
-html.locked .lock{display:block}html.locked body{overflow:hidden}
-.lockbox{max-width:380px;margin:5vh auto 0}.lockbox .hd{text-align:center;margin-bottom:16px}.lockbox .logo{font-size:46px;line-height:1}
-.lockbox h2{margin:10px 0 4px;font-size:20px}.lockbox .who{color:var(--text2);font-size:13.5px}
+/* ===== MÀN HÌNH ĐĂNG NHẬP / KHOÁ: ảnh nền dọc (điện thoại) · ngang (web), khung kính mờ ===== */
+.lock{display:none;position:fixed;inset:0;z-index:200;overflow:auto;color:#fff;background:#06173a url(assets/dang-nhap-dien-thoai.webp) center top/cover no-repeat;
+  padding:max(9vh,calc(env(safe-area-inset-top) + 28px)) 18px calc(28px + env(safe-area-inset-bottom));justify-content:center;align-items:flex-start}
+.lock::before{content:'';position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(3,14,38,.35) 0%,rgba(3,14,38,.15) 40%,rgba(3,14,38,.05) 70%,rgba(3,14,38,.35) 100%)}
+html.locked .lock{display:flex}html.locked body{overflow:hidden}
+.lockbox{position:relative;width:min(400px,100%);padding:24px 22px 18px;border-radius:24px;background:rgba(8,26,62,.46);border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 20px 60px rgba(0,8,30,.45),inset 0 1px 0 rgba(255,255,255,.12);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%)}
+.lockbox:empty{display:none}
+.lockbox .hd{text-align:center;margin-bottom:16px}
+.lockbox .logo{position:relative;width:64px;height:64px;margin:0 auto;font-size:0}.lockbox .logo img{width:64px;height:64px;border-radius:18px;box-shadow:0 8px 24px rgba(0,180,200,.35)}
+.lockbox .logo span{position:absolute;right:-8px;bottom:-6px;font-size:20px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.lockbox .brand{font-size:11px;letter-spacing:.22em;color:#8fe3ff;margin-top:12px;font-weight:600}
+.lockbox h2{margin:4px 0 4px;font-size:21px;color:#fff;font-weight:700}.lockbox .who{color:rgba(255,255,255,.75);font-size:13.5px}.lockbox .who b{color:#fff}
+.lockbox label{color:rgba(255,255,255,.85)!important}
+.lockbox input{background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.28)!important;color:#fff!important;border-radius:12px!important;padding:12px 14px!important}
+.lockbox input::placeholder{color:rgba(255,255,255,.55)}.lockbox input:focus{outline:none;border-color:#5fe0d6!important;box-shadow:0 0 0 3px rgba(95,224,214,.25)}
+.lockbox .btn{border-radius:12px;padding:12px 14px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff}
+.lockbox .btn.primary{background:linear-gradient(135deg,#19b8a6,#2a78d6);border:0;color:#fff;box-shadow:0 8px 22px rgba(25,184,166,.35)}
 .lockbox .bio{width:100%;justify-content:center;font-size:16px;padding:14px;margin-bottom:12px}
-.lockbox .msg{background:#fff6e0;border:1px solid #f0d58f;color:#7a4b00;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:12px}
-.lockbox .msg.err{background:#fde9e7;border-color:#f3b5ad;color:#b42318}
-.lockbox .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 12px}.lockbox .or:before,.lockbox .or:after{content:'';flex:1;height:1px;background:var(--line)}
-.lockbox .links{display:flex;justify-content:space-between;gap:8px;margin-top:14px;font-size:13px}.lockbox .links a{color:var(--accent);cursor:pointer;text-decoration:none}
+.lockbox .msg{background:rgba(255,196,0,.14);border:1px solid rgba(255,196,0,.45);color:#ffe7a3;border-radius:12px;padding:9px 12px;font-size:13px;margin-bottom:12px}
+.lockbox .msg.err{background:rgba(255,90,80,.16);border-color:rgba(255,120,110,.5);color:#ffd0cb}
+.lockbox .or{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.65);font-size:12px;margin:4px 0 12px}.lockbox .or:before,.lockbox .or:after{content:'';flex:1;height:1px;background:rgba(255,255,255,.22)}
+.lockbox .links{display:flex;justify-content:space-between;gap:8px;margin-top:14px;font-size:13px}.lockbox .links a{color:#8fe3ff;cursor:pointer;text-decoration:none}.lockbox .links .muted{color:rgba(255,255,255,.6)}
+.lockbox p.muted,.lockbox .muted{color:rgba(255,255,255,.6)!important}
+.lockbox .lfoot{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12);text-align:center;font-size:11px;color:rgba(255,255,255,.55);line-height:1.6}
+/* Web / máy tính bảng ngang: ảnh ngang, khung ở bên trái (vùng nền tối) */
+@media (min-width:760px) and (min-aspect-ratio:1/1){
+  .lock{background-image:url(assets/dang-nhap-web.webp);background-position:center;align-items:center;justify-content:flex-start;padding:32px 0 32px max(6vw,40px)}
+  .lock::before{background:linear-gradient(90deg,rgba(3,12,34,.72) 0%,rgba(3,12,34,.45) 32%,rgba(3,12,34,.05) 62%,transparent 80%)}
+  .lockbox{width:420px;padding:30px 28px 20px}
+}
+@media (prefers-reduced-transparency:reduce){.lockbox{background:rgba(8,26,62,.88);backdrop-filter:none}}
+.lockbox .f{margin-bottom:10px}.lockbox .f input{padding:11px 14px!important}
+@media (max-width:759px),(max-aspect-ratio:1/1){.lockbox .logo,.lockbox .logo img{width:52px;height:52px}.lockbox .logo img{border-radius:15px}.lockbox .brand{margin-top:8px}.lockbox h2{font-size:19px}.lockbox .hd{margin-bottom:12px}.lockbox{padding:20px 18px 14px}.lockbox .bio{padding:12px;font-size:15px}}
+@media (max-height:720px){.lock{padding-top:max(4vh,calc(env(safe-area-inset-top) + 14px))}.lockbox .who{display:none}}
 .acct .row2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}.acct .row2:last-child{border-bottom:0}
 .acct details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--card)}.acct summary{font-weight:600;color:var(--text);margin:0}
 .acctbtn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:19px;text-decoration:none;position:relative}
@@ -726,7 +752,7 @@ html.locked .lock{display:block}html.locked body{overflow:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo">🔒</div><h2>Sổ Cá Nhân</h2><div class="who">Đang mở…</div></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1005,7 +1031,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.10.0';
+const APP_VER = '1.11.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1418,7 +1444,7 @@ async function authBoot() {
   try { const bl = await bioAll(); if (!bl.length && (AUTH.L.creds || []).length) { for (const id of AUTH.L.creds) await bioPut({ id, spki: '', alg: 0, name: 'Khoá cũ', created: Date.now(), counter: 0 }); } AUTH.L.creds = (await bioAll()).map(x => x.id); } catch (e) { } // chuyển khoá cũ sang CSDL sinh trắc
   if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); credsRefresh().then(() => { if (AUTH.mode === 'unlock') lockRender(); }); return; }
   lsLock(false); lockHide();
-  if (authBase() && navigator.onLine) authStatus().then(st => { if (st && st.setup && !(AUTH.L && AUTH.L.on)) lockShow('login', 'Hệ thống đã bật tài khoản chủ. Đăng nhập để dùng và đồng bộ dữ liệu.'); });
+  if (authBase() && navigator.onLine) authStatus().then(st => { if (st && st.setup && !(AUTH.L && AUTH.L.on)) lockShow('login', 'Đăng nhập để dùng và đồng bộ dữ liệu.'); });
 }
 // Máy chủ từ chối phiên (hết hạn / bị thu hồi / đổi mật khẩu) → yêu cầu đăng nhập lại
 let _authExp = 0;
@@ -1442,28 +1468,29 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo">🔒</div><h2>Sổ Cá Nhân đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo">🔑</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo">🔐</div><h2>Đăng nhập Sổ Cá Nhân</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
-      ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Đăng nhập bằng vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
-      <form id="lk-form" autocomplete="on"><div class="f"><label>ID hoặc số điện thoại</label><input id="lk-id" name="username" autocomplete="username" value="${esc(kId || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
-      <div class="f"><label>Mật khẩu</label><input id="lk-pw" type="password" autocomplete="current-password"></div>
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+      ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
+      <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
+      <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
       <button class="btn ${st.passkeys ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Đăng nhập</button></form>
       <div class="links"><a id="lk-reset">Quên mật khẩu?</a>${L.on ? '<a id="lk-out">Đăng xuất khỏi máy này</a>' : ''}</div>`;
   }
-  box.innerHTML = h;
+  box.innerHTML = h + `<div class="lfoot">🔐 HTTPS · Sinh trắc chỉ trên thiết bị · Dữ liệu riêng tư · v${APP_VER}</div>`;
   const q = id => box.querySelector('#' + id), busy = (b, on) => { if (b) { b.disabled = on; } };
+  if (q('lk-id')) q('lk-id').addEventListener('input', e => { AUTH.idTyped = e.target.value; });
   if (q('lk-bio')) q('lk-bio').onclick = () => unlockBio();
   if (q('lk-pk')) q('lk-pk').onclick = () => loginPasskey(q('lk-pk'));
   if (q('lk-reset')) q('lk-reset').onclick = () => lockShow('reset');

@@ -1,0 +1,6 @@
+Kiểm tra bản 1.11.0 – giao diện đăng nhập mới (ảnh nền dọc cho điện thoại, ngang cho web)
+360×740, 390×844, 820×1180 (dọc): ảnh dọc · khung 575 px vừa màn hình · không tràn ngang
+1366×768, 1920×1080 (ngang): ảnh ngang · khung bên trái · vừa màn hình
+Trạng thái: đăng nhập (vân tay), đã khoá, báo lỗi (giữ ID đã gõ), quên mật khẩu · Lỗi JS: []
+Đã sửa khi kiểm tra: khung quá cao trên điện thoại (721 → 575 px); mất ID đã gõ khi quay lại từ Quên mật khẩu
+Hồi quy: đăng nhập 21/21 · sinh trắc thiết bị 11/11 · xác thực lại 8/8 · vân tay 11/11

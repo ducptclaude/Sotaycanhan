@@ -147,6 +147,8 @@ Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử
 - Từ lúc đó, **mọi thiết bị phải đăng nhập** (ID hoặc SĐT + mật khẩu, hoặc vân tay / Face ID). Mã `SYNC_TOKEN` **không còn mở được dữ liệu** – chỉ dùng để **đặt lại mật khẩu** khi quên.
 - Các máy khác đang dùng mã cũ sẽ tự hiện màn hình **Đăng nhập** → đăng nhập 1 lần → tiếp tục đồng bộ như cũ.
 
+**Giao diện đăng nhập (từ bản 1.11.0):** ảnh nền tài chính – **ảnh dọc** trên điện thoại / máy tính bảng dọc, **ảnh ngang** trên web (laptop, màn hình lớn); khung kính mờ (trên điện thoại ở phần trời tối phía trên, trên web ở bên trái). Ảnh nằm trong `assets/`, lưu sẵn để màn hình khoá hiện cả khi mất mạng. Thay ảnh: ghi đè `assets/dang-nhap-dien-thoai.webp` (dọc) và `assets/dang-nhap-web.webp` (ngang).
+
 **Khoá app:** khoá khi mở app và sau **5 phút** không dùng (đổi được: 1 / 5 / 15 / 30 phút hoặc chỉ khi mở app). Mở bằng **👆 vân tay / Face ID / Windows Hello** hoặc mật khẩu – **chạy cả khi mất mạng**.
 
 **Trang Tài khoản (nút 👤 ở góc trên, từ bản 1.6.0)** – chấm xanh trên 👤 = đã đăng nhập:

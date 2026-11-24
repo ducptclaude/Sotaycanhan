@@ -23,9 +23,10 @@ const ON_RAILWAY = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PRO
 let sync = null, push = null, backup = null, store = null, auth = null;
 
 // ---- Tệp tĩnh: CHỈ các tệp của ứng dụng (không lộ server/, data/, kiem-tra/…) ----
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 const PUBLIC = ['index.html', 'sw.js', 'manifest.webmanifest'];
 try { fs.readdirSync(path.join(ROOT, 'icons')).forEach(f => PUBLIC.push('icons/' + f)); } catch (e) { }
+try { fs.readdirSync(path.join(ROOT, 'assets')).filter(f => /\.(webp|png|jpg|svg)$/.test(f)).forEach(f => PUBLIC.push('assets/' + f)); } catch (e) { } // ảnh nền đăng nhập
 const FILES = new Map(); // nạp sẵn vào bộ nhớ + nén gzip một lần
 for (const rel of PUBLIC) {
   const ext = path.extname(rel), buf = fs.readFileSync(path.join(ROOT, rel));
@@ -34,7 +35,7 @@ for (const rel of PUBLIC) {
     type: TYPES[ext] || 'application/octet-stream', buf, gz: text ? zlib.gzipSync(buf, { level: 9 }) : null,
     etag: '"' + crypto.createHash('sha1').update(buf).digest('base64').slice(0, 16) + '"',
     // trang & service worker: luôn hỏi lại máy chủ (để có bản mới); biểu tượng: lưu 7 ngày
-    cache: rel.startsWith('icons/') ? 'public, max-age=604800' : 'no-cache'
+    cache: /^(icons|assets)\//.test(rel) ? 'public, max-age=604800' : 'no-cache'
   });
 }
 // ---- Đọc ảnh biên lai (OCR) chạy TRÊN MÁY người dùng: phục vụ Tesseract.js + dữ liệu tiếng Việt từ node_modules ----
