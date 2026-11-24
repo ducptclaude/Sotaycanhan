@@ -35,7 +35,7 @@ for (const rel of PUBLIC) {
     type: TYPES[ext] || 'application/octet-stream', buf, gz: text ? zlib.gzipSync(buf, { level: 9 }) : null,
     etag: '"' + crypto.createHash('sha1').update(buf).digest('base64').slice(0, 16) + '"',
     // trang & service worker: luôn hỏi lại máy chủ (để có bản mới); biểu tượng: lưu 7 ngày
-    cache: /^(icons|assets)\//.test(rel) ? 'public, max-age=604800' : 'no-cache'
+    cache: 'no-cache' /* icon/ảnh nền: luôn hỏi lại máy chủ (ETag → 304 nếu không đổi) để đổi logo là máy nhận ngay */
   });
 }
 // ---- Đọc ảnh biên lai (OCR) chạy TRÊN MÁY người dùng: phục vụ Tesseract.js + dữ liệu tiếng Việt từ node_modules ----
