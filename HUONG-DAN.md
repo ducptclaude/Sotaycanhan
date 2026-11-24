@@ -116,9 +116,17 @@ Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử
 
 **Khoá app:** khoá khi mở app và sau **5 phút** không dùng (đổi được: 1 / 5 / 15 / 30 phút hoặc chỉ khi mở app). Mở bằng **👆 vân tay / Face ID / Windows Hello** hoặc mật khẩu – **chạy cả khi mất mạng**.
 
-**Tài khoản & bảo mật:** xem ID / SĐT · thêm/xoá vân tay của từng máy · danh sách **thiết bị đang đăng nhập** và **thu hồi** máy bị mất · đổi mật khẩu (kèm đăng xuất mọi máy khác) · sửa ID / SĐT · khoá ngay · đăng xuất (có tuỳ chọn xoá dữ liệu trên máy).
+**Trang Tài khoản (nút 👤 ở góc trên, từ bản 1.6.0)** – chấm xanh trên 👤 = đã đăng nhập:
+| Mục | Quản lý |
+|---|---|
+| 🪪 Hồ sơ | ID đăng nhập, số điện thoại (sửa cần mật khẩu hiện tại) |
+| 🔐 Đăng nhập & bảo mật | Đổi mật khẩu (tuỳ chọn đăng xuất máy khác) · tự khoá app (1/5/15/30 phút / chỉ khi mở) · vân tay / Face ID của từng máy (bật / xoá) · khoá ngay |
+| 🔔 Thông báo | Bật / tắt / gửi thử trên máy này · chọn loại: **dữ liệu mới từ thiết bị khác**, **sao lưu hằng tuần** · danh sách máy đang nhận thông báo |
+| 💻 Thiết bị đã đăng nhập | Tên máy, đăng nhập bằng gì, lúc nào, hoạt động gần nhất, có nhận thông báo không · **Thu hồi** từng máy · đăng xuất mọi máy khác |
 
-**An toàn:** mật khẩu băm scrypt (máy chủ) và PBKDF2 (máy, để mở khi mất mạng) – không lưu dạng chữ · vân tay không rời khỏi máy (chuẩn WebAuthn / passkey, máy chủ chỉ giữ khoá công khai) · sai mật khẩu 5 lần → khoá 15 phút (tăng dần) · ID / SĐT không hiện ở bất kỳ đường dẫn công khai nào.
+Thu hồi một máy (VD bị mất) → máy đó bị đăng xuất, **không đồng bộ** và **không nhận thông báo** nữa; vân tay đã xoá không mở được app trên máy đó khi có mạng.
+
+**An toàn (rà soát bản 1.6.0):** chống dò mật khẩu cả khi đổi địa chỉ IP (10 lần sai / 15 phút → khoá mật khẩu, vân tay vẫn đăng nhập được) · thời gian phản hồi như nhau dù ID đúng hay sai (không đoán được ID/SĐT) · `/health` công khai chỉ trả "ok" · không cho trang web khác gọi máy chủ (CORS) · chống nhúng trang (clickjacking), bắt buộc HTTPS · mật khẩu băm scrypt (máy chủ) và PBKDF2 (máy, để mở khi mất mạng) – không lưu dạng chữ · vân tay không rời khỏi máy (chuẩn WebAuthn / passkey, máy chủ chỉ giữ khoá công khai) · sai mật khẩu 5 lần → khoá 15 phút (tăng dần) · ID / SĐT không hiện ở bất kỳ đường dẫn công khai nào.
 
 **Quên mật khẩu:** màn hình đăng nhập → **Quên mật khẩu?** → nhập mã `SYNC_TOKEN` (trong Railway → Variables) + mật khẩu mới → mọi máy khác bị đăng xuất.
 

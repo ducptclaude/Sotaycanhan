@@ -78,15 +78,24 @@ function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = 
         if (!sub.endpoint || !/^https:\/\//.test(sub.endpoint) || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) return sync.send(res, 400, { error: 'Đăng ký không hợp lệ' });
         const device = String(q.device || '').slice(0, 64), name = String(q.name || '').slice(0, 40);
         // mỗi thiết bị chỉ giữ 1 đăng ký mới nhất
+        const oldPrefs = (Object.values(subs).find(x => x.device === device) || {}).prefs; // giữ tuỳ chọn khi đăng ký lại
         Object.keys(subs).forEach(k => { if (device && subs[k].device === device && subs[k].sub.endpoint !== sub.endpoint) delete subs[k]; });
         const k = keyOf(sub.endpoint);
-        subs[k] = { sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, device, name, prefs: q.prefs || {}, created: (subs[k] && subs[k].created) || Date.now() };
+        subs[k] = { sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, device, name, prefs: q.prefs || oldPrefs || {}, created: (subs[k] && subs[k].created) || Date.now() };
         if (device) names[device] = name; saveSubs();
         return sync.send(res, 200, { ok: true, devices: Object.keys(subs).length });
       }
       if (url === '/push/unsubscribe') {
         Object.keys(subs).forEach(k => { if ((q.endpoint && subs[k].sub.endpoint === q.endpoint) || (q.device && subs[k].device === q.device)) delete subs[k]; });
         saveSubs(); return sync.send(res, 200, { ok: true });
+      }
+      if (url === '/push/list') {
+        return sync.send(res, 200, { devices: Object.values(subs).map(s => ({ device: s.device, name: s.name, created: s.created, lastOk: s.lastOk || 0, prefs: s.prefs || {} })) });
+      }
+      if (url === '/push/prefs') { // tuỳ chọn loại thông báo của 1 thiết bị: { data: true/false, backup: true/false }
+        const p = q.prefs || {}, clean = {}; ['data', 'backup'].forEach(k => { if (typeof p[k] === 'boolean') clean[k] = p[k]; });
+        let n = 0; Object.values(subs).forEach(s => { if (s.device === String(q.device || '')) { s.prefs = { ...(s.prefs || {}), ...clean }; n++; } });
+        if (n) saveSubs(); return sync.send(res, 200, { ok: true, updated: n });
       }
       if (url === '/push/test') {
         const list = Object.entries(subs).filter(([, s]) => !q.device || s.device === q.device);
@@ -97,6 +106,11 @@ function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = 
     });
     return true;
   }
-  return { handle, onChange, broadcast, enabled, info: () => ({ enabled, devices: Object.keys(subs).length }) };
+  // Thiết bị bị thu hồi / đăng xuất → xoá đăng ký thông báo (máy bị mất không nhận nội dung nữa)
+  function removeDevices(mode, device) {
+    let n = 0; Object.keys(subs).forEach(k => { const d = subs[k].device; if ((mode === 'device' && d === device) || (mode === 'others' && d !== device) || mode === 'all') { delete subs[k]; n++; } });
+    if (n) saveSubs(); return n;
+  }
+  return { handle, onChange, broadcast, enabled, removeDevices, info: () => ({ enabled, devices: Object.keys(subs).length }) };
 }
 module.exports = { createPush };

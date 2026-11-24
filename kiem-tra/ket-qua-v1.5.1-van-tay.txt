@@ -1,0 +1,8 @@
+Chạy thử tính năng vân tay / Face ID – bản 1.5.1 (Chromium + cảm biến WebAuthn giả lập; ảnh: 11-van-tay-tung-buoc.png)
+✅ Bật vân tay · ✅ Mở bằng vân tay khớp · ✅ Vân tay không khớp → không mở · ✅ Thử lại → mở
+✅ Mất mạng → vẫn mở bằng vân tay · ✅ Đăng nhập bằng vân tay (máy chủ xác minh chữ ký)
+✅ Máy B không dùng được vân tay của A · ✅ Bật vân tay riêng cho B · ✅ Danh sách vân tay 2 máy
+✅ Xoá vân tay của B → B không mở bằng vân tay được nữa (bản 1.5.0 LỖI – sửa ở 1.5.1)
+✅ Máy không có cảm biến: chỉ mật khẩu, ghi rõ lý do
+22 bước đăng nhập chạy lại: đạt. Lỗi JS: []
+Chưa kiểm tra: cảm biến THẬT trên điện thoại.

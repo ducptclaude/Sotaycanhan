@@ -672,6 +672,15 @@ html.locked .lock{display:block}html.locked body{overflow:hidden}
 .lockbox .links{display:flex;justify-content:space-between;gap:8px;margin-top:14px;font-size:13px}.lockbox .links a{color:var(--accent);cursor:pointer;text-decoration:none}
 .acct .row2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}.acct .row2:last-child{border-bottom:0}
 .acct details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--card)}.acct summary{font-weight:600;color:var(--text);margin:0}
+.acctbtn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:19px;text-decoration:none;position:relative}
+@media (max-width:380px){.acctbtn{width:32px;height:32px;font-size:16px;flex:none}.hdr-r{gap:6px;flex-wrap:nowrap}.netpill{padding:3px 7px;max-width:118px}.netpill b{font-size:11px}.netpill span{max-width:104px}header.top>div:first-child{min-width:0}}
+.acctbtn.on:after{content:'';position:absolute;right:1px;bottom:1px;width:10px;height:10px;border-radius:50%;background:#17803d;box-shadow:0 0 0 2px var(--card)}
+.acp .hero{display:flex;gap:14px;align-items:center}.acp .av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:color-mix(in srgb,var(--accent) 14%,transparent);flex:none}
+.acp .kv2{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.acp .kv2:last-child{border-bottom:0}.acp .kv2 .l{color:var(--text2)}
+.acp .dev{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.acp .dev:last-child{border-bottom:0}.acp .dev .ic{font-size:22px;width:30px;text-align:center}.acp .dev .m{flex:1;min-width:0}
+.acp .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--card2);color:var(--text2);margin-left:4px}.acp .tag.ok{background:#e3f4e8;color:#17803d}
+.acp .sw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;font-size:14px}.acp .sw input{width:20px;height:20px}
+.acp .fold{display:none;margin-top:8px}.acp .fold.open{display:block}
 .syncfab{position:fixed;right:24px;bottom:calc(142px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent);box-shadow:0 3px 10px rgba(0,0,0,.18);cursor:pointer;z-index:21;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;transition:transform .12s}
 .syncfab svg{width:22px;height:22px;display:block}
 .syncfab:active{transform:scale(.92)}
@@ -691,7 +700,7 @@ html.locked .lock{display:block}html.locked body{overflow:hidden}
       <h1 id="title">Tổng quan</h1>
       <div class="sub" id="subtitle">Sổ cá nhân · Tài chính</div>
     </div>
-    <div class="hdr-r"><div id="hdr-right"></div><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
+    <div class="hdr-r"><div id="hdr-right"></div><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
   </header>
   <div id="offbar"></div>
   <div id="note"></div>
@@ -968,7 +977,7 @@ const S = { accounts: {}, txns: {}, loans: {}, savings: {}, settings: {}, health
 const got = new Set();
 let MODE = 'loading', NOTE = '';
 const UI = { tab: 'tong-quan', month: ymOf(today()), txFilter: 'all', txSearch: '', loanId: null, calMonth: ymOf(today()), calDay: today(), hMetric: 'weight', hRange: 90, planSeg: 'todo', showDone: false, learnSeg: 'path', openWeek: null, cardQ: '', cardDeck: '', noteQ: '', ctQ: '', ctGroup: '', per: { mode: 'month', anchor: today(), from: '', to: '' }, txCat: '', txAcc: '', asOf: '', open: {}, openAll: false, accId: null };
-const TABS = { 'lich-su-gd': 'fin', 'tong-quan': 'home', 'tong-ket': 'home', 'ngan-sach': 'fin', 'danh-ba': 'cal', 'su-kien': 'cal', 'nhac-nho': 'cal', 'uong-thuoc': 'cal', 'tieng-anh': 'learn', 'the-tu': 'learn', 'khoa-hoc': 'learn', 'doc-sach': 'learn', 'nhat-ky-hoc': 'learn', 'ngay-ky-niem': 'cal', 'ngay-le': 'cal', 'muc-tieu': 'plan', 'thoi-quen': 'plan', 'ghi-chep': 'plan', 'tai-chinh': 'fin', 'thu-chi': 'fin', 'vay-no': 'fin', 'tiet-kiem': 'fin', 'tai-khoan': 'fin', 'tai-san': 'fin', 'hoc-tap': 'learn', 'suc-khoe': 'health', 'lich': 'cal', 'ke-hoach': 'plan' };
+const TABS = { 'ca-nhan': 'acct', 'lich-su-gd': 'fin', 'tong-quan': 'home', 'tong-ket': 'home', 'ngan-sach': 'fin', 'danh-ba': 'cal', 'su-kien': 'cal', 'nhac-nho': 'cal', 'uong-thuoc': 'cal', 'tieng-anh': 'learn', 'the-tu': 'learn', 'khoa-hoc': 'learn', 'doc-sach': 'learn', 'nhat-ky-hoc': 'learn', 'ngay-ky-niem': 'cal', 'ngay-le': 'cal', 'muc-tieu': 'plan', 'thoi-quen': 'plan', 'ghi-chep': 'plan', 'tai-chinh': 'fin', 'thu-chi': 'fin', 'vay-no': 'fin', 'tiet-kiem': 'fin', 'tai-khoan': 'fin', 'tai-san': 'fin', 'hoc-tap': 'learn', 'suc-khoe': 'health', 'lich': 'cal', 'ke-hoach': 'plan' };
 const EV_CATS = { work: ['Công việc', '💼'], meeting: ['Hẹn gặp', '🤝'], personal: ['Cá nhân', '🙂'], family: ['Gia đình', '👨‍👩‍👧'], party: ['Đám cưới / hỏi / tiệc', '💐'], anniv: ['Đám giỗ / tang lễ', '🕯️'], bill: ['Hóa đơn / đóng tiền', '💡'], vehicle: ['Xe cộ', '🚗'], doc: ['Giấy tờ / gia hạn', '🪪'], worship: ['Cúng lễ / tâm linh', '🙏'], health: ['Sức khỏe', '🩺'], sport: ['Thể thao', '🏃'], study: ['Học tập', '📚'], travel: ['Du lịch / công tác', '✈️'], other: ['Khác', '📌'] };
 const REPEATS = { none: 'Không lặp', daily: 'Hằng ngày', weekdays: 'Ngày làm việc (T2–T6)', weekly: 'Hằng tuần', monthly: 'Hằng tháng (dương lịch)', quarterly: 'Hằng quý (3 tháng)', halfyear: '6 tháng một lần', yearly: 'Hằng năm (dương lịch)', lunar_1_15: 'Mùng 1 & Rằm (âm lịch)', lunar_monthly: 'Hằng tháng (âm lịch)', lunar_yearly: 'Hằng năm (âm lịch)' };
 const AREAS = { finance: ['Tài chính', '💰'], health: ['Sức khỏe', '❤️'], study: ['Học tập', '📚'], career: ['Sự nghiệp', '🏗️'], family: ['Gia đình', '👨‍👩‍👧'], personal: ['Cá nhân', '🌱'] };
@@ -987,7 +996,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.5.0';
+const APP_VER = '1.6.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1188,6 +1197,7 @@ function netUI() {
   const bar = document.getElementById('offbar'); if (bar) { bar.className = isOnline() ? '' : 'show'; bar.innerHTML = isOnline() ? '' : `📴 Mất kết nối Internet – bạn vẫn xem, nhập và sửa dữ liệu bình thường. ${MODE === 'idb' ? 'Mọi thay đổi đã lưu trên máy' + (IDB.cfg.url ? ' và sẽ tự đồng bộ khi có mạng.' : '.') : 'Thay đổi sẽ được gửi khi có mạng trở lại.'}`; }
   const sp = document.getElementById('sys-live'); if (sp) sp.innerHTML = sysStatusHTML();
   syncFabUI();
+  const ab = document.getElementById('acctbtn'); if (ab) { ab.style.display = MODE === 'idb' ? '' : 'none'; ab.classList.toggle('on', !!(AUTH.L && AUTH.L.on)); }
 }
 // Nút đồng bộ nhanh (mũi tên xoay, trên nút +)
 let _syncSpinUntil = 0;
@@ -1397,7 +1407,7 @@ const saveL = () => idbSet('meta', 'auth', AUTH.L).catch(() => { });
 async function authStatus() { try { const r = await fetch(authBase() + '/auth/status', { cache: 'no-store' }); if (r.ok) AUTH.st = await r.json(); } catch (e) { } return AUTH.st; }
 async function authBoot() {
   AUTH.L = (await idbGet('meta', 'auth').catch(() => null)) || {};
-  if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); return; }
+  if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); credsRefresh().then(() => { if (AUTH.mode === 'unlock') lockRender(); }); return; }
   lsLock(false); lockHide();
   if (authBase() && navigator.onLine) authStatus().then(st => { if (st && st.setup && !(AUTH.L && AUTH.L.on)) lockShow('login', 'Hệ thống đã bật tài khoản chủ. Đăng nhập để dùng và đồng bộ dữ liệu.'); });
 }
@@ -1459,13 +1469,26 @@ async function lockRender() {
 }
 function lockMsg(m, err) { AUTH.msg = m; AUTH.err = err !== false; lockRender(); }
 // ---- Mở khoá trên máy (chạy cả khi mất mạng) ----
-function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
+function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); credsRefresh(); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
+// Đồng bộ danh sách vân tay của máy này với máy chủ: vân tay đã bị xoá khỏi tài khoản (VD máy bị mất) thì không dùng được nữa
+async function credsRefresh() {
+  if (!navigator.onLine || !IDB.cfg.token || !AUTH.L || !(AUTH.L.creds || []).length) return;
+  try {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+    const r = await fetch(authBase() + '/auth/me', { cache: 'no-store', signal: ctl.signal, headers: { Authorization: 'Bearer ' + IDB.cfg.token } }); clearTimeout(t);
+    if (!r.ok) return; const me = await r.json();
+    const keep = AUTH.L.creds.filter(c => me.passkeys.some(p => c.startsWith(p.id)));
+    if (keep.length !== AUTH.L.creds.length) { AUTH.L.creds = keep; await saveL(); }
+  } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
+}
 async function unlockBio() {
   try {
+    await credsRefresh();
+    if (!(AUTH.L.creds || []).length) { lockMsg('Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong Tài khoản & bảo mật.'); return; }
     const ids = AUTH.L.creds || [];
     const c = await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rpId: location.hostname, allowCredentials: ids.map(id => ({ type: 'public-key', id: b64u(id) })), userVerification: 'required', timeout: 60000 } });
     if (c && ids.includes(c.id)) unlocked(); else lockMsg('Khoá truy cập không thuộc máy này.');
-  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Đã huỷ hoặc hết thời gian xác thực.' : 'Không mở được bằng vân tay: ' + (e.message || e.name)); }
+  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : 'Không mở được bằng vân tay: ' + (e.message || e.name)); }
 }
 async function unlockPw(pw) {
   if (Date.now() < AUTH.waitUntil) return lockMsg(`Sai nhiều lần – thử lại sau ${Math.ceil((AUTH.waitUntil - Date.now()) / 1000)} giây.`);
@@ -1492,7 +1515,7 @@ async function loginPasskey(btn) {
     const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
     const r = await authPost('/auth/passkey/login', { flow, response: credJSON(c), device: IDB.device, name: devName() });
     await authSaved(r, null, c.id);
-  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Đã huỷ hoặc hết thời gian xác thực.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e.message || 'Đăng nhập không thành công')); }
+  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được – vân tay không khớp, đã huỷ, hoặc máy này chưa bật vân tay cho tài khoản (hãy đăng nhập bằng mật khẩu rồi bật).' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e.message || 'Đăng nhập không thành công')); }
   finally { if (btn) btn.disabled = false; }
 }
 async function authReset(tok, pw, pw2) {
@@ -1546,7 +1569,7 @@ setInterval(() => { if (!document.hidden && lockDue(_lastAct)) lockShow('unlock'
 // ---- Bảng Tài khoản & bảo mật ----
 async function sysAcctUI() {
   const el = document.getElementById('sys-acct'); if (!el) return;
-  if (AUTH.L && AUTH.L.on) { el.innerHTML = `✓ Đăng nhập: <b>${esc(AUTH.L.id)}</b>${AUTH.L.phone ? ' · ' + esc(AUTH.L.phone) : ''} · tự khoá sau ${AUTH.L.lockMin ? AUTH.L.lockMin + ' phút' : '(chỉ khi mở app)'}<div class="actions" style="justify-content:flex-start;margin:6px 0 0;flex-wrap:wrap"><button type="button" class="btn sm primary" id="sys-acc-open">🔐 Tài khoản & bảo mật</button><button type="button" class="btn sm" id="sys-lock">🔒 Khoá ngay</button></div>`; document.getElementById('sys-acc-open').onclick = acctForm; document.getElementById('sys-lock').onclick = () => lockShow('unlock'); return; }
+  if (AUTH.L && AUTH.L.on) { el.innerHTML = `✓ Đăng nhập: <b>${esc(AUTH.L.id)}</b>${AUTH.L.phone ? ' · ' + esc(AUTH.L.phone) : ''} · tự khoá sau ${AUTH.L.lockMin ? AUTH.L.lockMin + ' phút' : '(chỉ khi mở app)'}<div class="actions" style="justify-content:flex-start;margin:6px 0 0;flex-wrap:wrap"><button type="button" class="btn sm primary" id="sys-acc-open">👤 Mở trang Tài khoản</button><button type="button" class="btn sm" id="sys-lock">🔒 Khoá ngay</button></div>`; document.getElementById('sys-acc-open').onclick = () => { closeModal(); location.hash = '#ca-nhan'; }; document.getElementById('sys-lock').onclick = () => lockShow('unlock'); return; }
   const st = authBase() ? await authStatus() : null;
   if (st && st.setup) { el.innerHTML = 'Hệ thống đã có tài khoản chủ.<div class="actions" style="justify-content:flex-start;margin:6px 0 0"><button type="button" class="btn sm primary" id="sys-login">Đăng nhập</button></div>'; document.getElementById('sys-login').onclick = () => lockShow('login'); return; }
   if (st && IDB.cfg.url) { el.innerHTML = 'Chưa có tài khoản. Tạo tài khoản chủ để đăng nhập bằng <b>ID/SĐT + mật khẩu</b> hoặc <b>vân tay / Face ID</b>, khoá app khi không dùng.<div class="actions" style="justify-content:flex-start;margin:6px 0 0"><button type="button" class="btn sm primary" id="sys-setup">🔐 Tạo tài khoản chủ</button></div>'; document.getElementById('sys-setup').onclick = setupForm; return; }
@@ -1571,41 +1594,96 @@ function setupForm() {
     };
   });
 }
-async function acctForm() {
-  let me; try { me = await apiFetch('/auth/me'); } catch (e) { return toast(e.message); }
-  AUTH.L = { ...AUTH.L, id: me.id, phone: me.phone }; saveL();
-  const dt = ts => ts ? hmOf(ts) + ' ' + fmtDate(dsOf(ts)) : '—', via = { password: 'mật khẩu', passkey: 'vân tay/Face ID', setup: 'tạo tài khoản', reset: 'đặt lại MK' };
-  const hasLocal = (AUTH.L.creds || []).length, plat = await waPlatform();
-  openModal(`<div id="acct" class="acct"><h3>🔐 Tài khoản & bảo mật<button class="iconbtn" data-x>✕</button></h3>
-    <div class="card" style="margin:0 0 10px"><div class="row2"><span>ID</span><b>${esc(me.id)}</b></div><div class="row2"><span>Số điện thoại</span><b>${esc(me.phone || '—')}</b></div><div class="row2"><span>Tạo lúc</span><span>${dt(me.created)}</span></div>
-      <div class="row2"><span>Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${AUTH.L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
-    <details open><summary>👆 Vân tay / Face ID (${me.passkeys.length})</summary>
-      ${me.passkeys.map(p => `<div class="row2"><span>${esc(p.name)}<br><span class="muted" style="font-size:11.5px">thêm ${dt(p.created)} · dùng ${dt(p.used)}</span></span><button class="btn sm" data-pkdel="${esc(p.id)}">Xoá</button></div>`).join('') || '<div class="muted" style="font-size:12.5px;padding:6px 0">Chưa có.</div>'}
-      ${plat && !hasLocal ? '<button class="btn sm primary" id="ac-pk" style="margin-top:6px">👆 Bật cho máy này</button>' : hasLocal ? '<div class="muted" style="font-size:12px;margin-top:6px">✓ Máy này đã bật mở khoá bằng vân tay / Face ID.</div>' : '<div class="muted" style="font-size:12px;margin-top:6px">Máy này không có cảm biến vân tay / Face ID / Windows Hello.</div>'}</details>
-    <details><summary>💻 Thiết bị đang đăng nhập (${me.sessions.length})</summary>
-      ${me.sessions.map(x => `<div class="row2"><span>${esc(x.name || 'Thiết bị')}${x.current ? ' <b>· máy này</b>' : ''}<br><span class="muted" style="font-size:11.5px">qua ${via[x.via] || x.via} · đăng nhập ${dt(x.created)} · gần nhất ${dt(x.seen)}</span></span>${x.current ? '' : `<button class="btn sm danger" data-rv="${esc(x.sid)}">Thu hồi</button>`}</div>`).join('')}
-      ${me.sessions.length > 1 ? '<button class="btn sm danger" id="ac-rvall" style="margin-top:6px">Đăng xuất mọi máy khác</button>' : ''}</details>
-    <details><summary>🔑 Đổi mật khẩu</summary>
-      <div class="f"><input id="ac-cur" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại"></div><div class="f"><input id="ac-new" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (≥ 8 ký tự)"></div><div class="f"><input id="ac-new2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div>
-      <label class="check" style="font-size:12.5px"><input type="checkbox" id="ac-lo" checked> Đăng xuất mọi máy khác</label><button class="btn sm primary" id="ac-pw" style="margin-top:6px">Đổi mật khẩu</button></details>
-    <details><summary>🪪 Sửa ID / số điện thoại</summary>
-      <div class="f"><input id="ac-id" value="${esc(me.id)}" autocapitalize="none" spellcheck="false" placeholder="ID"></div><div class="f"><input id="ac-ph" value="${esc(me.phone)}" inputmode="tel" placeholder="Số điện thoại"></div><div class="f"><input id="ac-cur2" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại để xác nhận"></div><button class="btn sm primary" id="ac-prof">Lưu</button></details>
-    <div class="actions" style="justify-content:space-between"><button class="btn" id="ac-lockn">🔒 Khoá ngay</button><button class="btn danger" id="ac-out">Đăng xuất</button></div></div>`, sh => {
-    const q = id => sh.querySelector('#' + id);
-    sh.querySelectorAll('[data-x]').forEach(b => b.onclick = closeModal);
-    q('ac-lock').onchange = async e => { AUTH.L.lockMin = Number(e.target.value); await saveL(); toast('Đã lưu: ' + e.target.selectedOptions[0].text.toLowerCase()); };
-    if (q('ac-pk')) q('ac-pk').onclick = addPasskey;
-    sh.querySelectorAll('[data-pkdel]').forEach(b => b.onclick = async () => { if (!(await confirmDlg('Xoá khoá truy cập này? Thiết bị đó sẽ không mở bằng vân tay / Face ID được nữa.'))) return acctForm(); try { await apiFetch('/auth/passkey/delete', { method: 'POST', body: JSON.stringify({ id: b.dataset.pkdel }) }); } catch (e) { toast(e.message); } acctForm(); });
-    sh.querySelectorAll('[data-rv]').forEach(b => b.onclick = async () => { try { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ sid: b.dataset.rv }) }); toast('Đã thu hồi thiết bị.'); } catch (e) { toast(e.message); } acctForm(); });
-    if (q('ac-rvall')) q('ac-rvall').onclick = async () => { if (!(await confirmDlg('Đăng xuất mọi máy khác?', 'Đăng xuất'))) return acctForm(); try { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ all: true }) }); toast('Đã đăng xuất mọi máy khác.'); } catch (e) { toast(e.message); } acctForm(); };
-    q('ac-pw').onclick = async () => {
-      if (q('ac-new').value.length < 8) return toast('Mật khẩu mới tối thiểu 8 ký tự.'); if (q('ac-new').value !== q('ac-new2').value) return toast('Hai lần nhập không khớp.');
-      try { await apiFetch('/auth/password', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: q('ac-cur').value, password: q('ac-new').value, logoutOthers: q('ac-lo').checked }) }); AUTH.L.pass = await pwVerifier(q('ac-new').value); await saveL(); toast('✓ Đã đổi mật khẩu.'); closeModal(); } catch (e) { toast(e.message); }
-    };
-    q('ac-prof').onclick = async () => { try { const r = await apiFetch('/auth/profile', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: q('ac-cur2').value, id: q('ac-id').value, phone: q('ac-ph').value }) }); AUTH.L.id = r.account.id; AUTH.L.phone = r.account.phone; await saveL(); toast('✓ Đã lưu ID / số điện thoại.'); acctForm(); } catch (e) { toast(e.message); } };
-    q('ac-lockn').onclick = () => lockShow('unlock');
-    q('ac-out').onclick = () => { closeModal(); authLogout(false); };
-  });
+// ================= TRANG TÀI KHOẢN: hồ sơ (ID, SĐT) · đăng nhập & bảo mật · thông báo · thiết bị =================
+function acctForm() { if (location.hash !== '#ca-nhan') location.hash = '#ca-nhan'; else acctLoad(true); } // giữ tên cũ cho các chỗ gọi
+let _acctBusy = false;
+async function acctLoad(force) {
+  if (_acctBusy || MODE !== 'idb') return; const A = UI.acct || {};
+  if (!force && A.at && Date.now() - A.at < 30000) return;
+  _acctBusy = true;
+  try {
+    const st = authBase() ? await authStatus() : null;
+    let me = null, pushes = [];
+    if (AUTH.L && AUTH.L.on && IDB.cfg.token && navigator.onLine) {
+      try { me = await apiFetch('/auth/me'); AUTH.L = { ...AUTH.L, id: me.id, phone: me.phone }; saveL(); } catch (e) { }
+      try { pushes = (await apiFetch('/push/list', { method: 'POST', body: '{}' })).devices || []; } catch (e) { }
+    }
+    const pm = (await idbGet('meta', 'push').catch(() => null)) || {};
+    UI.acct = { at: Date.now(), st, me, pushes, pm, plat: await waPlatform(), err: '' };
+  } catch (e) { UI.acct = { ...(UI.acct || {}), at: Date.now(), err: e.message }; }
+  finally { _acctBusy = false; }
+  if (UI.tab === 'ca-nhan' && !document.getElementById('ov').classList.contains('show')) render();
+}
+function viewAccount() {
+  const A = UI.acct; if (!A || Date.now() - A.at > 30000) setTimeout(() => acctLoad(), 0);
+  if (!A) return `<div class="card"><div class="loading"><div class="spin"></div>Đang tải tài khoản…</div></div>`;
+  const L = AUTH.L || {}, me = A.me, dt = ts => ts ? hmOf(ts) + ' ' + fmtDate(dsOf(ts)) : '—';
+  const via = { password: 'mật khẩu', passkey: 'vân tay / Face ID', setup: 'tạo tài khoản', reset: 'đặt lại mật khẩu' };
+  let h = '<div class="acp">';
+  // Chưa đăng nhập
+  if (!L.on) {
+    const setup = A.st && A.st.setup;
+    h += `<div class="card"><div class="hero"><div class="av">👤</div><div><h2 style="margin:0">Chưa đăng nhập</h2><div class="sub" style="margin:2px 0 0">${setup ? 'Hệ thống đã có tài khoản chủ – đăng nhập để đồng bộ và bảo vệ dữ liệu.' : IDB.cfg.url ? 'Chưa có tài khoản. Tạo tài khoản chủ để đăng nhập bằng ID/SĐT + mật khẩu hoặc vân tay / Face ID.' : 'Kết nối máy chủ đồng bộ trước (nút trạng thái góc trên).'}</div></div></div>
+      <div class="actions" style="justify-content:flex-start">${setup ? '<button class="btn primary" data-act="ac-login">🔐 Đăng nhập</button>' : IDB.cfg.url ? '<button class="btn primary" data-act="ac-setup">🔐 Tạo tài khoản chủ</button>' : '<button class="btn primary" data-act="sys-open">⚙️ Kết nối máy chủ</button>'}</div></div></div>`;
+    return h;
+  }
+  const offline = !navigator.onLine || !me;
+  // 1. Hồ sơ
+  h += `<div class="card"><div class="hero"><div class="av">👤</div><div style="min-width:0"><h2 style="margin:0">${esc(L.id || '')}</h2><div class="sub" style="margin:2px 0 0">${esc(L.phone || 'Chưa có số điện thoại')} · ${esc(devName())}</div>
+    <div class="sub" style="margin:2px 0 0;font-size:12px">${offline ? '📴 Ngoại tuyến – hiển thị thông tin đã lưu trên máy' : 'Tài khoản tạo lúc ' + dt(me.created)}</div></div></div></div>`;
+  h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
+    <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa ID / số điện thoại</button></div>
+    <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
+  // 2. Đăng nhập & bảo mật
+  const pks = me ? me.passkeys : [], hasLocal = (L.creds || []).length;
+  h += `<div class="sechd"><span>🔐 Đăng nhập & bảo mật</span></div><div class="card">
+    <div class="kv2"><span class="l">Mật khẩu</span><button class="btn sm" data-act="ac-fold" data-k="pw" ${offline ? 'disabled' : ''}>🔑 Đổi mật khẩu</button></div>
+    <div class="fold ${UI.acctOpen === 'pw' ? 'open' : ''}"><div class="f"><input id="ac-cur" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại"></div><div class="f"><input id="ac-new" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (≥ 8 ký tự)"></div><div class="f"><input id="ac-new2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div><label class="check" style="font-size:12.5px"><input type="checkbox" id="ac-lo" checked> Đăng xuất mọi máy khác</label><button class="btn sm primary" data-act="ac-pw" style="margin-top:6px">Đổi mật khẩu</button></div>
+    <div class="kv2"><span class="l">Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <div class="kv2" style="align-items:flex-start"><span class="l">👆 Vân tay / Face ID<br><span class="muted" style="font-size:12px">${hasLocal ? '✓ Máy này đã bật' : A.plat ? 'Máy này chưa bật' : 'Máy này không có cảm biến'}</span></span>${!hasLocal && A.plat && !offline ? '<button class="btn sm primary" data-act="ac-pk">Bật cho máy này</button>' : ''}</div>
+    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b><div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
+    <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-lockn">🔒 Khoá ngay</button></div></div>`;
+  // 3. Thông báo
+  const pushOn = A.pm.on && pushSupported() && Notification.permission === 'granted', mine = A.pushes.find(x => x.device === IDB.device), pr = (mine && mine.prefs) || {};
+  const pst = !pushSupported() ? (isIOS() && !isStandaloneDisplay() ? 'iPhone/iPad: Thêm vào MH chính rồi mở app từ biểu tượng để bật.' : 'Trình duyệt không hỗ trợ.') : Notification.permission === 'denied' ? '⛔ Đã chặn trong cài đặt trình duyệt.' : pushOn ? '✓ Đang bật trên máy này' : 'Chưa bật trên máy này';
+  h += `<div class="sechd"><span>🔔 Thông báo</span></div><div class="card"><div class="kv2"><span class="l">Máy này</span><span>${pst}</span></div>
+    ${pushOn ? `<div class="sw"><span>📥 Dữ liệu mới từ thiết bị khác</span><input type="checkbox" data-act="ac-pref" data-k="data" ${pr.data !== false ? 'checked' : ''}></div><div class="sw"><span>🗄️ Sao lưu hằng tuần (kết quả / nhắc nhở)</span><input type="checkbox" data-act="ac-pref" data-k="backup" ${pr.backup !== false ? 'checked' : ''}></div>` : ''}
+    <div class="actions" style="justify-content:flex-start;flex-wrap:wrap;margin-top:6px">${pushOn ? '<button class="btn sm" data-act="ac-ptest">Gửi thử</button><button class="btn sm" data-act="ac-poff">Tắt trên máy này</button>' : pushSupported() && Notification.permission !== 'denied' && !offline ? '<button class="btn sm primary" data-act="ac-pon">🔔 Bật thông báo</button>' : ''}</div>
+    ${A.pushes.length ? `<div class="muted" style="font-size:12px;margin-top:8px">Thiết bị đang nhận thông báo: ${A.pushes.map(x => esc(x.name || 'Thiết bị') + (x.device === IDB.device ? ' (máy này)' : '')).join(', ')}</div>` : ''}</div>`;
+  // 4. Thiết bị đã đăng nhập
+  const ses = me ? me.sessions : [], icon = n => /iPhone|iPad|Android/i.test(n || '') ? '📱' : '💻';
+  h += `<div class="sechd"><span>💻 Thiết bị đã đăng nhập (${ses.length})</span></div><div class="card">${ses.map(x => { const ps = A.pushes.some(p => p.device === x.device);
+    return `<div class="dev"><div class="ic">${icon(x.name)}</div><div class="m"><b>${esc(x.name || 'Thiết bị')}</b>${x.current ? '<span class="tag ok">máy này</span>' : ''}${ps ? '<span class="tag">🔔 thông báo</span>' : ''}<div class="muted" style="font-size:12px">đăng nhập qua ${via[x.via] || x.via} · ${dt(x.created)}<br>hoạt động gần nhất ${dt(x.seen)}</div></div>${x.current ? '' : `<button class="btn sm danger" data-act="ac-rv" data-id="${esc(x.sid)}">Thu hồi</button>`}</div>`; }).join('') || `<div class="muted">${offline ? 'Cần có mạng để xem danh sách.' : 'Chưa có.'}</div>`}
+    ${ses.length > 1 ? '<div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm danger" data-act="ac-rvall">Đăng xuất mọi máy khác</button></div>' : ''}
+    <div class="muted" style="font-size:12px;margin-top:8px">Thu hồi máy bị mất: máy đó bị đăng xuất, không đồng bộ và không nhận thông báo nữa.</div></div>`;
+  h += `<div class="actions" style="justify-content:space-between;margin-top:14px"><button class="btn" data-act="ac-refresh">↻ Làm mới</button><button class="btn danger" data-act="ac-out">Đăng xuất khỏi máy này</button></div></div>`;
+  return h;
+}
+async function acctAct(act, el) {
+  const v = id => (document.getElementById(id) || {}).value || '', done = async m => { if (m) toast(m); UI.acctOpen = ''; await acctLoad(true); };
+  try {
+    switch (act) {
+      case 'ac-fold': UI.acctOpen = UI.acctOpen === el.dataset.k ? '' : el.dataset.k; render(); break;
+      case 'ac-login': lockShow('login'); break;
+      case 'ac-setup': setupForm(); break;
+      case 'ac-refresh': await acctLoad(true); toast('Đã làm mới.'); break;
+      case 'ac-lockn': lockShow('unlock'); break;
+      case 'ac-out': authLogout(false); break;
+      case 'ac-pk': await addPasskey(); await acctLoad(true); break;
+      case 'ac-pkdel': if (await confirmDlg('Xoá vân tay / Face ID này? Thiết bị đó sẽ không mở bằng vân tay được nữa.')) { await apiFetch('/auth/passkey/delete', { method: 'POST', body: JSON.stringify({ id: el.dataset.id }) }); await credsRefresh(); await done('Đã xoá vân tay.'); } break;
+      case 'ac-rv': if (await confirmDlg('Thu hồi thiết bị này? Máy đó bị đăng xuất, không đồng bộ và không nhận thông báo nữa.', 'Thu hồi')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ sid: el.dataset.id }) }); await done('Đã thu hồi thiết bị.'); } break;
+      case 'ac-rvall': if (await confirmDlg('Đăng xuất mọi máy khác?', 'Đăng xuất')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ all: true }) }); await done('Đã đăng xuất mọi máy khác.'); } break;
+      case 'ac-pw':
+        if (v('ac-new').length < 8) return toast('Mật khẩu mới tối thiểu 8 ký tự.'); if (v('ac-new') !== v('ac-new2')) return toast('Hai lần nhập không khớp.');
+        await apiFetch('/auth/password', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: v('ac-cur'), password: v('ac-new'), logoutOthers: document.getElementById('ac-lo').checked }) });
+        AUTH.L.pass = await pwVerifier(v('ac-new')); await saveL(); await done('✓ Đã đổi mật khẩu.'); break;
+      case 'ac-prof': { const r = await apiFetch('/auth/profile', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: v('ac-cur2'), id: v('ac-id'), phone: v('ac-ph') }) }); AUTH.L.id = r.account.id; AUTH.L.phone = r.account.phone; await saveL(); await done('✓ Đã lưu hồ sơ.'); break; }
+      case 'ac-pon': await pushEnable(); await acctLoad(true); break;
+      case 'ac-poff': await pushDisable(); await acctLoad(true); break;
+      case 'ac-ptest': await pushTest(); break;
+      case 'ac-pref': await apiFetch('/push/prefs', { method: 'POST', body: JSON.stringify({ device: IDB.device, prefs: { [el.dataset.k]: el.checked } }) }); toast(el.checked ? 'Đã bật loại thông báo này.' : 'Đã tắt loại thông báo này.'); await acctLoad(true); break;
+    }
+  } catch (e) { toast(e.message || 'Lỗi'); }
 }
 // ---- Tệp sách trên máy khi chạy độc lập ----
 async function idbSaveFile(file) { const id = 'idb_' + genId(); await idbSet('files', id, file); return { fileId: id, fileType: file.type || (/\.pdf$/i.test(file.name) ? 'application/pdf' : 'text/plain'), fileName: file.name, fileSize: file.size }; }
@@ -1642,7 +1720,7 @@ function toast(msg) { const t = document.getElementById('toast'); t.textContent 
 function monthNav() {
   return `<div class="monthnav"><button class="iconbtn" data-act="m-prev" aria-label="Tháng trước">‹</button><span class="m">${monthLabel(UI.month)}</span><button class="iconbtn" data-act="m-next" aria-label="Tháng sau">›</button></div>`;
 }
-const TITLES = { 'lich-su-gd': 'Lịch sử giao dịch', 'tong-quan': 'Trang chủ', 'tong-ket': 'Tổng kết tháng', 'ngan-sach': 'Ngân sách', 'danh-ba': 'Danh bạ quan hệ', 'muc-tieu': 'Mục tiêu', 'thoi-quen': 'Thói quen', 'ghi-chep': 'Ghi chép', 'tai-chinh': 'Tài chính', 'thu-chi': 'Thu chi', 'vay-no': 'Vay nợ', 'tiet-kiem': 'Tiết kiệm', 'tai-khoan': 'Tài khoản', 'tai-san': 'Tài sản', 'hoc-tap': 'Học tập', 'suc-khoe': 'Sức khỏe', 'lich': 'Lịch cá nhân', 'su-kien': 'Sự kiện', 'nhac-nho': 'Nhắc nhở', 'uong-thuoc': 'Lịch uống thuốc', 'tieng-anh': 'Tiếng Anh giao tiếp', 'the-tu': 'Thẻ từ vựng', 'khoa-hoc': 'Khóa học & chứng chỉ', 'doc-sach': 'Đọc sách', 'nhat-ky-hoc': 'Nhật ký học', 'ngay-ky-niem': 'Ngày kỷ niệm', 'ngay-le': 'Ngày lễ – Tết', 'ke-hoach': 'Kế hoạch' };
+const TITLES = { 'ca-nhan': 'Tài khoản', 'lich-su-gd': 'Lịch sử giao dịch', 'tong-quan': 'Trang chủ', 'tong-ket': 'Tổng kết tháng', 'ngan-sach': 'Ngân sách', 'danh-ba': 'Danh bạ quan hệ', 'muc-tieu': 'Mục tiêu', 'thoi-quen': 'Thói quen', 'ghi-chep': 'Ghi chép', 'tai-chinh': 'Tài chính', 'thu-chi': 'Thu chi', 'vay-no': 'Vay nợ', 'tiet-kiem': 'Tiết kiệm', 'tai-khoan': 'Tài khoản', 'tai-san': 'Tài sản', 'hoc-tap': 'Học tập', 'suc-khoe': 'Sức khỏe', 'lich': 'Lịch cá nhân', 'su-kien': 'Sự kiện', 'nhac-nho': 'Nhắc nhở', 'uong-thuoc': 'Lịch uống thuốc', 'tieng-anh': 'Tiếng Anh giao tiếp', 'the-tu': 'Thẻ từ vựng', 'khoa-hoc': 'Khóa học & chứng chỉ', 'doc-sach': 'Đọc sách', 'nhat-ky-hoc': 'Nhật ký học', 'ngay-ky-niem': 'Ngày kỷ niệm', 'ngay-le': 'Ngày lễ – Tết', 'ke-hoach': 'Kế hoạch' };
 const FIN_SUB = [['tai-chinh', 'Báo cáo'], ['thu-chi', 'Thu chi'], ['lich-su-gd', 'Lịch sử'], ['ngan-sach', 'Ngân sách'], ['vay-no', 'Vay nợ'], ['tiet-kiem', 'Tiết kiệm'], ['tai-san', 'Tài sản'], ['tai-khoan', 'Tài khoản']];
 
 function render() {
@@ -1651,15 +1729,15 @@ function render() {
   document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === grp));
   const navA = document.querySelector(`nav.tabs a[data-tab=${grp}]`); if (navA && grp !== 'home') navA.setAttribute('href', '#' + UI.tab);
   document.getElementById('title').textContent = TITLES[UI.tab];
-  document.getElementById('subtitle').textContent = grp === 'fin' ? 'Sổ cá nhân · Tài chính' : grp === 'cal' ? 'Sổ cá nhân · Lịch' : grp === 'learn' ? 'Sổ cá nhân · Học tập' : 'Sổ cá nhân';
+  document.getElementById('subtitle').textContent = grp === 'fin' ? 'Sổ cá nhân · Tài chính' : grp === 'cal' ? 'Sổ cá nhân · Lịch' : grp === 'learn' ? 'Sổ cá nhân · Học tập' : grp === 'acct' ? 'Sổ cá nhân · Quản lý tài khoản' : 'Sổ cá nhân';
   document.getElementById('note').innerHTML = NOTE ? `<div class="banner">${NOTE}</div>` : '';
   document.getElementById('fab').setAttribute('aria-label', { home: 'Thêm nhanh', fin: 'Thêm giao dịch', health: 'Ghi chỉ số sức khỏe', cal: 'Thêm sự kiện', learn: UI.learnSeg === 'cards' ? 'Thêm thẻ từ' : 'Ghi giờ học', plan: 'Thêm' }[grp]);
   const v = document.getElementById('view'), hr = document.getElementById('hdr-right');
   if (MODE === 'loading') { v.innerHTML = `<div class="loading"><div class="spin"></div>Đang tải dữ liệu…</div>`; hr.innerHTML = ''; return; }
   hr.innerHTML = UI.tab === 'tong-ket' ? monthNav() : '';
-  const fn = { 'tong-quan': viewHome, 'tai-chinh': viewDash, 'thu-chi': viewTx, 'lich-su-gd': viewHistory, 'vay-no': viewLoans, 'tiet-kiem': viewSavings, 'tai-khoan': viewAccounts, 'tai-san': viewAssets, 'hoc-tap': viewLearn, 'tong-ket': viewReport, 'ngan-sach': viewBudget, 'danh-ba': viewContacts, 'muc-tieu': viewGoals, 'thoi-quen': viewHabits, 'ghi-chep': viewNotes, 'suc-khoe': viewHealth, 'lich': viewCal, 'nhac-nho': viewReminders, 'uong-thuoc': viewMeds, 'tieng-anh': viewEnglish, 'the-tu': viewCardsPage, 'khoa-hoc': viewCourses, 'doc-sach': viewBooks, 'nhat-ky-hoc': viewStudyLog, 'su-kien': viewEvents, 'ngay-ky-niem': viewAnnivs, 'ngay-le': viewHolidays, 'ke-hoach': viewTodos }[UI.tab];
+  const fn = { 'tong-quan': viewHome, 'tai-chinh': viewDash, 'thu-chi': viewTx, 'lich-su-gd': viewHistory, 'ca-nhan': viewAccount, 'vay-no': viewLoans, 'tiet-kiem': viewSavings, 'tai-khoan': viewAccounts, 'tai-san': viewAssets, 'hoc-tap': viewLearn, 'tong-ket': viewReport, 'ngan-sach': viewBudget, 'danh-ba': viewContacts, 'muc-tieu': viewGoals, 'thoi-quen': viewHabits, 'ghi-chep': viewNotes, 'suc-khoe': viewHealth, 'lich': viewCal, 'nhac-nho': viewReminders, 'uong-thuoc': viewMeds, 'tieng-anh': viewEnglish, 'the-tu': viewCardsPage, 'khoa-hoc': viewCourses, 'doc-sach': viewBooks, 'nhat-ky-hoc': viewStudyLog, 'su-kien': viewEvents, 'ngay-ky-niem': viewAnnivs, 'ngay-le': viewHolidays, 'ke-hoach': viewTodos }[UI.tab];
   const SUB = { fin: FIN_SUB, cal: [['lich', 'Lịch tháng'], ['nhac-nho', 'Nhắc nhở'], ['su-kien', 'Sự kiện'], ['uong-thuoc', 'Uống thuốc'], ['ngay-ky-niem', 'Ngày kỷ niệm'], ['ngay-le', 'Ngày lễ – Tết'], ['danh-ba', 'Danh bạ']], learn: [['hoc-tap', 'Tổng quan'], ['tieng-anh', 'Tiếng Anh'], ['the-tu', 'Thẻ từ'], ['khoa-hoc', 'Khóa học'], ['doc-sach', 'Đọc sách'], ['nhat-ky-hoc', 'Nhật ký học']], plan: [['ke-hoach', '✅ Việc cần làm'], ['thoi-quen', '🔁 Thói quen'], ['muc-tieu', '🎯 Mục tiêu'], ['ghi-chep', '📔 Ghi chép']] }[grp];
-  document.getElementById('fab').style.display = UI.tab === 'tong-ket' ? 'none' : '';
+  document.getElementById('fab').style.display = UI.tab === 'tong-ket' || UI.tab === 'ca-nhan' ? 'none' : '';
   netUI();
   if ((MODE === 'memory' || MODE === 'idb') && ['settings', 'events', 'meds', 'courses', 'books', 'study'].every(c => MODE === 'memory' || got.has(c)) && !(S.settings.samples2 && S.settings.samples2.done) && !_seeding) setTimeout(seedSamples2, 0);
   v.innerHTML = (SUB ? `<div class="subnav">${SUB.map(([h, l]) => `<a href="#${h}" class="${UI.tab === h ? 'on' : ''}">${l}</a>`).join('')}</div>` : '') + (grp === 'cal' || grp === 'learn' ? sampleBar() : '') + fn();
@@ -4841,6 +4919,7 @@ document.addEventListener('click', e => {
     case 'sys-open': sysForm(); break;
     case 'sw-update': if (_swWaiting) _swWaiting.postMessage('skip'); else location.reload(); break;
     case 'sync-now': syncFabClick(); break;
+    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
     case 'learn-seg': UI.learnSeg = el.dataset.k; render(); break;
@@ -5017,6 +5096,8 @@ document.addEventListener('input', e => {
   if (e.target.id === 'asof' && e.target.value) { UI.asOf = e.target.value; render(); }
   if (e.target.id === 'tx-cat-sel') { UI.txCat = e.target.value; render(); }
   if (e.target.id === 'tx-acc-sel') { UI.txAcc = e.target.value; render(); }
+  if (e.target.id === 'ac-lock' && AUTH.L) { AUTH.L.lockMin = Number(e.target.value); saveL(); toast('Đã lưu: ' + e.target.selectedOptions[0].text.toLowerCase()); }
+  if (e.target.matches && e.target.matches('[data-act="ac-pref"]')) acctAct('ac-pref', e.target);
   if (e.target.id === 'hist-acc') { histState().acc = e.target.value; histState().limit = 200; render(); }
   if (e.target.id === 'hist-q') { clearTimeout(searchT); const v = e.target.value; searchT = setTimeout(() => { histState().q = v; histState().limit = 200; render._focusSearch = true; render(); }, 250); }
   if (e.target.id === 'ct-g') { UI.ctGroup = e.target.value; render(); }

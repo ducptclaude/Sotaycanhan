@@ -36,7 +36,12 @@ for (const rel of PUBLIC) {
     cache: rel.startsWith('icons/') ? 'public, max-age=604800' : 'no-cache'
   });
 }
-const SEC = { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin' };
+const APP_VERSION = (() => { try { return require('./package.json').version; } catch (e) { return ''; } })();
+// Header bảo mật: chống nhúng trang (clickjacking), bắt buộc HTTPS, tắt quyền không dùng tới
+const SEC = { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
+  'Content-Security-Policy': "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+  ...(process.env.RAILWAY_PUBLIC_DOMAIN ? { 'Strict-Transport-Security': 'max-age=15552000' } : {}) };
 
 function serveStatic(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return false;
@@ -67,14 +72,18 @@ const server = http.createServer((req, res) => {
 (async () => {
   store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
   auth = createAuth({ store });
-  sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '*', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
-  auth.setOnRevoke((mode, device) => sync.dropStreams(mode, device));
+  sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
+  auth.setOnRevoke((mode, device) => { sync.dropStreams(mode, device); if (mode !== 'all' && push) push.removeDevices(mode, device); });
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
   push = createPush({ store, sync, isLive: d => sync.isLive(d), subject: process.env.PUSH_SUBJECT || (domain ? 'https://' + domain : 'mailto:so-ca-nhan@example.com') });
   backup = createBackup({ store, sync, push });
   const _h = sync.handle; // /health: thêm nơi lưu trữ để kiểm tra từ xa
   sync.handle = (req, res) => {
-    if (req.method === 'GET' && req.url.split('?')[0] === '/health') { const i = sync.info(); sync.send(res, 200, { ok: true, seq: i.seq, docs: i.docs, sync: !!process.env.SYNC_TOKEN, storage: store.kind === 'postgres' ? 'postgres' : VOLUME ? 'volume' : 'tam-thoi', live: i.live, push: push.enabled, backup: backup.enabled, account: auth.info().setup }); return true; }
+    if (req.method === 'GET' && req.url.split('?')[0] === '/health') {
+      // Công khai: chỉ "ok" + phiên bản (đủ cho Railway kiểm tra sống). Chi tiết chỉ khi đã đăng nhập.
+      if (!auth.check(req.headers.authorization)) { sync.send(res, 200, { ok: true, ver: APP_VERSION }); return true; }
+      const i = sync.info(); sync.send(res, 200, { ok: true, ver: APP_VERSION, seq: i.seq, docs: i.docs, sync: !!process.env.SYNC_TOKEN, storage: store.kind === 'postgres' ? 'postgres' : VOLUME ? 'volume' : 'tam-thoi', live: i.live, push: push.enabled, backup: backup.enabled, account: auth.info().setup }); return true;
+    }
     return _h(req, res);
   };
   server.listen(PORT, () => {

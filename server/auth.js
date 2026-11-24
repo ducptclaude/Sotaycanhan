@@ -27,22 +27,27 @@ function createAuth({ store, syncToken = process.env.SYNC_TOKEN || '', rpName = 
   let onRevoke = () => { };
   const flows = new Map(); // mã luồng → { challenge, type, exp }
   const fails = new Map(); // ip → { n, until }
-  let globalFails = [];
+  let globalFails = [], acctFails = [], acctUntil = 0;
 
   // ---- Chống dò mật khẩu ----
-  const ipOf = req => String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-  function blocked(req) {
-    const f = fails.get(ipOf(req)), now = Date.now(); globalFails = globalFails.filter(t => now - t < 3600e3);
+  // Phần ĐẦU X-Forwarded-For do người gửi tự đặt được → lấy phần CUỐI (do proxy Railway thêm vào)
+  const ipOf = req => { const x = String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean); return x.length ? x[x.length - 1] : String(req.socket.remoteAddress || ''); };
+  // pwOnly: chỉ áp dụng khoá theo TÀI KHOẢN cho đăng nhập bằng mật khẩu (vân tay không dò được nên vẫn cho dùng)
+  function blocked(req, pwOnly) {
+    const f = fails.get(ipOf(req)), now = Date.now(); globalFails = globalFails.filter(t => now - t < 3600e3); acctFails = acctFails.filter(t => now - t < 15 * 60000);
     if (f && f.until > now) return Math.ceil((f.until - now) / 60000);
+    if (pwOnly && acctUntil > now) return Math.ceil((acctUntil - now) / 60000); // khoá theo tài khoản: chống dò bằng nhiều địa chỉ IP
     if (globalFails.length > 100) return 10; // quá nhiều lần sai trên toàn hệ thống trong 1 giờ
     return 0;
   }
+  let acctLocks = 0;
   function failed(req) {
-    const ip = ipOf(req), f = fails.get(ip) || { n: 0, until: 0 }; f.n++; globalFails.push(Date.now());
+    const ip = ipOf(req), f = fails.get(ip) || { n: 0, until: 0 }; f.n++; globalFails.push(Date.now()); acctFails.push(Date.now());
+    if (acctFails.length >= 10) { acctLocks++; acctUntil = Date.now() + 15 * 60000 * Math.pow(2, Math.min(acctLocks - 1, 4)); acctFails = []; } // 10 lần sai / 15 phút (mọi IP) → khoá mật khẩu
     if (f.n >= 5) { f.until = Date.now() + 15 * 60000 * Math.pow(2, Math.min(f.n - 5, 4)); } // 15, 30, 60… phút
     fails.set(ip, f);
   }
-  const succeeded = req => fails.delete(ipOf(req));
+  const succeeded = req => { fails.delete(ipOf(req)); acctFails = []; };
 
   // ---- Phiên đăng nhập ----
   function newSession(req, q, via) {
@@ -70,19 +75,22 @@ function createAuth({ store, syncToken = process.env.SYNC_TOKEN || '', rpName = 
 
   // ---- WebAuthn: tên miền & nguồn theo yêu cầu (hoặc biến RP_ID / RP_ORIGIN) ----
   function rp(req) {
-    const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
-    const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim();
-    return { rpID: process.env.RP_ID || host.replace(/:\d+$/, ''), origin: process.env.RP_ORIGIN || proto + '://' + host };
+    // Cố định theo RP_ID / tên miền Railway; chỉ khi chạy thử cục bộ mới lấy theo Host (không tin X-Forwarded-Host)
+    const pub = process.env.RAILWAY_PUBLIC_DOMAIN || '';
+    if (process.env.RP_ID || pub) { const id = process.env.RP_ID || pub; return { rpID: id, origin: process.env.RP_ORIGIN || 'https://' + id }; }
+    const host = String(req.headers.host || 'localhost').trim(), local = /^(localhost|127\.)/.test(host);
+    return { rpID: host.replace(/:\d+$/, ''), origin: (local ? 'http' : 'https') + '://' + host };
   }
   function newFlow(type, challenge) {
     const id = b64u(crypto.randomBytes(12)), now = Date.now();
     for (const [k, v] of flows) if (v.exp < now) flows.delete(k);
+    if (flows.size > 500) flows.delete(flows.keys().next().value); // chặn làm đầy bộ nhớ
     flows.set(id, { type, challenge, exp: now + 5 * 60000 }); return id;
   }
   function takeFlow(id, type) { const f = flows.get(String(id || '')); flows.delete(String(id || '')); return f && f.type === type && f.exp > Date.now() ? f : null; }
   const me = s => ({ id: acc.id, phone: acc.phone || '', created: acc.created,
     passkeys: (acc.passkeys || []).map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0 })),
-    sessions: Object.values(acc.sessions || {}).sort((a, b) => b.seen - a.seen).map(x => ({ sid: x.sid, name: x.name, via: x.via, created: x.created, seen: x.seen, current: s && x.sid === s.sid })) });
+    sessions: Object.values(acc.sessions || {}).sort((a, b) => b.seen - a.seen).map(x => ({ sid: x.sid, name: x.name, via: x.via, created: x.created, seen: x.seen, current: s && x.sid === s.sid, device: x.device })) });
 
   function handle(req, res, sync) {
     const url = req.url.split('?')[0];
@@ -96,7 +104,7 @@ function createAuth({ store, syncToken = process.env.SYNC_TOKEN || '', rpName = 
     if (needSession && !s) { send(401, { error: acc ? 'Phiên đăng nhập đã hết hạn – hãy đăng nhập lại' : 'Chưa tạo tài khoản' }); return true; }
     if (url === '/auth/me') { send(200, me(s)); return true; }
     const isLogin = ['/auth/login', '/auth/reset', '/auth/setup', '/auth/passkey/login', '/auth/password', '/auth/profile'].includes(url);
-    if (isLogin) { const m = blocked(req); if (m) { send(429, { error: `Sai quá nhiều lần – thử lại sau ${m} phút` }); return true; } }
+    if (isLogin) { const m = blocked(req, url !== '/auth/passkey/login'); if (m) { send(429, { error: `Sai quá nhiều lần – thử lại sau ${m} phút` }); return true; } }
 
     sync.readJson(req, res, async q => {
       try {
@@ -119,9 +127,11 @@ function createAuth({ store, syncToken = process.env.SYNC_TOKEN || '', rpName = 
             if (!syncToken || !eq(q.syncToken || '', syncToken)) { failed(req); return send(403, { error: 'Mã SYNC_TOKEN không đúng' }); }
             if (String(q.password || '').length < 8) return send(400, { error: 'Mật khẩu tối thiểu 8 ký tự' });
             const salt = crypto.randomBytes(16); acc.pw = { salt: salt.toString('base64'), hash: (await scrypt(q.password, salt)).toString('base64') };
-            acc.sessions = {}; onRevoke('all'); // đăng xuất mọi thiết bị
+            acc.sessions = {}; onRevoke('others', String(q.device || '')); // đăng xuất mọi thiết bị khác (kèm tắt thông báo)
           } else {
-            const l = String(q.login || '').trim(), ok = (normId(l) === acc.id || (acc.phone && normPhone(l) === acc.phone)) && eq((await scrypt(q.password || '', Buffer.from(acc.pw.salt, 'base64'))).toString('base64'), acc.pw.hash);
+            const l = String(q.login || '').trim(), who = normId(l) === acc.id || (acc.phone && normPhone(l) === acc.phone);
+            const pwOk = eq((await scrypt(q.password || '', Buffer.from(acc.pw.salt, 'base64'))).toString('base64'), acc.pw.hash); // luôn băm – không lộ ID đúng/sai qua thời gian
+            const ok = who && pwOk;
             if (!ok) { failed(req); return send(401, { error: 'Sai ID/SĐT hoặc mật khẩu' }); }
           }
           succeeded(req); const token = newSession(req, q, url === '/auth/reset' ? 'reset' : 'password');
