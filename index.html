@@ -7,8 +7,8 @@
 <meta name="description" content="Sổ cá nhân: tài chính, lịch âm dương, sức khỏe, học tập, kế hoạch – dùng được cả khi không có mạng.">
 <meta name="theme-color" content="#1e2a5e">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.12.0">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.12.0">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.12.1">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.12.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -752,7 +752,7 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1031,7 +1031,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.12.0';
+const APP_VER = '1.12.1';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1468,20 +1468,20 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.0" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.0" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
@@ -1839,7 +1839,7 @@ function ocrWorker() {
   _ocr = (async () => {
     await loadScript(OCR_BASE + 'tesseract.min.js');
     const w = await Tesseract.createWorker('vie', 1, { workerPath: OCR_BASE + 'worker.min.js', corePath: OCR_BASE + 'core', langPath: OCR_BASE + 'lang', logger: m => _ocrProg && _ocrProg(m) });
-    await w.setParameters({ preserve_interword_spaces: '1' });
+    await w.setParameters({ preserve_interword_spaces: '1', tessedit_pageseg_mode: '3' }); // 3 = tự phân tích bố cục (mặc định 6 = một khối chữ → bỏ sót dòng số tiền chữ to)
     return w;
   })().catch(e => { _ocr = null; throw e; });
   return _ocr;
@@ -1863,8 +1863,16 @@ async function ocrPrep(file) {
 }
 async function ocrReceipt(file, prog) {
   _ocrProg = prog; const w = await ocrWorker(); const pre = await ocrPrep(file);
-  const { data } = await w.recognize(pre.canvas, {}, { blocks: true, text: true });
-  const p = parseReceipt(data.text), words = [];
+  // Đọc nhiều lượt, lấy lượt có điểm số tiền cao nhất:
+  //  PSM 3 (tự phân tích bố cục – bắt số tiền chữ to) → chưa chắc: PSM 6 (một khối – tốt với ảnh mờ) → vẫn không thấy số: PSM 11 (chữ rời rạc)
+  const pass = async psm => { await w.setParameters({ tessedit_pageseg_mode: psm }); const { data } = await w.recognize(pre.canvas, {}, { blocks: true, text: true }); return { data, p: parseReceipt(data.text) }; };
+  let best;
+  try {
+    best = await pass('3');
+    if (best.p.score < 10) { const b6 = await pass('6'); if (b6.p.score > best.p.score) best = b6; }
+    if (!best.p.amount) { const b11 = await pass('11'); if (b11.p.amount) { best = b11; best.p.confidence = 'thấp'; } } // mất nhãn dòng → luôn yêu cầu kiểm tra lại
+  } finally { await w.setParameters({ tessedit_pageseg_mode: '3' }); }
+  const { data, p } = best, words = [];
   (data.blocks || []).forEach(b => b.paragraphs.forEach(pa => pa.lines.forEach(l => l.words.forEach(x => words.push(x)))));
   const dg = String(p.amount || ''), hit = p.amount ? words.filter(x => { const d = x.text.replace(/\D/g, ''); return d.length >= 3 && dg.includes(d); }) : [];
   return { ...p, text: data.text, wconf: hit.length ? Math.round(Math.min(...hit.map(x => x.confidence))) : 0, boxes: hit.map(x => x.bbox), thumb: pre.thumb, thumbBlob: pre.thumbBlob, scale: pre.scale };
@@ -1875,23 +1883,27 @@ function drawThumb(c, res, low) { // ảnh thu nhỏ + khung tô quanh số ti�
   res.boxes.forEach(b => { const r = [b.x0 * res.scale - 3, b.y0 * res.scale - 3, (b.x1 - b.x0) * res.scale + 6, (b.y1 - b.y0) * res.scale + 6]; x.fillRect(...r); x.strokeRect(...r); });
 }
 // Phân tích chữ của biên lai chuyển khoản / thanh toán → số tiền chính, thu/chi, ngày giờ, nội dung, người nhận, mã GD
-const RC_BAD = /(số\s*dư|so\s*du|balance|khả\s*dụng|phí|phi\s|fee|số\s*tài\s*khoản|tài\s*khoản|tai\s*khoan|stk|account|mã|ma\s*gd|tham\s*chiếu|reference|transaction\s*id|id\b|mã\s*khách|điện\s*thoại|sđt|hotline)/i;
-const RC_GOOD = /(số\s*tiền|so\s*tien|amount|tổng\s*tiền|tổng\s*cộng|total|thành\s*tiền|giá\s*trị|số\s*tiền\s*giao\s*dịch)/i;
+const RC_BAD = /(số\s*dư|so\s*du|balance|khả\s*dụng|phí|phi\s|fee|danh\s*mục|danh\s*muc|kha\s*dung|mcc|mã\s*ngành|số\s*tài\s*khoản|tài\s*khoản|tai\s*khoan|stk|account|mã|ma\s*gd|tham\s*chiếu|reference|transaction\s*id|id\b|mã\s*khách|điện\s*thoại|sđt|hotline)/i;
+const RC_GOOD = /(số\s*tiền|so\s*tien|amount|tổng\s*tiền|tổng\s*cộng|total|thành\s*tiền|giá\s*trị|số\s*tiền\s*giao\s*dịch|tong\s*tien|tong\s*cong|thanh\s*tien|gia\s*tri)/i;
 const RC_INCOME = /(nhận\s*tiền|nhan\s*tien|tiền\s*vào|ghi\s*có|được\s*cộng|received|credit|hoàn\s*tiền\s*vào|tài\s*khoản.*\+\s?\d)/i;
 const RC_MONEY = /([+\-−–]?)\s?(\d{1,3}(?:[.,]\d{3})+|\d{4,12})(?:\s?(vnd|vnđ|đ|₫|dong|đồng)\b|\s?(vnd|vnđ|đ|₫))?/gi;
 function parseReceipt(text) {
   const lines = String(text || '').normalize('NFC').replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean), cands = [];
+  const has = (re, l) => re.test(l) || re.test(deac(l)); // so cả bản bỏ dấu: OCR hay đọc sai dấu ("Số tiến", "Phi giao dich")
   lines.forEach((ln, i) => {
     let m; RC_MONEY.lastIndex = 0;
     while ((m = RC_MONEY.exec(ln))) {
       const rawNum = m[2], cur = (m[3] || m[4] || '').toLowerCase(), sign = m[1];
-      if (/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/.test(ln.slice(Math.max(0, m.index - 3), m.index + m[0].length + 6))) continue; // nằm trong ngày tháng
+      if (/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/.test(ln.slice(Math.max(0, m.index - 6), m.index + m[0].length + 6))) continue; // nằm trong ngày tháng (kể cả năm "…/11/2026")
       if (/\d{1,2}:\d{2}/.test(ln.slice(Math.max(0, m.index - 1), m.index + m[0].length + 3)) && !cur) continue; // giờ phút
       const sep = /[.,]\d{3}$/.test(rawNum), val = Number(rawNum.replace(/[.,\s]/g, ''));
       if (!val || val < 1000) continue;
-      let sc = 0;
-      if (RC_GOOD.test(ln) || (i > 0 && RC_GOOD.test(lines[i - 1]) && ln.length < 30)) sc += 6;
-      if (RC_BAD.test(ln)) sc -= 10;
+      const after = ln.slice(m.index + m[0].length), before = ln.slice(0, m.index);
+      if (/^\s?(usd|eur|jpy|sgd|thb|krw|cny|aud|gbp|hkd|twd|myr|\$|€|£|¥)/i.test(after) || /(\$|€|£|¥|usd|eur)\s?$/i.test(before)) continue; // ngoại tệ (VD "47.37 USD")
+      let sc = 0; const good = has(RC_GOOD, ln) || (i > 0 && has(RC_GOOD, lines[i - 1]) && ln.length < 30);
+      if (good) sc += 6;
+      if (!sep && !cur && !good) sc -= 8; // số trơn không dấu phân cách, không "đ" (mã ngành 5311, số lượng, mã…) → gần như không phải số tiền
+      if (has(RC_BAD, ln)) sc -= 10;
       if (cur) sc += 3; if (sign) sc += 2; if (sep) sc += 2;
       if (ln.replace(m[0], '').replace(/[^A-Za-zÀ-ỹ0-9]/g, '').length <= 4) sc += 4; // dòng chỉ có số tiền (số tiền lớn giữa màn hình)
       if (!sep && !cur && rawNum.length >= 7) sc -= 6; // dãy số dài không phân cách → số tài khoản / mã
@@ -1900,21 +1912,26 @@ function parseReceipt(text) {
     }
   });
   cands.sort((a, b) => b.sc - a.sc || a.i - b.i);
-  const best = cands[0] || null, all = lines.join('\n');
+  if (cands.length > 1 && cands[0].val === cands[1].val) cands[0].sc += 1; // cùng số tiền xuất hiện ở 2 chỗ (2 lượt đọc / nhắc lại) → chắc hơn
+  const best = cands[0] && cands[0].sc > -4 ? cands[0] : null, all = lines.join('\n'); // điểm quá thấp (số trơn, số dư, mã…) → coi như không đọc được, không điền bừa
   let type = 'expense'; if ((best && best.sign === '+') || RC_INCOME.test(all)) type = 'income'; if (best && /[\-−–]/.test(best.sign)) type = 'expense';
   let date = '', time = '';
-  for (const d of all.matchAll(/(?<![\d.,])(\d{1,2})[\/\-.](\d{1,2})[\/\-.](20\d{2})(?![\d.,])/g)) { const dd = +d[1], mm = +d[2]; if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) { date = `${d[3]}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}`; break; } }
-  const tm = all.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/); if (tm) time = `${tm[1].padStart(2, '0')}:${tm[2]}`;
+  let dLine = -1;
+  for (let i = 0; i < lines.length && !date; i++) for (const d of lines[i].matchAll(/(?<![\d.,])(\d{1,2})[\/\-.](\d{1,2})[\/\-.](20\d{2})(?![.,]?\d)/g)) { const dd = +d[1], mm = +d[2]; if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) { date = `${d[3]}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}`; dLine = i; break; } } // "14/08/2024, 13:35" (có dấu phẩy sau năm) vẫn đọc được
+  // giờ: ưu tiên giờ cùng dòng / sát dòng ngày giao dịch, bỏ giờ trên thanh trạng thái điện thoại (dòng đầu ảnh chụp màn hình)
+  const TM = /(?<![\d:])(\d{1,2}):(\d{2})(?::\d{2})?(?![\d:])/;
+  const tLine = [dLine, dLine + 1, dLine - 1].find(i => i >= 0 && i < lines.length && TM.test(lines[i])) ?? lines.findIndex((l, i) => TM.test(l) && !(i === 0 && /^\s*\d{1,2}:\d{2}\b/.test(l)));
+  if (tLine != null && tLine >= 0) { const tm = lines[tLine].match(TM); time = `${tm[1].padStart(2, '0')}:${tm[2]}`; }
   const pick = re => { for (let i = 0; i < lines.length; i++) { const m = lines[i].match(re); if (m) { const v = (m[1] || '').trim() || (lines[i + 1] || ''); return v.replace(/^[:\-–\s]+/, '').trim(); } } return ''; };
   const note = pick(/(?:nội\s*dung(?:\s*chuyển\s*khoản)?|noi\s*dung|description|lời\s*nhắn|message|diễn\s*giải|(?:^|\s)nd\s*[:\-])\s*[:\-]?\s*(.*)$/i).slice(0, 100);
   // loại hoá đơn / dịch vụ: ưu tiên dòng "Loại hóa đơn …", bỏ dòng tiêu đề "… thành công"
   const svc = (pick(/loại\s*(?:h(?:óa|oá)\s*đơn|dịch\s*vụ)\s*[:\-]?\s*(.*)$/i) || pick(/^(?:dịch\s*vụ|nhà\s*cung\s*cấp)\s*[:\-]?\s*(.*)$/i)).replace(/thành\s*công/i, '').trim().slice(0, 60);
-  const party = pick(/(?:tên\s*người\s*nhận|người\s*nhận|người\s*thụ\s*hưởng|beneficiary|đơn\s*vị\s*nhận|nhà\s*cung\s*cấp|người\s*chuyển|^từ|from)\s*[:\-]?\s*(.*)$/i).slice(0, 60);
+  const party = pick(/(?:tên\s*người\s*nhận|người\s*nhận|người\s*thụ\s*hưởng|beneficiary|đơn\s*vị\s*nhận|nhà\s*cung\s*cấp|cửa\s*hàng|đơn\s*vị\s*chấp\s*nhận|merchant|người\s*chuyển|^từ|from)\s*[:\-]?\s*(.*)$/i).slice(0, 60);
   const ref = pick(/(?:mã\s*(?:giao\s*dịch|gd)|số\s*tham\s*chiếu|transaction\s*id|reference|mã\s*tham\s*chiếu)\s*[:\-]?\s*([A-Z0-9]{6,})/i);
-  return { amount: best ? best.val : null, type, date, time, note, party, ref, svc, confidence: !best ? 'không có' : best.sc >= 8 ? 'cao' : best.sc >= 4 ? 'trung bình' : 'thấp' };
+  return { amount: best ? best.val : null, score: best ? best.sc : -99, type, date, time, note, party, ref, svc, confidence: !best ? 'không có' : best.sc >= 8 ? 'cao' : best.sc >= 4 ? 'trung bình' : 'thấp' };
 }
 // Đoán danh mục từ nội dung (không dấu)
-const CAT_HINTS = [[/\b(tien dien|dien|evn)\b/, 'Điện'], [/\b(tien nuoc|nuoc|cap nuoc)\b/, 'Nước'], [/\b(an uong|an trua|an sang|an toi|com|pho|bun|cafe|ca phe|tra sua|nha hang)\b/, 'Ăn uống'], [/\b(grab|xanh sm|taxi|xang|xang dau|gui xe|ve xe|dat xe|be|gojek|di lai)\b/, 'Đi lại'], [/\b(thue nha|tien nha|tien phong)\b/, 'Nhà ở'], [/\b(luong|salary)\b/, 'Lương'], [/\b(thuong|bonus)\b/, 'Thưởng'], [/\b(hoc phi|khoa hoc|sach)\b/, 'Giáo dục'], [/\b(thuoc|benh vien|kham benh|nha thuoc)\b/, 'Sức khỏe'], [/\b(shopee|lazada|tiki|mua sam|sieu thi)\b/, 'Mua sắm'], [/\b(dam cuoi|mung cuoi|dam gio|phung vieng|hieu hi)\b/, 'Hiếu hỉ'], [/\b(xem phim|cgv|giai tri|netflix)\b/, 'Giải trí']];
+const CAT_HINTS = [[/\b(tien dien|dien|evn)\b/, 'Điện'], [/\b(tien nuoc|nuoc|cap nuoc)\b/, 'Nước'], [/\b(an uong|an trua|an sang|an toi|com|pho|bun|cafe|ca phe|tra sua|nha hang)\b/, 'Ăn uống'], [/\b(grab|xanh sm|taxi|xang|xang dau|gui xe|ve xe|dat xe|be|gojek|di lai)\b/, 'Đi lại'], [/\b(thue nha|tien nha|tien phong)\b/, 'Nhà ở'], [/\b(luong|salary)\b/, 'Lương'], [/\b(thuong|bonus)\b/, 'Thưởng'], [/\b(hoc phi|khoa hoc|sach)\b/, 'Giáo dục'], [/\b(thuoc|benh vien|kham benh|nha thuoc)\b/, 'Sức khỏe'], [/\b(shopee|lazada|tiki|tiktok|tiktok shop|mua sam|sieu thi|thoi trang|quan ao)\b/, 'Mua sắm'], [/\b(dam cuoi|mung cuoi|dam gio|phung vieng|hieu hi)\b/, 'Hiếu hỉ'], [/\b(xem phim|cgv|giai tri|netflix)\b/, 'Giải trí']];
 function guessCat(type, text) {
   const cats = type === 'income' ? incCats() : expCats(), d = deac(text);
   for (const [re, c] of CAT_HINTS) if (re.test(d) && cats.includes(c)) return c;

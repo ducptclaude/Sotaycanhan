@@ -1,0 +1,20 @@
+Kiểm tra bản 1.12.1 – đọc ảnh giao dịch (biên lai CAKE: lấy nhầm mã ngành 5311)
+
+TRƯỚC:
+TỔNG 61 ảnh · số tiền 53/61 (86.9%) · thu/chi 60/61 · ngày 50/61 · TB 641 ms/ảnh
+cake.png      ✗       5311 (đúng 1229447) ✓expense ✗- giờ 13:38 · thấp
+
+SAU:
+TỔNG 61 ảnh · số tiền 54/61 (88.5%) · thu/chi 60/61 · ngày 51/61 · TB 773 ms/ảnh
+cake.png ✓ 1229447 · chi · 14/08/2024 · 13:35 · Mua sắm · TikTok Shop
+
+Còn sai (đều sai từ trước, ảnh mờ nặng):
+r03-kho2.jpg  ✗       null (đúng 89000) ✓expense ✗- · không có
+r04-kho2.jpg  ✗      20000 (đúng 20000000) ✗expense ✗- · thấp
+r05-kho2.jpg  ✗    3250002 (đúng 3250000) ✓expense ✗- · cao
+r05-kho3.jpg  ✗       3250 (đúng 3250000) ✓expense ✓2026-11-22 · trung bình
+r06-kho2.jpg  ✗    2345009 (đúng 2345000) ✓expense ✗- · cao
+r09-kho2.jpg  ✗       null (đúng 500000) ✓expense ✗- · không có
+r10-kho2.jpg  ✗ 1000000009 (đúng 1000000000) ✓expense ✗- · trung bình
+
+Giao diện đính kèm ảnh / gõ nhanh / chia sẻ / mất mạng: 19/19 đạt
