@@ -174,6 +174,14 @@ Thu hồi một máy (VD bị mất) → máy đó bị đăng xuất, **không 
 | Mở khoá có mạng | Máy chủ phát thử thách & **kiểm chữ ký** (đồng thời kiểm khoá còn hợp lệ, chưa bị xoá / đồng bộ) |
 | Mở khoá mất mạng | **Kiểm chữ ký ngay trên máy** bằng khoá công khai (ES256 / RS256 / Ed25519), kiểm cờ xác thực người dùng & số đếm |
 | Thu hồi / đặt lại mật khẩu | Xoá khoá sinh trắc của máy đó khỏi CSDL; tự đăng xuất thì giữ (đăng nhập lại bằng vân tay được) |
+**Xác thực lại cho thao tác nhạy cảm (từ bản 1.10.0 – tương tự app ngân hàng yêu cầu sinh trắc khi chuyển khoản lớn):**
+- **Luôn yêu cầu** (máy chủ kiểm, hiệu lực 5 phút – biến `STEPUP_SEC`): thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu máy chủ; trên máy: tải tệp sao lưu, xoá dữ liệu tài chính.
+- **Tuỳ chọn** (👤 Tài khoản): lưu / xoá giao dịch từ 5 / 10 / 20 / 50 / 100 triệu (tham khảo QĐ 2345/QĐ-NHNN: giao dịch > 10 triệu phải xác thực sinh trắc).
+- Cách xác thực: 👆 sinh trắc thiết bị (có mạng: máy chủ kiểm chữ ký; mất mạng: kiểm trên máy) hoặc mật khẩu.
+- Nhận diện bộ xác thực qua **AAGUID** (Windows Hello, Chrome trên Mac, Google Password Manager, iCloud Keychain, 1Password, Bitwarden, Dashlane…): loại đồng bộ đám mây bị chặn thêm một lớp ngoài cờ BE/BS.
+
+**Vì sao app ngân hàng / VNeID dùng được sinh trắc ở mọi máy còn web thì hạn chế:** app cài đặt gọi thẳng API hệ điều hành – Android `BiometricPrompt` + Keystore (`setUserAuthenticationRequired`, `BIOMETRIC_STRONG`, `setInvalidatedByBiometricEnrollment`, StrongBox, Key Attestation, Play Integrity); iOS `LocalAuthentication` + Secure Enclave (`.biometryCurrentSet`, `ThisDeviceOnly`, App Attest); VNeID / ngân hàng còn đọc chip CCCD qua NFC (ICAO 9303: DG1, DG2 ảnh, SOD) và so khớp khuôn mặt + liveness. Trình duyệt **không mở** các API này – chỉ có WebAuthn; Safari trên iPhone luôn tạo khoá đồng bộ iCloud; Web NFC không đọc được chip CCCD. Muốn đạt mức như app ngân hàng cần **bọc thành app cài đặt** (VD Capacitor / TWA cho Android – miễn phí; iOS cần tài khoản Apple Developer, có phí).
+
 - Dữ liệu vân tay / khuôn mặt **không bao giờ rời chip bảo mật của thiết bị** – app & máy chủ chỉ nhận chữ ký số sau khi thiết bị đã xác thực.
 - ⚠️ **iPhone / iPad (Safari)** chỉ tạo được khoá đồng bộ iCloud → theo chính sách này **không bật được Face ID / Touch ID**, máy đó dùng mật khẩu. Android / Windows Hello / máy tính: tuỳ thiết bị – app sẽ báo rõ nếu bị từ chối.
 - Web không phân biệt được "vân tay" với "mã PIN / hình vẽ khoá màn hình" của thiết bị: cả hai đều là xác thực người dùng của thiết bị.

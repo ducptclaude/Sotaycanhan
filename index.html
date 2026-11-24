@@ -1005,7 +1005,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.9.0';
+const APP_VER = '1.10.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1257,14 +1257,12 @@ function saveTextFile(name, txt) { const a = document.createElement('a'); a.href
 async function downloadServerBackup() {
   if (MODE !== 'idb' || !IDB.cfg.url) return toast('Chưa kết nối máy chủ đồng bộ.');
   try {
-    const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + '/admin/export', { cache: 'no-store', headers: IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {} });
-    if (r.status === 401 || r.status === 403) throw new Error('Sai mã truy cập (token)');
-    if (!r.ok) throw new Error('Máy chủ báo lỗi ' + r.status);
-    const o = await r.json(); saveTextFile('so-ca-nhan-may-chu-' + today() + '.json', JSON.stringify(o, null, 1));
+    const o = await apiFetch('/admin/export'); saveTextFile('so-ca-nhan-may-chu-' + today() + '.json', JSON.stringify(o, null, 1));
     toast('✓ Đã tải bản sao máy chủ (' + (o.count || 0) + ' mục)'); idbSet('meta', 'lastBackup', Date.now()).catch(() => { });
   } catch (e) { toast('Không tải được: ' + (e instanceof TypeError ? 'không kết nối được máy chủ' : e.message)); }
 }
 async function downloadBackup() {
+  if (!(await localStepUp('Tải tệp sao lưu toàn bộ dữ liệu'))) return;
   const txt = JSON.stringify(backupObj(), null, 1), name = 'so-ca-nhan-sao-luu-' + today() + '.json';
   try { saveTextFile(name, txt); toast('Đã tạo tệp ' + name); if (MODE === 'idb') idbSet('meta', 'lastBackup', Date.now()).catch(() => { }); }
   catch (e) { navigator.clipboard && navigator.clipboard.writeText(txt).then(() => toast('Đã sao chép dữ liệu sao lưu vào bộ nhớ tạm.')).catch(() => toast('Không tạo được tệp sao lưu.')); }
@@ -1317,6 +1315,7 @@ async function sysForm() {
 async function apiFetch(p, opt = {}) {
   const r = await fetch(IDB.cfg.url.replace(/\/+$/, '') + p, { cache: 'no-store', ...opt, headers: { 'Content-Type': 'application/json', ...(IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}), ...(opt.headers || {}) } });
   let j = {}; try { j = await r.json(); } catch (e) { }
+  if (r.status === 403 && j.code === 'stepup' && !opt._step) { if (await stepUp(j.error)) return apiFetch(p, { ...opt, _step: true }); throw new Error('Đã huỷ xác thực lại'); }
   if (r.status === 401 && !opt.noAuthCheck) authExpired();
   if (!r.ok) throw new Error(j.error && /[À-ỹ]/.test(j.error) ? j.error : r.status === 401 || r.status === 403 ? 'Sai mã truy cập (token)' : 'Máy chủ báo lỗi ' + r.status);
   return j;
@@ -1409,7 +1408,7 @@ async function pwVerifier(pw, saltB) { // PBKDF2-SHA256 210.000 vòng – để 
 async function authPost(p, body, auth) {
   const r = await fetch(authBase() + p, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json', ...(auth && IDB.cfg.token ? { Authorization: 'Bearer ' + IDB.cfg.token } : {}) }, body: JSON.stringify(body || {}) });
   let j = {}; try { j = await r.json(); } catch (e) { }
-  if (!r.ok) { const e = new Error(j.error || 'Máy chủ báo lỗi ' + r.status); e.status = r.status; throw e; }
+  if (!r.ok) { const e = new Error(j.error || 'Máy chủ báo lỗi ' + r.status); e.status = r.status; e.code = j.code; throw e; }
   return j;
 }
 const saveL = () => idbSet('meta', 'auth', AUTH.L).catch(() => { });
@@ -1529,6 +1528,44 @@ async function credsRefresh() {
   } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
 }
 const BIO_ERR = e => e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e && e.message) || 'Lỗi xác thực sinh trắc';
+async function bioServerVerify() { // máy chủ phát thử thách → cảm biến thiết bị ký → máy chủ kiểm chữ ký (đồng thời ghi nhận "vừa xác thực lại")
+  const { flow, options } = await authPost('/auth/bio/unlock-options', {}, true);
+  const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
+  await authPost('/auth/bio/unlock', { flow, response: credJSON(c) }, true); _stepAt = Date.now(); return true;
+}
+// ================= XÁC THỰC LẠI CHO THAO TÁC NHẠY CẢM (như app ngân hàng yêu cầu sinh trắc khi chuyển khoản lớn) =================
+// Máy chủ: thêm/xoá sinh trắc, thu hồi thiết bị, tải/sao lưu toàn bộ dữ liệu → bắt buộc (STEPUP_SEC, mặc định 5 phút).
+// Trên máy: tải tệp sao lưu, xoá dữ liệu tài chính, lưu/xoá giao dịch từ ngưỡng tiền tuỳ chọn (👤 Tài khoản).
+let _stepAt = 0;
+const STEP_LOCAL_MS = 5 * 60000;
+const bigTxNeed = amt => !!(AUTH.L && AUTH.L.on && AUTH.L.bigTx > 0 && Number(amt) >= AUTH.L.bigTx);
+async function stepUp(reason) { // xác thực lại với MÁY CHỦ: sinh trắc (nếu máy đã bật) hoặc mật khẩu
+  const hasBio = (await bioAll()).length > 0 && waSupported();
+  return new Promise(res => {
+    // Lớp riêng NẰM TRÊN form đang mở (không thay nội dung form – giữ nguyên dữ liệu đang nhập)
+    const ov = document.createElement('div'); ov.className = 'ov show'; ov.style.zIndex = 260; ov.innerHTML = '<div class="sheet" style="max-width:420px"></div>'; document.body.appendChild(ov);
+    let done = false; const fin = v => { if (done) return; done = true; ov.remove(); if (v) _stepAt = Date.now(); res(v); };
+    ((html, mount) => { const sh = ov.firstChild; sh.innerHTML = html; mount(sh); })(`<h3>🔐 Xác thực lại</h3><p class="sub" style="margin-top:0">${esc(reason || 'Thao tác nhạy cảm')} – xác nhận đúng là bạn.</p>
+      ${hasBio ? '<button class="btn primary bio" id="su-bio" style="width:100%;justify-content:center;margin-bottom:10px">👆 Dùng vân tay / Face ID</button><div class="or" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:8px">hoặc nhập mật khẩu</div>' : ''}
+      <form id="su-f"><div class="f"><input id="su-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><div class="muted" id="su-msg" style="font-size:12.5px;min-height:18px"></div>
+      <div class="actions"><button type="button" class="btn" id="su-no">Huỷ</button><button class="btn ${hasBio ? '' : 'primary'}" type="submit">Xác nhận</button></div></form>`, sh => {
+      const msg = t => { sh.querySelector('#su-msg').textContent = t; };
+      sh.querySelector('#su-no').onclick = () => fin(false);
+      if (hasBio) sh.querySelector('#su-bio').onclick = async () => { try { await bioServerVerify(); fin(true); } catch (e) { msg(BIO_ERR(e)); } };
+      sh.querySelector('#su-f').onsubmit = async e => { e.preventDefault(); try { await authPost('/auth/stepup', { password: sh.querySelector('#su-pw').value }, true); fin(true); } catch (er) { msg(er instanceof TypeError ? 'Không kết nối được máy chủ.' : er.message); } };
+      if (!hasBio) setTimeout(() => sh.querySelector('#su-pw').focus(), 50);
+    });
+  });
+}
+async function localStepUp(reason) { // thao tác trên máy: có mạng → như stepUp; mất mạng → sinh trắc kiểm chữ ký trên máy hoặc mật khẩu lưu trên máy
+  if (!(AUTH.L && AUTH.L.on)) return true; // chưa bật tài khoản: không áp dụng
+  if (Date.now() - _stepAt < STEP_LOCAL_MS) return true;
+  if (navigator.onLine && IDB.cfg.token) return stepUp(reason);
+  const list = await bioAll();
+  if (list.length && waSupported()) { try { const ch = crypto.getRandomValues(new Uint8Array(32)); const c = await navigator.credentials.get({ publicKey: { challenge: ch, rpId: location.hostname, allowCredentials: list.map(x => ({ type: 'public-key', id: b64u(x.id) })), userVerification: 'required', timeout: 60000 } }); if ((await bioVerifyLocal(list.find(x => x.id === c.id), c, ch)) === true) { _stepAt = Date.now(); return true; } } catch (e) { } }
+  if (AUTH.L.pass) { const pw = prompt((reason || 'Thao tác nhạy cảm') + ' – nhập mật khẩu để xác nhận:'); if (pw && (await pwVerifier(pw, AUTH.L.pass.salt)).hash === AUTH.L.pass.hash) { _stepAt = Date.now(); return true; } toast('Xác thực không thành công.'); return false; }
+  toast('Cần có mạng hoặc vân tay để xác nhận thao tác này.'); return false;
+}
 async function unlockBio() {
   try {
     await credsRefresh();
@@ -1536,9 +1573,7 @@ async function unlockBio() {
     if (!list.length) { await bioSyncMirror(); lockMsg('Vân tay / Face ID của máy này chưa bật hoặc đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong 👤 Tài khoản.'); return; }
     if (navigator.onLine && IDB.cfg.token) { // CÓ MẠNG: máy chủ phát thử thách & kiểm chữ ký (đồng thời kiểm khoá còn hợp lệ, chưa bị đồng bộ đám mây)
       try {
-        const { flow, options } = await authPost('/auth/bio/unlock-options', {}, true);
-        const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
-        await authPost('/auth/bio/unlock', { flow, response: credJSON(c) }, true); return unlocked();
+        await bioServerVerify(); return unlocked();
       } catch (e) {
         if (e && e.status && e.status < 500) { if (e.status === 404 || e.status === 400) { for (const x of list) await bioDel(x.id); await bioSyncMirror(); } return lockMsg(e.message); }
         if (!(e instanceof TypeError)) return lockMsg(BIO_ERR(e)); // lỗi mạng → thử kiểm trên máy
@@ -1548,7 +1583,7 @@ async function unlockBio() {
     const ch = crypto.getRandomValues(new Uint8Array(32));
     const c = await navigator.credentials.get({ publicKey: { challenge: ch, rpId: location.hostname, allowCredentials: list.map(x => ({ type: 'public-key', id: b64u(x.id) })), userVerification: 'required', timeout: 60000 } });
     const rec = list.find(x => x.id === c.id), ok = await bioVerifyLocal(rec, c, ch);
-    if (ok === true) unlocked(); else lockMsg(ok === null ? 'Khoá sinh trắc này cần có mạng để kiểm tra (bật lại vân tay để mở được khi mất mạng). Hãy dùng mật khẩu.' : 'Chữ ký sinh trắc không hợp lệ – đã từ chối.');
+    if (ok === true) { _stepAt = Date.now(); unlocked(); } else lockMsg(ok === null ? 'Khoá sinh trắc này cần có mạng để kiểm tra (bật lại vân tay để mở được khi mất mạng). Hãy dùng mật khẩu.' : 'Chữ ký sinh trắc không hợp lệ – đã từ chối.');
   } catch (e) { lockMsg(BIO_ERR(e)); }
 }
 async function unlockPw(pw) {
@@ -1601,14 +1636,16 @@ async function offerPasskey() {
 }
 async function addPasskey() { // bật vân tay / Face ID cho máy này: khoá GẮN CHẶT thiết bị, lưu CSDL sinh trắc riêng (máy chủ + máy)
   try {
-    const { flow, options, policy } = await authPost('/auth/bio/register-options', {}, true);
+    let ro; try { ro = await authPost('/auth/bio/register-options', {}, true); } catch (er) { if (er.code === 'stepup' && await stepUp('Bật vân tay / Face ID cho máy này')) ro = await authPost('/auth/bio/register-options', {}, true); else throw er; }
+    const { flow, options, policy } = ro;
     const c = await navigator.credentials.create({ publicKey: { ...options, challenge: b64u(options.challenge), user: { ...options.user, id: b64u(options.user.id) }, excludeCredentials: (options.excludeCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
     const r = await authPost('/auth/bio/register', { flow, response: credJSON(c), name: devName() }, true);
     let spki = '', alg = 0; try { spki = bufU(c.response.getPublicKey()); alg = c.response.getPublicKeyAlgorithm(); } catch (e) { }
     await bioPut({ id: c.id, spki, alg, name: devName(), created: Date.now(), counter: 0, deviceType: r.deviceType || '', allowSynced: policy === 'allow-synced' });
     await bioSyncMirror(); AUTH.st = { ...(AUTH.st || {}), passkeys: (AUTH.st && AUTH.st.passkeys || 0) + 1 };
-    toast('👆 Đã bật mở khoá bằng sinh trắc của thiết bị (khoá chỉ nằm trên máy này).'); if (UI.tab === 'ca-nhan') acctLoad(true);
+    toast('👆 Đã bật sinh trắc thiết bị' + (r.provider ? ' (' + r.provider + ')' : '') + ' – khoá chỉ nằm trên máy này.'); if (UI.tab === 'ca-nhan') acctLoad(true);
   } catch (e) {
+    if (e && e.message === 'Đã huỷ xác thực lại') return toast('Đã huỷ.');
     const msg = e && e.status === 422 ? e.message + (isIOS() ? ' (iPhone/iPad: Safari luôn tạo khoá đồng bộ iCloud.)' : '') : e && e.name === 'NotAllowedError' ? 'Đã huỷ.' : e && e.name === 'InvalidStateError' ? 'Máy này đã bật sinh trắc cho tài khoản.' : 'Chưa bật được: ' + (e.message || e.name);
     if (e && e.status === 422) openModal(`<h3>Không bật được vân tay / Face ID</h3><p>${esc(msg)}</p><p class="sub">Chính sách an toàn hiện tại: chỉ chấp nhận khoá sinh trắc <b>gắn chặt với thiết bị</b>, không dùng passkey đồng bộ đám mây. Máy này vẫn dùng app bình thường bằng mật khẩu.</p><div class="actions"><button class="btn primary" data-x>Đã hiểu</button></div>`, sh => sh.querySelector('[data-x]').onclick = closeModal);
     else toast(msg);
@@ -1710,7 +1747,9 @@ function viewAccount() {
     <div class="kv2"><span class="l">Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="kv2" style="align-items:flex-start"><span class="l">👆 Vân tay / Face ID<br><span class="muted" style="font-size:12px">${hasLocal ? '✓ Máy này đã bật' : A.plat ? 'Máy này chưa bật' : 'Máy này không có cảm biến'}</span></span>${!hasLocal && A.plat && !offline ? '<button class="btn sm primary" data-act="ac-pk">Bật cho máy này</button>' : ''}</div>
     ${me ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'cho phép khoá đồng bộ'} · không lưu thông tin cá nhân trong khoá</div>` : ''}
-    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span><div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
+    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span>${p.provider ? `<span class="tag">${esc(p.provider)}</span>` : ''}<div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
+    <div class="kv2" style="margin-top:6px"><span class="l">Xác thực lại khi lưu / xoá giao dịch từ<br><span class="muted" style="font-size:12px">tham khảo QĐ 2345/QĐ-NHNN: ngân hàng yêu cầu sinh trắc cho giao dịch &gt; 10 triệu</span></span><select id="ac-bigtx" style="width:auto">${[[0, 'Không yêu cầu'], [5e6, '5 triệu'], [1e7, '10 triệu'], [2e7, '20 triệu'], [5e7, '50 triệu'], [1e8, '100 triệu']].map(([k, l]) => `<option value="${k}" ${(L.bigTx || 0) === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <div class="muted" style="font-size:12px;margin-top:4px">Luôn xác thực lại khi: thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu, xoá dữ liệu tài chính${me && me.stepUpLeft ? ` · đang còn hiệu lực ${Math.ceil(me.stepUpLeft / 60)} phút` : ''}.</div>
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-lockn">🔒 Khoá ngay</button></div></div>`;
   // 3. Thông báo
   const pushOn = A.pm.on && pushSupported() && Notification.permission === 'granted', mine = A.pushes.find(x => x.device === IDB.device), pr = (mine && mine.prefs) || {};
@@ -2144,6 +2183,7 @@ function txForm(id, preset, shareImg) {
     sh.querySelector('#txf').addEventListener('submit', e => { e.preventDefault(); busy(save, async () => {
       const amount = parseAmt(sh.querySelector('#f-amt').value);
       if (amount <= 0) return toast('Nhập số tiền lớn hơn 0.');
+      if (bigTxNeed(amount) && !(await localStepUp('Lưu giao dịch ' + fmt(amount)))) return;
       const accountId = sh.querySelector('#f-acc').value, toAccountId = sh.querySelector('#f-to').value;
       const date = sh.querySelector('#f-date').value || today();
       if (type === 'transfer' && accountId === toAccountId) return toast('Hai tài khoản phải khác nhau.');
@@ -2164,7 +2204,7 @@ function txForm(id, preset, shareImg) {
       if (type === 'expense') { const bl = budgetLimits(), lim = bl[cat]; if (lim) { const sp = monthStats({ ...S.txns, [tid]: data }, ymOf(date)).cat[cat] || 0; if (sp > lim) warn = '⚠ Đã vượt ngân sách "' + cat + '" (' + Math.round(sp / lim * 100) + '%)'; else if (sp >= lim * 0.8) warn = '⚠ "' + cat + '" đã dùng ' + Math.round(sp / lim * 100) + '% ngân sách'; } }
       toast(warn || (id ? 'Đã cập nhật.' : 'Đã lưu giao dịch.'));
     })(); });
-    if (id) sh.querySelector('#f-del').onclick = async () => { if (await confirmDlg('Xoá giao dịch này?')) { await del('txns', id).catch(() => { }); toast('Đã xoá.'); } };
+    if (id) sh.querySelector('#f-del').onclick = async () => { if (bigTxNeed(ex.amount) && !(await localStepUp('Xoá giao dịch ' + fmt(ex.amount)))) return; if (await confirmDlg('Xoá giao dịch này?')) { await del('txns', id).catch(() => { }); toast('Đã xoá.'); } };
   });
 }
 function txInfo(id) {
@@ -4835,6 +4875,7 @@ function choiceDlg(msg, opts) {
   });
 }
 async function finWipe(silent) {
+  if (!silent && !(await localStepUp('Xoá toàn bộ dữ liệu tài chính'))) return;
   if (!silent && !(await confirmDlg('Xoá <b>toàn bộ</b> tài khoản, giao dịch, vay nợ, tiết kiệm, tài sản và ngân sách? Không thể hoàn tác. Nên Sao lưu trước.', 'Xoá hết'))) return false;
   const ids = FIN_COLS.flatMap(c => Object.keys(S[c]).map(id => [c, id]));
   for (let i = 0; i < ids.length; i++) { await del(ids[i][0], ids[i][1]); if (i % 10 === 0) toast('Đang xoá… ' + (i + 1) + '/' + ids.length); }
@@ -5377,6 +5418,7 @@ document.addEventListener('input', e => {
   if (e.target.id === 'asof' && e.target.value) { UI.asOf = e.target.value; render(); }
   if (e.target.id === 'tx-cat-sel') { UI.txCat = e.target.value; render(); }
   if (e.target.id === 'tx-acc-sel') { UI.txAcc = e.target.value; render(); }
+  if (e.target.id === 'ac-bigtx' && AUTH.L) { AUTH.L.bigTx = Number(e.target.value); saveL(); toast(AUTH.L.bigTx ? 'Sẽ xác thực lại khi lưu / xoá giao dịch từ ' + fmt(AUTH.L.bigTx) : 'Không yêu cầu xác thực lại theo số tiền'); }
   if (e.target.id === 'ac-lock' && AUTH.L) { AUTH.L.lockMin = Number(e.target.value); saveL(); toast('Đã lưu: ' + e.target.selectedOptions[0].text.toLowerCase()); }
   if (e.target.matches && e.target.matches('[data-act="ac-pref"]')) acctAct('ac-pref', e.target);
   if (e.target.id === 'hist-acc') { histState().acc = e.target.value; histState().limit = 200; render(); }

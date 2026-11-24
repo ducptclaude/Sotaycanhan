@@ -76,6 +76,8 @@ function serveStatic(req, res) {
 const server = http.createServer((req, res) => {
   try {
     if (auth.handle(req, res, sync)) return;
+    // Tải / sao lưu TOÀN BỘ dữ liệu: thao tác nhạy cảm → cần vừa xác thực lại (sinh trắc hoặc mật khẩu)
+    { const u = req.url.split('?')[0]; if ((u === '/admin/export' || u === '/admin/backup/run') && auth.check(req.headers.authorization) && !auth.stepUpOk(req.headers.authorization)) { sync.send(res, 403, { error: 'Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu', code: 'stepup' }); return; } }
     if (sync.handle(req, res)) return;
     if (push.handle(req, res)) return;
     if (backup.handle(req, res)) return;

@@ -8,6 +8,18 @@ const crypto = require('crypto');
 const WA = require('@simplewebauthn/server');
 
 const SESSION_DAYS = 180, MAX_SESSIONS = 30;
+// AAGUID (mã loại bộ xác thực, nằm trong dữ liệu đăng ký WebAuthn) → nhận diện nơi giữ khoá.
+// synced: trình quản lý passkey ĐỒNG BỘ đám mây → chặn thêm một lớp (ngoài cờ sao lưu BE/BS).
+const AAGUID = {
+  '08987058-cadc-4b81-b6e1-30de50dcbe96': { name: 'Windows Hello', synced: false }, '9ddd1817-af5a-4672-a2b9-3e3dd95000a9': { name: 'Windows Hello', synced: false },
+  '6028b017-b1d4-4c02-b4b3-afcdafc96bb2': { name: 'Windows Hello', synced: false }, 'adce0002-35bc-c60a-648b-0b25f1f05503': { name: 'Chrome trên Mac (Touch ID)', synced: false },
+  'ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4': { name: 'Google Password Manager', synced: true }, 'fbfc3007-154e-4ecc-8c0b-6e020557d7bd': { name: 'iCloud Keychain', synced: true },
+  'dd4ec289-e01d-41c9-bb89-70fa845d4bf2': { name: 'iCloud Keychain (quản lý)', synced: true }, 'bada5566-a7aa-401f-bd96-45619a55120d': { name: '1Password', synced: true },
+  'd548826e-79b4-db40-a3d8-11116f7e8349': { name: 'Bitwarden', synced: true }, '531126d6-e717-415c-9320-3d9aa6981239': { name: 'Dashlane', synced: true },
+};
+const aaguidInfo = g => AAGUID[String(g || '').toLowerCase()] || null;
+// Xác thực lại cho thao tác nhạy cảm (như app ngân hàng yêu cầu sinh trắc khi chuyển khoản lớn): hiệu lực STEPUP_SEC giây (mặc định 5 phút)
+const STEP_MS = Number(process.env.STEPUP_SEC || 300) * 1000;
 const b64u = b => Buffer.from(b).toString('base64url');
 const sha = s => crypto.createHash('sha256').update(String(s)).digest('hex');
 const eq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
@@ -57,7 +69,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
   function newSession(req, q, via) {
     const token = b64u(crypto.randomBytes(32)), sid = b64u(crypto.randomBytes(6)), now = Date.now();
     acc.sessions = acc.sessions || {};
-    acc.sessions[sha(token)] = { sid, device: String(q.device || '').slice(0, 64), name: String(q.name || '').slice(0, 40), via, created: now, seen: now };
+    acc.sessions[sha(token)] = { sid, device: String(q.device || '').slice(0, 64), name: String(q.name || '').slice(0, 40), via, created: now, seen: now, stepUp: now }; // vừa đăng nhập = vừa xác thực
     const list = Object.entries(acc.sessions).sort((a, b) => b[1].seen - a[1].seen); // giữ tối đa 30 phiên mới nhất
     list.slice(MAX_SESSIONS).forEach(([k]) => delete acc.sessions[k]);
     save(); return token;
@@ -76,6 +88,10 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
     return !!sessionOf(header);
   }
   const info = () => ({ setup: !!acc, passkeys: acc ? bio.count() : 0 });
+  const markStep = s => { if (s && acc.sessions[s.key]) { acc.sessions[s.key].stepUp = Date.now(); save(); } };
+  const stepFresh = s => !!(s && acc && acc.sessions[s.key] && Date.now() - (acc.sessions[s.key].stepUp || 0) < STEP_MS);
+  // Dùng cho đường dẫn ngoài auth (VD /admin/export): chưa có tài khoản thì không áp dụng
+  function stepUpOk(header) { if (!acc) return true; return stepFresh(sessionOf(header)); }
 
   // ---- WebAuthn: tên miền & nguồn theo yêu cầu (hoặc biến RP_ID / RP_ORIGIN) ----
   function rp(req) {
@@ -93,7 +109,8 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
   }
   function takeFlow(id, type) { const f = flows.get(String(id || '')); flows.delete(String(id || '')); return f && f.type === type && f.exp > Date.now() ? f : null; }
   const me = s => ({ id: acc.id, phone: acc.phone || '', created: acc.created,
-    passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, mine: !!(s && p.device === s.device) })),
+    passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, mine: !!(s && p.device === s.device), provider: (aaguidInfo(p.aaguid) || {}).name || '' })),
+    stepUpLeft: s && acc.sessions[s.key] ? Math.max(0, Math.round((STEP_MS - (Date.now() - (acc.sessions[s.key].stepUp || 0))) / 1000)) : 0,
     bioDb: bio.kind, bioPolicy: ALLOW_SYNCED ? 'allow-synced' : 'device-only',
     sessions: Object.values(acc.sessions || {}).sort((a, b) => b.seen - a.seen).map(x => ({ sid: x.sid, name: x.name, via: x.via, created: x.created, seen: x.seen, current: s && x.sid === s.sid, device: x.device })) });
 
@@ -104,11 +121,13 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return true; }
     if (url === '/auth/status' && req.method === 'GET') { send(200, info()); return true; }
     if (req.method !== 'POST' && url !== '/auth/me') { send(405, { error: 'method not allowed' }); return true; }
-    const needSession = ['/auth/me', '/auth/bio/register-options', '/auth/bio/register', '/auth/bio/delete', '/auth/profile', '/auth/password', '/auth/logout', '/auth/revoke'].includes(url);
+    const needSession = ['/auth/stepup', '/auth/me', '/auth/bio/register-options', '/auth/bio/register', '/auth/bio/delete', '/auth/profile', '/auth/password', '/auth/logout', '/auth/revoke'].includes(url);
     const s = needSession || url.startsWith('/auth/bio/unlock') ? sessionOf(req.headers.authorization) : null;
     if (needSession && !s) { send(401, { error: acc ? 'Phiên đăng nhập đã hết hạn – hãy đăng nhập lại' : 'Chưa tạo tài khoản' }); return true; }
     if (url === '/auth/me') { send(200, me(s)); return true; }
-    const isLogin = ['/auth/login', '/auth/reset', '/auth/setup', '/auth/bio/login', '/auth/bio/unlock', '/auth/password', '/auth/profile'].includes(url);
+    const isLogin = ['/auth/login', '/auth/reset', '/auth/setup', '/auth/bio/login', '/auth/bio/unlock', '/auth/password', '/auth/profile', '/auth/stepup'].includes(url);
+    // Thao tác nhạy cảm: thêm / xoá sinh trắc, thu hồi thiết bị → phải vừa xác thực lại (sinh trắc hoặc mật khẩu) trong STEPUP_SEC
+    if (['/auth/bio/register-options', '/auth/bio/delete', '/auth/revoke'].includes(url) && !stepFresh(s)) { send(403, { error: 'Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu', code: 'stepup' }); return true; }
     if (isLogin) { const m = blocked(req, url !== '/auth/bio/login' && url !== '/auth/bio/unlock'); if (m) { send(429, { error: `Sai quá nhiều lần – thử lại sau ${m} phút` }); return true; } }
 
     sync.readJson(req, res, async q => {
@@ -168,7 +187,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           }
           bio.update(pk.id, { counter: ai.newCounter, used: Date.now() });
           succeeded(req);
-          if (unlock) return send(200, { ok: true });
+          if (unlock) { markStep(s); return send(200, { ok: true, stepUpSec: STEP_MS / 1000 }); } // mở khoá bằng sinh trắc = xác thực lại
           const token = newSession(req, q, 'bio');
           return send(200, { ok: true, token, account: me(sessionOf('Bearer ' + token)) });
         }
@@ -191,11 +210,13 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           const v = await WA.verifyRegistrationResponse({ response: q.response, expectedChallenge: f.challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true }).catch(e => ({ verified: false, err: e.message }));
           if (!v.verified) return send(400, { error: 'Không đăng ký được: ' + (v.err || 'xác thực thất bại') });
           const ri = v.registrationInfo, c = ri.credential;
+          const prov = aaguidInfo(ri.aaguid);
+          if (!ALLOW_SYNCED && prov && prov.synced) return send(422, { error: `Khoá được tạo trong ${prov.name} (trình quản lý passkey đồng bộ đám mây) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu.`, code: 'synced' });
           if (!ALLOW_SYNCED && (ri.credentialDeviceType === 'multiDevice' || ri.credentialBackedUp)) // khoá đồng bộ đám mây (passkey) → từ chối
             return send(422, { error: 'Thiết bị / trình duyệt này chỉ tạo được khoá ĐỒNG BỘ đám mây (passkey iCloud / Google) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu.', code: 'synced' });
           await bio.put({ id: c.id, publicKey: b64u(c.publicKey), counter: c.counter, transports: c.transports || (q.response.response || {}).transports || [], device: s.device, name: String(q.name || 'Thiết bị').slice(0, 40),
             deviceType: ri.credentialDeviceType, backedUp: ri.credentialBackedUp, aaguid: ri.aaguid || '', created: Date.now(), used: 0 });
-          return send(200, { ok: true, deviceType: ri.credentialDeviceType, account: me(s) });
+          return send(200, { ok: true, deviceType: ri.credentialDeviceType, provider: prov ? prov.name : '', account: me(s) });
         }
         if (url === '/auth/bio/delete') { const pre = String(q.id || '-'); bio.removeWhere(p => p.id.startsWith(pre)); return send(200, { ok: true, account: me(s) }); }
         if (url === '/auth/password' || url === '/auth/profile') {
@@ -212,7 +233,12 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
             if (phone && !validPhone(phone)) return send(400, { error: 'Số điện thoại không hợp lệ (VD 0912345678)' });
             acc.id = id; acc.phone = phone;
           }
-          save(); return send(200, { ok: true, account: me(s) });
+          markStep(s); save(); return send(200, { ok: true, account: me(s) }); // đã nhập đúng mật khẩu hiện tại = xác thực lại
+        }
+        if (url === '/auth/stepup') {
+          const okPw = eq((await scrypt(q.password || '', Buffer.from(acc.pw.salt, 'base64'))).toString('base64'), acc.pw.hash);
+          if (!okPw) { failed(req); return send(401, { error: 'Mật khẩu không đúng' }); }
+          succeeded(req); markStep(s); return send(200, { ok: true, stepUpSec: STEP_MS / 1000 });
         }
         if (url === '/auth/logout') { delete acc.sessions[s.key]; save(); onRevoke('logout', s.device); return send(200, { ok: true }); } // tự đăng xuất: GIỮ đăng ký sinh trắc của máy
         if (url === '/auth/revoke') {
@@ -224,6 +250,6 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
     });
     return true;
   }
-  return { handle, check, info, setOnRevoke: fn => { onRevoke = (mode, device) => { if (mode === 'device' && device) bio.removeWhere(p => p.device === device); else if (mode === 'others') bio.removeWhere(p => p.device !== device); fn(mode === 'logout' ? 'device' : mode, device); }; /* bị thu hồi / đặt lại MK → xoá sinh trắc máy đó */ } };
+  return { handle, check, info, stepUpOk, setOnRevoke: fn => { onRevoke = (mode, device) => { if (mode === 'device' && device) bio.removeWhere(p => p.device === device); else if (mode === 'others') bio.removeWhere(p => p.device !== device); fn(mode === 'logout' ? 'device' : mode, device); }; /* bị thu hồi / đặt lại MK → xoá sinh trắc máy đó */ } };
 }
-module.exports = { createAuth, normPhone };
+module.exports = { createAuth, normPhone, aaguidInfo }; // aaguidInfo: dùng cho kiểm thử

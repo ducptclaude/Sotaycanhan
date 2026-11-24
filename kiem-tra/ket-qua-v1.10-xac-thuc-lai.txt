@@ -1,0 +1,13 @@
+Kiểm tra bản 1.10.0 – xác thực lại (step-up) cho thao tác nhạy cảm + nhận diện bộ xác thực qua AAGUID
+Máy chủ thử chạy STEPUP_SEC=3 để thử hết hạn
+✅ Vừa đăng nhập → bật vân tay ngay được (phiên mới = vừa xác thực)
+✅ Quá hạn xác thực lại → máy chủ từ chối thu hồi & tải toàn bộ dữ liệu (403 stepup) — {"error":"Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu","code":"stepup"} · export 403
+✅ Thu hồi thiết bị: hỏi xác thực lại → vân tay → thực hiện tiếp — hộp: "🔐 Xác thực lại Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu – xác nhận đúng là bạn. 👆 Dùng vân tay / Face ID " · còn: Laptop A, 
+✅ Tải toàn bộ dữ liệu máy chủ: mật khẩu sai bị từ chối, đúng thì tải được — "Mật khẩu không đúng" → so-ca-nhan-may-chu-2026-11-24.json
+✅ Ngưỡng 10 triệu: GD 5 tr lưu thẳng · GD 15 tr hỏi xác thực (huỷ → không lưu, vân tay → lưu) — 5tr true · huỷ không lưu true · vân tay đã lưu true
+✅ Mất mạng: GD 20 tr → xác thực bằng vân tay (kiểm chữ ký trên máy) → lưu
+✅ Máy B bị thu hồi → phải đăng nhập lại
+✅ Trang Tài khoản: ngưỡng giao dịch & danh sách thao tác luôn xác thực lại — Luôn xác thực lại khi: thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu, xoá dữ liệu tài chính.✅ AAGUID: Google Password Manager / iCloud Keychain → chặn (đồng bộ); Windows Hello → cho phép; không rõ → dựa vào cờ BE/BS
+
+Phát hiện & đã sửa khi kiểm tra: hộp xác thực lại thay mất form giao dịch → GD lớn không lưu sau khi xác thực → nay là lớp riêng nằm trên form.
+Hồi quy (STEPUP 5 phút): sinh trắc 11/11 · đăng nhập (21 bước) · vân tay 11/11 · tài khoản 12/12 · đồng bộ · ảnh GD 19/19 · Lỗi JS: []
