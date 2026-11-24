@@ -22,7 +22,7 @@ function createSync({ file, store, token, allowOrigin = '*', allowNoToken = fals
   const save = () => { clearTimeout(saveT); saveT = setTimeout(flush, 200); };
   flush(); // ghi ngay để giữ mã phiên
 
-  const cors = { 'Access-Control-Allow-Origin': allowOrigin, 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', 'Access-Control-Max-Age': '86400', 'Vary': 'Origin' };
+  const cors = !allowOrigin ? {} : { 'Access-Control-Allow-Origin': allowOrigin, 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', 'Access-Control-Max-Age': '86400', 'Vary': 'Origin' };
   const send = (res, code, obj, extra) => { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors, ...(extra || {}) }); res.end(JSON.stringify(obj)); };
   const tokenOk = h => {
     if (check) return check(h); // có tài khoản chủ: kiểm tra phiên đăng nhập (server/auth.js)

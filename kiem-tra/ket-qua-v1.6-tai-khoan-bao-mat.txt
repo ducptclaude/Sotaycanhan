@@ -1,0 +1,20 @@
+Kiểm tra bản 1.6.0 – rà soát bảo mật, trang Tài khoản, sửa vân tay (1.5.1)
+A. Rà soát bảo mật – lỗ hổng tìm thấy & đã vá (kiểm chứng trước/sau trên máy chủ thử)
+   1. [Cao] Đổi X-Forwarded-For mỗi lần → dò mật khẩu không bị khoá (12/12 lần lọt)
+      → Lấy IP do proxy thêm (cuối chuỗi) + khoá theo TÀI KHOẢN: 10 lần sai/15 phút → 429 (lần 11, 12 bị chặn, kể cả mật khẩu đúng);
+        đăng nhập vân tay không bị khoá theo tài khoản (không dò được)
+   2. [Trung bình] Lộ ID/SĐT qua thời gian phản hồi (ID đúng 80 ms / ID sai 1 ms) → luôn băm mật khẩu: 86 ms / 80 ms
+   3. [Thấp] /health công khai lộ số bản ghi, kiểu lưu trữ → chỉ trả {"ok":true,"ver"}; chi tiết khi đã đăng nhập
+   4. [Thấp] CORS "*" → không cho trang khác gọi (đặt ALLOW_ORIGIN nếu cần)
+   5. Thêm header: X-Frame-Options DENY, CSP frame-ancestors 'none'/object-src 'none'/base-uri 'self'/form-action 'self',
+      Permissions-Policy, HSTS (trên Railway)
+   6. Tên miền xác thực vân tay cố định theo tên miền Railway (không tin X-Forwarded-Host); giới hạn 500 luồng xác thực chờ
+   7. [Trung bình] Thu hồi máy chưa tắt thông báo đẩy → máy mất vẫn nhận nội dung giao dịch → nay xoá đăng ký thông báo khi thu hồi / đăng xuất / đặt lại mật khẩu
+   8. [Trung bình, 1.5.1] Vân tay đã xoá khỏi tài khoản vẫn mở khoá app → nay đối chiếu với máy chủ khi có mạng
+   npm audit (thư viện chạy thật): 0 lỗ hổng
+B. Trang Tài khoản (nút 👤): 12/12 đạt – mở trang, 4 mục, thiết bị + nhãn thông báo, sửa SĐT, đăng nhập bằng SĐT mới,
+   tắt loại thông báo (lưu máy chủ), tự khoá 15 phút, thu hồi B → xoá thông báo của B + B phải đăng nhập lại,
+   đổi mật khẩu (cũ bị từ chối, mới dùng được), mở khoá offline bằng mật khẩu mới, trang khi mất mạng, màn hình 360px
+C. Hồi quy: đồng bộ 8/8 · tách Claude & nhiều máy · nút đồng bộ 8/8 · tức thời/push/lịch sử · máy chủ mất dữ liệu 6/6 ·
+   thông báo đẩy (máy chủ) 10/10 · sao lưu GitHub (giả) 12/12 · đăng nhập 22/22 · vân tay 11/11 · độ trễ TB 0,7 s
+Lỗi JS: []
