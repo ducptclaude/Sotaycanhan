@@ -996,7 +996,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.6.0';
+const APP_VER = '1.7.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1647,7 +1647,9 @@ function viewAccount() {
   const pushOn = A.pm.on && pushSupported() && Notification.permission === 'granted', mine = A.pushes.find(x => x.device === IDB.device), pr = (mine && mine.prefs) || {};
   const pst = !pushSupported() ? (isIOS() && !isStandaloneDisplay() ? 'iPhone/iPad: Thêm vào MH chính rồi mở app từ biểu tượng để bật.' : 'Trình duyệt không hỗ trợ.') : Notification.permission === 'denied' ? '⛔ Đã chặn trong cài đặt trình duyệt.' : pushOn ? '✓ Đang bật trên máy này' : 'Chưa bật trên máy này';
   h += `<div class="sechd"><span>🔔 Thông báo</span></div><div class="card"><div class="kv2"><span class="l">Máy này</span><span>${pst}</span></div>
-    ${pushOn ? `<div class="sw"><span>📥 Dữ liệu mới từ thiết bị khác</span><input type="checkbox" data-act="ac-pref" data-k="data" ${pr.data !== false ? 'checked' : ''}></div><div class="sw"><span>🗄️ Sao lưu hằng tuần (kết quả / nhắc nhở)</span><input type="checkbox" data-act="ac-pref" data-k="backup" ${pr.backup !== false ? 'checked' : ''}></div>` : ''}
+    ${pushOn ? `<div class="sw"><span>📥 Báo khi có dữ liệu mới (giao dịch kèm số tiền & số dư, như tin nhắn ngân hàng)</span><input type="checkbox" data-act="ac-pref" data-k="data" ${pr.data !== false ? 'checked' : ''}></div>
+    <div class="sw" style="padding-left:14px"><span>↳ Báo cả mục do chính máy này nhập</span><input type="checkbox" data-act="ac-pref" data-k="self" ${pr.self !== false ? 'checked' : ''} ${pr.data === false ? 'disabled' : ''}></div>
+    <div class="sw" style="padding-left:14px"><span>↳ Hiện số tiền & số dư (tắt nếu lo người khác nhìn màn hình khoá)</span><input type="checkbox" data-act="ac-pref" data-k="amount" ${pr.amount !== false ? 'checked' : ''} ${pr.data === false ? 'disabled' : ''}></div><div class="sw"><span>🗄️ Sao lưu hằng tuần (kết quả / nhắc nhở)</span><input type="checkbox" data-act="ac-pref" data-k="backup" ${pr.backup !== false ? 'checked' : ''}></div>` : ''}
     <div class="actions" style="justify-content:flex-start;flex-wrap:wrap;margin-top:6px">${pushOn ? '<button class="btn sm" data-act="ac-ptest">Gửi thử</button><button class="btn sm" data-act="ac-poff">Tắt trên máy này</button>' : pushSupported() && Notification.permission !== 'denied' && !offline ? '<button class="btn sm primary" data-act="ac-pon">🔔 Bật thông báo</button>' : ''}</div>
     ${A.pushes.length ? `<div class="muted" style="font-size:12px;margin-top:8px">Thiết bị đang nhận thông báo: ${A.pushes.map(x => esc(x.name || 'Thiết bị') + (x.device === IDB.device ? ' (máy này)' : '')).join(', ')}</div>` : ''}</div>`;
   // 4. Thiết bị đã đăng nhập

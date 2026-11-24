@@ -5,11 +5,13 @@
    Đường dẫn (cần mã SYNC_TOKEN): GET /push/key · POST /push/subscribe · POST /push/unsubscribe · POST /push/test */
 const crypto = require('crypto');
 let webpush = null; try { webpush = require('web-push'); } catch (e) { }
+const { createFormatter } = require('./notify-fmt');
 
 const LABELS = { txns: 'giao dịch', events: 'sự kiện', todos: 'việc cần làm', notes: 'ghi chú', journal: 'nhật ký', health: 'chỉ số sức khỏe', loans: 'khoản vay/nợ', savings: 'khoản tiết kiệm', assets: 'tài sản', accounts: 'tài khoản', goals: 'mục tiêu', contacts: 'liên hệ', meds: 'thuốc', courses: 'khóa học', books: 'sách', study: 'buổi học', cards: 'thẻ từ', habits: 'thói quen' };
 const vnd = n => (Math.round(Number(n) || 0)).toLocaleString('vi-VN') + ' đ';
 
-function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = () => false, quietMs = 6000 }) {
+function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = () => false, quietMs = 2500 }) {
+  const fmt = createFormatter(col => sync.all(col));
   let keys = null;
   if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) keys = { publicKey: process.env.VAPID_PUBLIC_KEY, privateKey: process.env.VAPID_PRIVATE_KEY };
   else { try { keys = JSON.parse(store.get('vapid')); } catch (e) { } }
@@ -39,29 +41,50 @@ function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = 
   }
 
   // ---- Gom thay đổi để báo "vừa thêm thông tin" ----
-  const pend = new Map(); // device nguồn → { counts, txSum, one, timer }
+  // ---- Báo "dữ liệu mới" kiểu tin nhắn biến động số dư (mọi máy, kể cả máy vừa nhập) ----
+  const pend = new Map(); // máy nguồn → { items: [{col,id,data,ts}], timer }
   function onChange({ device, applied }) {
     if (!enabled || !Object.keys(subs).length) return;
-    const fresh = applied.filter(a => a.op === 'put' && a.isNew && a.ts > 1 && LABELS[a.col]); // chỉ dữ liệu MỚI, bỏ dữ liệu mẫu (ts = 1)
+    const now = Date.now();
+    // chỉ dữ liệu MỚI; bỏ dữ liệu mẫu (ts = 1) và dữ liệu cũ gửi lại (ts quá 24 giờ – VD máy chủ khôi phục)
+    const fresh = applied.filter(a => a.op === 'put' && a.isNew && a.ts > 1 && now - a.ts < 24 * 3600e3 && a.col !== 'settings' && a.data);
     if (!fresh.length) return;
-    const p = pend.get(device) || { counts: {}, n: 0, last: null }; pend.set(device, p);
-    fresh.forEach(a => { p.counts[a.col] = (p.counts[a.col] || 0) + 1; p.n++; p.last = a; });
+    const p = pend.get(device) || { items: [] }; pend.set(device, p);
+    fresh.forEach(a => p.items.push({ col: a.col, id: a.id, data: a.data, ts: a.ts }));
     clearTimeout(p.timer); p.timer = setTimeout(() => flushPend(device), quietMs);
   }
-  function describe(p) {
-    if (p.n === 1 && p.last) {
-      const d = p.last.data || {};
-      if (p.last.col === 'txns') return ({ income: 'Thu ', expense: 'Chi ', transfer: 'Chuyển khoản ', loan_pay: 'Trả nợ ', asset_buy: 'Mua tài sản ', asset_sell: 'Bán tài sản ' }[d.type] || 'Giao dịch ') + vnd(d.amount) + (d.category ? ' · ' + d.category : '') + (d.note ? ' · ' + String(d.note).slice(0, 60) : '');
-      const t = d.title || d.name || d.text || '';
-      return 'Thêm ' + LABELS[p.last.col] + (t ? ': ' + String(t).slice(0, 80) : '');
+  function payloadsFor(items, from, showAmount) {
+    const money = items.filter(x => ['txns', 'savings', 'loans', 'assets', 'accounts'].includes(x.col));
+    if (items.length <= 3) { // mỗi mục 1 thông báo (như tin nhắn ngân hàng), số dư tính tại thời điểm sau từng giao dịch
+      return items.map((x, i) => {
+        const later = new Set(items.slice(i + 1).filter(y => y.col === 'txns').map(y => y.id));
+        const f = fmt.one(x.col, x.id, x.data, showAmount, later);
+        return { kind: 'data', title: f.title, body: [f.body, from].filter(Boolean).join('\n'), tag: 'scn-' + x.col + '-' + x.id, url: f.url, sync: true };
+      });
     }
-    return 'Thêm ' + Object.entries(p.counts).map(([c, n]) => n + ' ' + LABELS[c]).join(', ');
+    // nhiều mục cùng lúc (VD nhập hàng loạt) → 1 thông báo tóm tắt
+    const cnt = {}; items.forEach(x => { cnt[x.col] = (cnt[x.col] || 0) + 1; });
+    let inc = 0, exp = 0; money.filter(x => x.col === 'txns').forEach(x => { const a = Number(x.data.amount) || 0; if (x.data.type === 'income') inc += a; else if (x.data.type === 'expense') exp += a; });
+    const vnd = n => Math.round(n).toLocaleString('vi-VN') + ' đ';
+    const L = [Object.entries(cnt).map(([c, n]) => n + ' ' + (LABELS[c] || c)).join(', ')];
+    if (showAmount && (inc || exp)) L.push(`Thu +${vnd(inc)} · Chi −${vnd(exp)}`);
+    if (from) L.push(from);
+    return [{ kind: 'data', title: `📥 Vừa thêm ${items.length} mục mới`, body: L.join('\n'), tag: 'scn-data-batch', url: cnt.txns ? './#lich-su-gd' : './', sync: true }];
   }
   function flushPend(device) {
-    const p = pend.get(device); pend.delete(device); if (!p) return;
-    const from = names[device] ? ' · từ ' + names[device] : '';
-    broadcast({ kind: 'data', title: '📥 Sổ Cá Nhân – dữ liệu mới', body: describe(p) + from, tag: 'scn-data', url: p.counts.txns ? './#lich-su-gd' : './#tong-quan', sync: true, topic: 'scn-data' }, { exceptDevice: device, skipLive: true })
-      .catch(e => console.error('push:', e.message));
+    const p = pend.get(device); pend.delete(device); if (!p || !p.items.length) return;
+    const from = names[device] ? 'từ ' + names[device] : '';
+    // tuỳ chọn từng máy: data=false → tắt; self=false → không báo mục do chính máy này nhập; amount=false → ẩn số tiền
+    const groups = { show: [], hide: [] };
+    for (const [k, s] of Object.entries(subs)) {
+      const pr = s.prefs || {};
+      if (pr.data === false || (s.device === device && pr.self === false)) continue;
+      groups[pr.amount === false ? 'hide' : 'show'].push([k, s]);
+    }
+    for (const [g, list] of Object.entries(groups)) {
+      if (!list.length) continue;
+      for (const pl of payloadsFor(p.items, from, g === 'show')) sendTo(list, pl).catch(e => console.error('push:', e.message));
+    }
   }
 
   function handle(req, res) {
@@ -93,7 +116,7 @@ function createPush({ store, sync, subject = 'mailto:admin@localhost', isLive = 
         return sync.send(res, 200, { devices: Object.values(subs).map(s => ({ device: s.device, name: s.name, created: s.created, lastOk: s.lastOk || 0, prefs: s.prefs || {} })) });
       }
       if (url === '/push/prefs') { // tuỳ chọn loại thông báo của 1 thiết bị: { data: true/false, backup: true/false }
-        const p = q.prefs || {}, clean = {}; ['data', 'backup'].forEach(k => { if (typeof p[k] === 'boolean') clean[k] = p[k]; });
+        const p = q.prefs || {}, clean = {}; ['data', 'backup', 'self', 'amount'].forEach(k => { if (typeof p[k] === 'boolean') clean[k] = p[k]; });
         let n = 0; Object.values(subs).forEach(s => { if (s.device === String(q.device || '')) { s.prefs = { ...(s.prefs || {}), ...clean }; n++; } });
         if (n) saveSubs(); return sync.send(res, 200, { ok: true, updated: n });
       }
