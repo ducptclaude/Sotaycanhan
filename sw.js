@@ -8,9 +8,9 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.11.2';
+const VERSION = 'scn-v1.11.3';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts', OCR = 'scn-ocr', SHARE = 'scn-share';
-const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp']; // ảnh nền đăng nhập: hiện cả khi mất mạng
+const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.11.3', './icons/icon-512.png?v=1.11.3', './icons/maskable-192.png?v=1.11.3', './icons/maskable-512.png?v=1.11.3', './icons/apple-touch-icon.png?v=1.11.3', './icons/favicon-32.png?v=1.11.3', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp']; // ảnh nền đăng nhập: hiện cả khi mất mạng
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.registration.active ? null : self.skipWaiting()));
@@ -56,7 +56,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   // Tài nguyên cùng nguồn: stale-while-revalidate
-  e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => {
+  e.respondWith(caches.match(req, { ignoreSearch: !/[?&]v=/.test(url.search) }).then(hit => { // có ?v= (icon theo phiên bản) → phải khớp đúng phiên bản
     const net = fromNetAndStore(req, hit ? SHELL : RUNTIME).catch(() => null);
     if (hit) { e.waitUntil(net); return hit; }
     return net.then(r => r || new Response('', { status: 504 }));
@@ -203,7 +203,7 @@ self.addEventListener('message', e => {
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
   const show = self.registration.showNotification(d.title || 'Sổ Cá Nhân', {
-    body: d.body || '', icon: './icons/icon-192.png', badge: './icons/favicon-32.png', tag: d.tag || 'scn', renotify: true,
+    body: d.body || '', icon: './icons/icon-192.png?v=1.11.3', badge: './icons/favicon-32.png?v=1.11.3', tag: d.tag || 'scn', renotify: true,
     data: { url: d.url || './', kind: d.kind || '' }, lang: 'vi'
   });
   e.waitUntil(Promise.all([show, d.sync ? swSync('push').catch(err => reportErr('push', err)) : null]));
