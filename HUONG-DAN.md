@@ -163,6 +163,21 @@ Thu hồi một máy (VD bị mất) → máy đó bị đăng xuất, **không 
 
 **Quên mật khẩu:** màn hình đăng nhập → **Quên mật khẩu?** → nhập mã `SYNC_TOKEN` (trong Railway → Variables) + mật khẩu mới → mọi máy khác bị đăng xuất.
 
+**Sinh trắc thiết bị – không dùng passkey đồng bộ (từ bản 1.9.0):**
+| Hạng mục | Cách làm |
+|---|---|
+| Loại khoá | Chỉ cảm biến **gắn trong máy** (`platform`), **không tạo passkey** trong iCloud Keychain / Google Password Manager (`residentKey: discouraged`), **bắt buộc xác thực** sinh trắc / khoá màn hình thiết bị (`userVerification: required`) |
+| Chính sách | Máy chủ **từ chối khoá đồng bộ đám mây** (cờ sao lưu BE/BS) khi đăng ký **và mỗi lần dùng**; số đếm chữ ký không tăng → coi là khoá bị sao chép, chặn. Nới bằng biến `BIO_ALLOW_SYNCED=1` (không khuyến nghị) |
+| Không cá nhân hoá | Khoá chỉ mang tên chung "Sổ Cá Nhân", mã người dùng ngẫu nhiên – **không** chứa ID, SĐT, họ tên |
+| CSDL riêng – máy chủ | Bảng **`scn_sinh_trac`** trong Postgres (tự tạo nếu chưa có; không có Postgres → tệp `sinh-trac.json`), tách khỏi hồ sơ tài khoản & dữ liệu sổ |
+| CSDL riêng – thiết bị | IndexedDB **`so-ca-nhan-sinh-trac`**: lưu khoá công khai của cảm biến máy này |
+| Mở khoá có mạng | Máy chủ phát thử thách & **kiểm chữ ký** (đồng thời kiểm khoá còn hợp lệ, chưa bị xoá / đồng bộ) |
+| Mở khoá mất mạng | **Kiểm chữ ký ngay trên máy** bằng khoá công khai (ES256 / RS256 / Ed25519), kiểm cờ xác thực người dùng & số đếm |
+| Thu hồi / đặt lại mật khẩu | Xoá khoá sinh trắc của máy đó khỏi CSDL; tự đăng xuất thì giữ (đăng nhập lại bằng vân tay được) |
+- Dữ liệu vân tay / khuôn mặt **không bao giờ rời chip bảo mật của thiết bị** – app & máy chủ chỉ nhận chữ ký số sau khi thiết bị đã xác thực.
+- ⚠️ **iPhone / iPad (Safari)** chỉ tạo được khoá đồng bộ iCloud → theo chính sách này **không bật được Face ID / Touch ID**, máy đó dùng mật khẩu. Android / Windows Hello / máy tính: tuỳ thiết bị – app sẽ báo rõ nếu bị từ chối.
+- Web không phân biệt được "vân tay" với "mã PIN / hình vẽ khoá màn hình" của thiết bị: cả hai đều là xác thực người dùng của thiết bị.
+
 **Lưu ý:**
 - Vân tay / Face ID gắn với tên miền `sotaycanhan-production.up.railway.app`. Đổi sang tên miền khác thì cần bật lại vân tay (mật khẩu vẫn dùng được).
 - iPhone/iPad: Face ID / Touch ID hoạt động trong Safari và app đã thêm vào MH chính (iOS 16+).

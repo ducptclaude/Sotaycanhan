@@ -8,7 +8,7 @@ function createFileStore({ dir, files = {} }) {
   const fileOf = k => files[k] || path.join(dir, k + '.json');
   try { fs.mkdirSync(dir, { recursive: true }); } catch (e) { }
   return {
-    kind: 'file',
+    kind: 'file', dir,
     get(k) { try { return fs.readFileSync(fileOf(k), 'utf8'); } catch (e) { return null; } },
     set(k, v) { const f = fileOf(k); try { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f + '.tmp', v); fs.renameSync(f + '.tmp', f); } catch (e) { console.error('Không ghi được', f, e.message); } },
     async flush() { }, async close() { }
@@ -43,7 +43,7 @@ async function createPgStore({ url, importFrom = null }) {
     return chain;
   };
   return {
-    kind: 'postgres',
+    kind: 'postgres', pool,
     get(k) { return cache.has(k) ? cache.get(k) : null; },
     set(k, v) { cache.set(k, v); dirty.add(k); if (!timer) timer = setTimeout(write, 150); },
     async flush() { clearTimeout(timer); await write(); await chain; },

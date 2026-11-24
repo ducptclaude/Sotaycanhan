@@ -1005,7 +1005,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.8.0';
+const APP_VER = '1.9.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1416,6 +1416,7 @@ const saveL = () => idbSet('meta', 'auth', AUTH.L).catch(() => { });
 async function authStatus() { try { const r = await fetch(authBase() + '/auth/status', { cache: 'no-store' }); if (r.ok) AUTH.st = await r.json(); } catch (e) { } return AUTH.st; }
 async function authBoot() {
   AUTH.L = (await idbGet('meta', 'auth').catch(() => null)) || {};
+  try { const bl = await bioAll(); if (!bl.length && (AUTH.L.creds || []).length) { for (const id of AUTH.L.creds) await bioPut({ id, spki: '', alg: 0, name: 'Khoá cũ', created: Date.now(), counter: 0 }); } AUTH.L.creds = (await bioAll()).map(x => x.id); } catch (e) { } // chuyển khoá cũ sang CSDL sinh trắc
   if (AUTH.L.on) { lsLock(true); lockShow(AUTH.L.need ? 'login' : 'unlock'); credsRefresh().then(() => { if (AUTH.mode === 'unlock') lockRender(); }); return; }
   lsLock(false); lockHide();
   if (authBase() && navigator.onLine) authStatus().then(st => { if (st && st.setup && !(AUTH.L && AUTH.L.on)) lockShow('login', 'Hệ thống đã bật tài khoản chủ. Đăng nhập để dùng và đồng bộ dữ liệu.'); });
@@ -1479,25 +1480,76 @@ async function lockRender() {
 function lockMsg(m, err) { AUTH.msg = m; AUTH.err = err !== false; lockRender(); }
 // ---- Mở khoá trên máy (chạy cả khi mất mạng) ----
 function unlocked() { _lastAct = Date.now(); AUTH.tries = 0; lockHide(); render(); netUI(); credsRefresh(); setTimeout(shareCheck, 300); if (AUTH.L.need && navigator.onLine) authExpired(); else { schedSync(200); rtKick(300); } }
-// Đồng bộ danh sách vân tay của máy này với máy chủ: vân tay đã bị xoá khỏi tài khoản (VD máy bị mất) thì không dùng được nữa
+// ================= CSDL SINH TRẮC TRÊN THIẾT BỊ (độc lập: IndexedDB 'so-ca-nhan-sinh-trac', tự tạo nếu chưa có) =================
+// Lưu: mã khoá + KHOÁ CÔNG KHAI (SPKI) của cảm biến máy này → mở khoá khi MẤT MẠNG vẫn kiểm chữ ký thật (không chỉ so mã).
+// Dữ liệu vân tay / khuôn mặt KHÔNG rời chip bảo mật của thiết bị; app chỉ nhận chữ ký sau khi thiết bị xác thực sinh trắc.
+const BIO = { db: null };
+function bioOpen() {
+  if (BIO.db) return Promise.resolve(BIO.db);
+  return new Promise((res, rej) => { const r = indexedDB.open('so-ca-nhan-sinh-trac', 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('creds')) r.result.createObjectStore('creds', { keyPath: 'id' }); };
+    r.onsuccess = () => { BIO.db = r.result; res(BIO.db); }; r.onerror = () => rej(r.error); });
+}
+async function bioTx(mode, fn) { const db = await bioOpen(); return new Promise((res, rej) => { const t = db.transaction('creds', mode), st = t.objectStore('creds'); let out; out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }); }
+const bioAll = () => bioTx('readonly', st => st.getAll()).catch(() => []);
+const bioPut = rec => bioTx('readwrite', st => { st.put(rec); });
+const bioDel = id => bioTx('readwrite', st => { st.delete(id); });
+async function bioSyncMirror() { const list = await bioAll(); AUTH.L = { ...(AUTH.L || {}), creds: list.map(x => x.id) }; await saveL(); return list; } // AUTH.L.creds = bản sao danh sách mã (để vẽ giao diện nhanh)
+// Kiểm chữ ký sinh trắc NGAY TRÊN MÁY bằng khoá công khai đã lưu (dùng khi mất mạng)
+function derToRaw(der) { let i = 2; if (der[1] & 0x80) i += der[1] & 0x7f; const rl = der[i + 1], r = der.slice(i + 2, i + 2 + rl); i = i + 2 + rl; const sl = der[i + 1], s2 = der.slice(i + 2, i + 2 + sl);
+  const fx = x => { while (x.length > 32 && x[0] === 0) x = x.slice(1); const o = new Uint8Array(32); o.set(x, 32 - x.length); return o; }; const out = new Uint8Array(64); out.set(fx(r)); out.set(fx(s2), 32); return out; }
+async function bioVerifyLocal(rec, cred, challenge) {
+  if (!rec || !rec.spki) return null; // khoá cũ chưa có khoá công khai trên máy → cần có mạng
+  const r = cred.response, ad = new Uint8Array(r.authenticatorData), cdj = new Uint8Array(r.clientDataJSON), cd = JSON.parse(new TextDecoder().decode(cdj));
+  if (cd.type !== 'webauthn.get' || cd.challenge !== bufU(challenge) || cd.origin !== location.origin) return false;
+  const rpH = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(location.hostname)));
+  if (!rpH.every((b, k) => b === ad[k])) return false;
+  const flags = ad[32]; if (!(flags & 0x01) || !(flags & 0x04)) return false; // UP: có người chạm · UV: đã xác thực sinh trắc / khoá màn hình thiết bị
+  if (!rec.allowSynced && (flags & 0x08)) return false; // BE: khoá có thể đồng bộ đám mây → từ chối
+  const cnt = new DataView(ad.buffer, ad.byteOffset + 33, 4).getUint32(0); if (cnt && rec.counter && cnt <= rec.counter) return false; // số đếm không tăng → khoá bị sao chép
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', cdj)), data = new Uint8Array(ad.length + h.length); data.set(ad); data.set(h, ad.length);
+  const spki = b64u(rec.spki); let ok = false;
+  if (rec.alg === -7) ok = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, await crypto.subtle.importKey('spki', spki, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']), derToRaw(new Uint8Array(r.signature)), data);
+  else if (rec.alg === -257) ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', await crypto.subtle.importKey('spki', spki, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']), r.signature, data);
+  else if (rec.alg === -8) { try { ok = await crypto.subtle.verify('Ed25519', await crypto.subtle.importKey('spki', spki, 'Ed25519', false, ['verify']), r.signature, data); } catch (e) { return null; } } // Ed25519: trình duyệt cũ chưa hỗ trợ → cần mạng
+  else return null;
+  if (ok && cnt) { rec.counter = cnt; await bioPut(rec); }
+  return ok;
+}
+// Đồng bộ CSDL sinh trắc trên máy với máy chủ: khoá đã bị xoá khỏi tài khoản (VD máy bị mất / bị thu hồi) thì xoá trên máy
 async function credsRefresh() {
-  if (!navigator.onLine || !IDB.cfg.token || !AUTH.L || !(AUTH.L.creds || []).length) return;
+  if (!navigator.onLine || !IDB.cfg.token || !AUTH.L) return;
   try {
+    const list = await bioAll(); if (!list.length && !(AUTH.L.creds || []).length) return;
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
     const r = await fetch(authBase() + '/auth/me', { cache: 'no-store', signal: ctl.signal, headers: { Authorization: 'Bearer ' + IDB.cfg.token } }); clearTimeout(t);
     if (!r.ok) return; const me = await r.json();
-    const keep = AUTH.L.creds.filter(c => me.passkeys.some(p => c.startsWith(p.id)));
-    if (keep.length !== AUTH.L.creds.length) { AUTH.L.creds = keep; await saveL(); }
+    for (const x of list) if (!me.passkeys.some(p => x.id.startsWith(p.id))) await bioDel(x.id);
+    await bioSyncMirror();
   } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
 }
+const BIO_ERR = e => e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e && e.message) || 'Lỗi xác thực sinh trắc';
 async function unlockBio() {
   try {
     await credsRefresh();
-    if (!(AUTH.L.creds || []).length) { lockMsg('Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong Tài khoản & bảo mật.'); return; }
-    const ids = AUTH.L.creds || [];
-    const c = await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rpId: location.hostname, allowCredentials: ids.map(id => ({ type: 'public-key', id: b64u(id) })), userVerification: 'required', timeout: 60000 } });
-    if (c && ids.includes(c.id)) unlocked(); else lockMsg('Khoá truy cập không thuộc máy này.');
-  } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : 'Không mở được bằng vân tay: ' + (e.message || e.name)); }
+    const list = await bioAll();
+    if (!list.length) { await bioSyncMirror(); lockMsg('Vân tay / Face ID của máy này chưa bật hoặc đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong 👤 Tài khoản.'); return; }
+    if (navigator.onLine && IDB.cfg.token) { // CÓ MẠNG: máy chủ phát thử thách & kiểm chữ ký (đồng thời kiểm khoá còn hợp lệ, chưa bị đồng bộ đám mây)
+      try {
+        const { flow, options } = await authPost('/auth/bio/unlock-options', {}, true);
+        const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
+        await authPost('/auth/bio/unlock', { flow, response: credJSON(c) }, true); return unlocked();
+      } catch (e) {
+        if (e && e.status && e.status < 500) { if (e.status === 404 || e.status === 400) { for (const x of list) await bioDel(x.id); await bioSyncMirror(); } return lockMsg(e.message); }
+        if (!(e instanceof TypeError)) return lockMsg(BIO_ERR(e)); // lỗi mạng → thử kiểm trên máy
+      }
+    }
+    // MẤT MẠNG: thử thách ngẫu nhiên tạo trên máy, kiểm chữ ký bằng khoá công khai trong CSDL sinh trắc của máy
+    const ch = crypto.getRandomValues(new Uint8Array(32));
+    const c = await navigator.credentials.get({ publicKey: { challenge: ch, rpId: location.hostname, allowCredentials: list.map(x => ({ type: 'public-key', id: b64u(x.id) })), userVerification: 'required', timeout: 60000 } });
+    const rec = list.find(x => x.id === c.id), ok = await bioVerifyLocal(rec, c, ch);
+    if (ok === true) unlocked(); else lockMsg(ok === null ? 'Khoá sinh trắc này cần có mạng để kiểm tra (bật lại vân tay để mở được khi mất mạng). Hãy dùng mật khẩu.' : 'Chữ ký sinh trắc không hợp lệ – đã từ chối.');
+  } catch (e) { lockMsg(BIO_ERR(e)); }
 }
 async function unlockPw(pw) {
   if (Date.now() < AUTH.waitUntil) return lockMsg(`Sai nhiều lần – thử lại sau ${Math.ceil((AUTH.waitUntil - Date.now()) / 1000)} giây.`);
@@ -1520,10 +1572,10 @@ async function loginPw(login, pw, fromUnlock) {
 async function loginPasskey(btn) {
   try {
     if (btn) btn.disabled = true;
-    const { flow, options } = await authPost('/auth/passkey/login-options', {});
+    const { flow, options } = await authPost('/auth/bio/login-options', {});
     const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
-    const r = await authPost('/auth/passkey/login', { flow, response: credJSON(c), device: IDB.device, name: devName() });
-    await authSaved(r, null, c.id);
+    const r = await authPost('/auth/bio/login', { flow, response: credJSON(c), device: IDB.device, name: devName() });
+    await authSaved(r, null, null);
   } catch (e) { lockMsg(e && e.name === 'NotAllowedError' ? 'Không xác thực được – vân tay không khớp, đã huỷ, hoặc máy này chưa bật vân tay cho tài khoản (hãy đăng nhập bằng mật khẩu rồi bật).' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e.message || 'Đăng nhập không thành công')); }
   finally { if (btn) btn.disabled = false; }
 }
@@ -1537,8 +1589,9 @@ async function authSaved(r, pw, credId) {
   const a = r.account || {}, old = AUTH.L || {}, same = old.id === a.id;
   IDB.cfg = { ...IDB.cfg, url: authBase(), token: r.token }; await idbSet('meta', 'sync', IDB.cfg);
   AUTH.L = { on: true, need: false, id: a.id, phone: a.phone || '', lockMin: old.lockMin != null ? old.lockMin : 5,
-    pass: pw ? await pwVerifier(pw) : same ? old.pass : null, creds: [...new Set([...(same ? old.creds || [] : []), ...(credId ? [credId] : [])])] };
-  await saveL(); lsLock(true); AUTH.st = { ...(AUTH.st || {}), setup: true };
+    pass: pw ? await pwVerifier(pw) : same ? old.pass : null, creds: [] };
+  if (!same) { for (const x of await bioAll()) await bioDel(x.id); } // tài khoản khác → xoá khoá sinh trắc cũ trên máy
+  await bioSyncMirror(); await saveL(); lsLock(true); AUTH.st = { ...(AUTH.st || {}), setup: true };
   RT.denied = false; rtStop(); unlocked(); syncNow(); periodicSyncSetup(); setTimeout(() => { pushRefresh(); }, 2000);
   if (!AUTH.L.creds.length && await waPlatform()) setTimeout(offerPasskey, 600);
 }
@@ -1546,14 +1599,20 @@ async function offerPasskey() {
   if (!(await confirmDlg('Bật <b>mở khoá bằng vân tay / Face ID</b> trên máy này? Lần sau chỉ cần chạm vân tay để mở app.', '👆 Bật ngay'))) return;
   addPasskey();
 }
-async function addPasskey() {
+async function addPasskey() { // bật vân tay / Face ID cho máy này: khoá GẮN CHẶT thiết bị, lưu CSDL sinh trắc riêng (máy chủ + máy)
   try {
-    const { flow, options } = await authPost('/auth/passkey/register-options', {}, true);
+    const { flow, options, policy } = await authPost('/auth/bio/register-options', {}, true);
     const c = await navigator.credentials.create({ publicKey: { ...options, challenge: b64u(options.challenge), user: { ...options.user, id: b64u(options.user.id) }, excludeCredentials: (options.excludeCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
-    await authPost('/auth/passkey/register', { flow, response: credJSON(c), name: devName() }, true);
-    AUTH.L.creds = [...new Set([...(AUTH.L.creds || []), c.id])]; await saveL(); AUTH.st = { ...(AUTH.st || {}), passkeys: (AUTH.st && AUTH.st.passkeys || 0) + 1 };
-    toast('👆 Đã bật mở khoá bằng vân tay / Face ID trên máy này.'); if (document.getElementById('acct')) acctForm();
-  } catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Đã huỷ.' : e && e.name === 'InvalidStateError' ? 'Máy này đã có khoá truy cập cho tài khoản.' : 'Chưa bật được: ' + (e.message || e.name)); }
+    const r = await authPost('/auth/bio/register', { flow, response: credJSON(c), name: devName() }, true);
+    let spki = '', alg = 0; try { spki = bufU(c.response.getPublicKey()); alg = c.response.getPublicKeyAlgorithm(); } catch (e) { }
+    await bioPut({ id: c.id, spki, alg, name: devName(), created: Date.now(), counter: 0, deviceType: r.deviceType || '', allowSynced: policy === 'allow-synced' });
+    await bioSyncMirror(); AUTH.st = { ...(AUTH.st || {}), passkeys: (AUTH.st && AUTH.st.passkeys || 0) + 1 };
+    toast('👆 Đã bật mở khoá bằng sinh trắc của thiết bị (khoá chỉ nằm trên máy này).'); if (UI.tab === 'ca-nhan') acctLoad(true);
+  } catch (e) {
+    const msg = e && e.status === 422 ? e.message + (isIOS() ? ' (iPhone/iPad: Safari luôn tạo khoá đồng bộ iCloud.)' : '') : e && e.name === 'NotAllowedError' ? 'Đã huỷ.' : e && e.name === 'InvalidStateError' ? 'Máy này đã bật sinh trắc cho tài khoản.' : 'Chưa bật được: ' + (e.message || e.name);
+    if (e && e.status === 422) openModal(`<h3>Không bật được vân tay / Face ID</h3><p>${esc(msg)}</p><p class="sub">Chính sách an toàn hiện tại: chỉ chấp nhận khoá sinh trắc <b>gắn chặt với thiết bị</b>, không dùng passkey đồng bộ đám mây. Máy này vẫn dùng app bình thường bằng mật khẩu.</p><div class="actions"><button class="btn primary" data-x>Đã hiểu</button></div>`, sh => sh.querySelector('[data-x]').onclick = closeModal);
+    else toast(msg);
+  }
 }
 async function authLogout(fromLock) {
   const wipe = await new Promise(res => openModal(`<h3>Đăng xuất khỏi máy này?</h3><p class="sub">Máy này sẽ không đồng bộ nữa cho tới khi đăng nhập lại.</p><label class="check"><input type="checkbox" id="lo-wipe"> Xoá luôn dữ liệu đang lưu trên máy này (dữ liệu trên máy chủ vẫn còn)</label><div class="actions"><button class="btn" id="lo-no">Huỷ</button><button class="btn danger" id="lo-yes">Đăng xuất</button></div>`, sh => {
@@ -1566,7 +1625,7 @@ async function authLogout(fromLock) {
   rtStop(); IDB.cfg = { ...IDB.cfg, token: '' }; await idbSet('meta', 'sync', IDB.cfg);
   AUTH.L = { on: false, id: AUTH.L && AUTH.L.id, lockMin: AUTH.L && AUTH.L.lockMin }; await saveL(); lsLock(false);
   try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); await idbSet('meta', 'push', { on: false }); } catch (e) { }
-  if (wipe.w) { await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
+  if (wipe.w) { for (const x of await bioAll()) await bioDel(x.id); await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
   toast('Đã đăng xuất khỏi máy này.'); lockShow('login');
 }
 // ---- Tự khoá: khi mở app (authBoot) + sau N phút không dùng / ẩn app ----
@@ -1650,7 +1709,8 @@ function viewAccount() {
     <div class="fold ${UI.acctOpen === 'pw' ? 'open' : ''}"><div class="f"><input id="ac-cur" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại"></div><div class="f"><input id="ac-new" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (≥ 8 ký tự)"></div><div class="f"><input id="ac-new2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div><label class="check" style="font-size:12.5px"><input type="checkbox" id="ac-lo" checked> Đăng xuất mọi máy khác</label><button class="btn sm primary" data-act="ac-pw" style="margin-top:6px">Đổi mật khẩu</button></div>
     <div class="kv2"><span class="l">Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="kv2" style="align-items:flex-start"><span class="l">👆 Vân tay / Face ID<br><span class="muted" style="font-size:12px">${hasLocal ? '✓ Máy này đã bật' : A.plat ? 'Máy này chưa bật' : 'Máy này không có cảm biến'}</span></span>${!hasLocal && A.plat && !offline ? '<button class="btn sm primary" data-act="ac-pk">Bật cho máy này</button>' : ''}</div>
-    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b><div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
+    ${me ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'cho phép khoá đồng bộ'} · không lưu thông tin cá nhân trong khoá</div>` : ''}
+    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span><div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-lockn">🔒 Khoá ngay</button></div></div>`;
   // 3. Thông báo
   const pushOn = A.pm.on && pushSupported() && Notification.permission === 'granted', mine = A.pushes.find(x => x.device === IDB.device), pr = (mine && mine.prefs) || {};
@@ -1681,7 +1741,7 @@ async function acctAct(act, el) {
       case 'ac-lockn': lockShow('unlock'); break;
       case 'ac-out': authLogout(false); break;
       case 'ac-pk': await addPasskey(); await acctLoad(true); break;
-      case 'ac-pkdel': if (await confirmDlg('Xoá vân tay / Face ID này? Thiết bị đó sẽ không mở bằng vân tay được nữa.')) { await apiFetch('/auth/passkey/delete', { method: 'POST', body: JSON.stringify({ id: el.dataset.id }) }); await credsRefresh(); await done('Đã xoá vân tay.'); } break;
+      case 'ac-pkdel': if (await confirmDlg('Xoá vân tay / Face ID này? Thiết bị đó sẽ không mở bằng vân tay được nữa.')) { await apiFetch('/auth/bio/delete', { method: 'POST', body: JSON.stringify({ id: el.dataset.id }) }); await credsRefresh(); await done('Đã xoá vân tay.'); } break;
       case 'ac-rv': if (await confirmDlg('Thu hồi thiết bị này? Máy đó bị đăng xuất, không đồng bộ và không nhận thông báo nữa.', 'Thu hồi')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ sid: el.dataset.id }) }); await done('Đã thu hồi thiết bị.'); } break;
       case 'ac-rvall': if (await confirmDlg('Đăng xuất mọi máy khác?', 'Đăng xuất')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ all: true }) }); await done('Đã đăng xuất mọi máy khác.'); } break;
       case 'ac-pw':

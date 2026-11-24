@@ -14,6 +14,7 @@ const { openStore } = require('./server/store');
 const { createPush } = require('./server/push');
 const { createBackup } = require('./server/backup');
 const { createAuth } = require('./server/auth');
+const { openBioDB } = require('./server/bio-db');
 
 const ROOT = __dirname, PORT = Number(process.env.PORT || 8080);
 const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
@@ -86,7 +87,8 @@ const server = http.createServer((req, res) => {
 
 (async () => {
   store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
-  auth = createAuth({ store });
+  const bio = await openBioDB(store); // CSDL sinh trắc riêng (bảng scn_sinh_trac / tệp sinh-trac.json), tự tạo nếu chưa có
+  auth = createAuth({ store, bio });
   sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
   auth.setOnRevoke((mode, device) => { sync.dropStreams(mode, device); if (mode !== 'all' && push) push.removeDevices(mode, device); });
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
