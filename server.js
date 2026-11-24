@@ -14,6 +14,7 @@ const { openStore } = require('./server/store');
 const { createPush } = require('./server/push');
 const { createBackup } = require('./server/backup');
 const { createAuth } = require('./server/auth');
+const { openBioDB } = require('./server/bio-db');
 
 const ROOT = __dirname, PORT = Number(process.env.PORT || 8080);
 const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
@@ -22,9 +23,10 @@ const ON_RAILWAY = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PRO
 let sync = null, push = null, backup = null, store = null, auth = null;
 
 // ---- Tệp tĩnh: CHỈ các tệp của ứng dụng (không lộ server/, data/, kiem-tra/…) ----
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 const PUBLIC = ['index.html', 'sw.js', 'manifest.webmanifest'];
 try { fs.readdirSync(path.join(ROOT, 'icons')).forEach(f => PUBLIC.push('icons/' + f)); } catch (e) { }
+try { fs.readdirSync(path.join(ROOT, 'assets')).filter(f => /\.(webp|png|jpg|svg)$/.test(f)).forEach(f => PUBLIC.push('assets/' + f)); } catch (e) { } // ảnh nền đăng nhập
 const FILES = new Map(); // nạp sẵn vào bộ nhớ + nén gzip một lần
 for (const rel of PUBLIC) {
   const ext = path.extname(rel), buf = fs.readFileSync(path.join(ROOT, rel));
@@ -33,7 +35,7 @@ for (const rel of PUBLIC) {
     type: TYPES[ext] || 'application/octet-stream', buf, gz: text ? zlib.gzipSync(buf, { level: 9 }) : null,
     etag: '"' + crypto.createHash('sha1').update(buf).digest('base64').slice(0, 16) + '"',
     // trang & service worker: luôn hỏi lại máy chủ (để có bản mới); biểu tượng: lưu 7 ngày
-    cache: rel.startsWith('icons/') ? 'public, max-age=604800' : 'no-cache'
+    cache: /^(icons|assets)\//.test(rel) ? 'public, max-age=604800' : 'no-cache'
   });
 }
 // ---- Đọc ảnh biên lai (OCR) chạy TRÊN MÁY người dùng: phục vụ Tesseract.js + dữ liệu tiếng Việt từ node_modules ----
@@ -75,6 +77,8 @@ function serveStatic(req, res) {
 const server = http.createServer((req, res) => {
   try {
     if (auth.handle(req, res, sync)) return;
+    // Tải / sao lưu TOÀN BỘ dữ liệu: thao tác nhạy cảm → cần vừa xác thực lại (sinh trắc hoặc mật khẩu)
+    { const u = req.url.split('?')[0]; if ((u === '/admin/export' || u === '/admin/backup/run') && auth.check(req.headers.authorization) && !auth.stepUpOk(req.headers.authorization)) { sync.send(res, 403, { error: 'Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu', code: 'stepup' }); return; } }
     if (sync.handle(req, res)) return;
     if (push.handle(req, res)) return;
     if (backup.handle(req, res)) return;
@@ -86,7 +90,8 @@ const server = http.createServer((req, res) => {
 
 (async () => {
   store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
-  auth = createAuth({ store });
+  const bio = await openBioDB(store); // CSDL sinh trắc riêng (bảng scn_sinh_trac / tệp sinh-trac.json), tự tạo nếu chưa có
+  auth = createAuth({ store, bio });
   sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
   auth.setOnRevoke((mode, device) => { sync.dropStreams(mode, device); if (mode !== 'all' && push) push.removeDevices(mode, device); });
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';

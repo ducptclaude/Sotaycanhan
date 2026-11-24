@@ -1,0 +1,17 @@
+Kiểm tra bản 1.9.0 – sinh trắc thiết bị (không passkey đồng bộ, không cá nhân hoá), CSDL sinh trắc riêng (máy chủ + máy)
+Cảm biến WebAuthn giả lập: loại gắn chặt thiết bị & loại đồng bộ (BE/BS=1, giống passkey iCloud/Google)
+✅ authenticatorSelection: cảm biến trong máy · KHÔNG tạo passkey (discouraged) · bắt buộc xác thực người dùng — {"authenticatorAttachment":"platform","residentKey":"discouraged","requireResidentKey":false,"userVerification":"required"} · hints ["client-device"] · credProps {"credProps":true}
+✅ Không cá nhân hoá: khoá không chứa ID / SĐT / tên — {"name":"so-ca-nhan","displayName":"Sổ Cá Nhân"}
+✅ CSDL sinh trắc trên MÁY (IndexedDB "so-ca-nhan-sinh-trac") lưu khoá công khai (ES256) — [{"id":"7B5M1BMh","alg":-7,"spki":122,"deviceType":"singleDevice"}]
+✅ CSDL sinh trắc trên MÁY CHỦ (riêng, không nằm trong hồ sơ tài khoản) · khoá chỉ trên thiết bị — [{"deviceType":"singleDevice","backedUp":false,"name":"Laptop A (Windows Hello)"}]
+✅ Mở khoá CÓ MẠNG: máy chủ phát thử thách & kiểm chữ ký — /auth/bio/unlock-options, /auth/bio/unlock
+✅ Mở khoá MẤT MẠNG: kiểm chữ ký ngay trên máy (khoá công khai trong CSDL sinh trắc)
+✅ Khoá công khai bị làm giả → chữ ký không khớp → TỪ CHỐI — Chữ ký sinh trắc không hợp lệ – đã từ chối.
+✅ Khoá ĐỒNG BỘ đám mây (passkey) → máy chủ TỪ CHỐI, giải thích rõ — Không bật được vân tay / Face ID Thiết bị / trình duyệt này chỉ tạo được khoá ĐỒNG BỘ đám mây (passkey iCloud / Google) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu. Chính s
+✅ Đăng nhập bằng sinh trắc thiết bị (máy chủ xác minh) → phiên "bio" — qua bio
+✅ Trang Tài khoản: ghi rõ CSDL riêng, chính sách, nhãn "chỉ trên thiết bị" — CSDL sinh trắc riêng (file:sinh-trac.json) · chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây · không lưu thông tin cá nhân trong khoá
+✅ Thu hồi máy A → xoá khoá sinh trắc của A khỏi CSDL máy chủ — còn 0 khoá✅ Postgres: bảng scn_sinh_trac tự tạo; bản ghi singleDevice, backed_up=false, chỉ khoá công khai; hồ sơ tài khoản không còn khoá
+
+Phát hiện & đã sửa khi kiểm tra: cảm biến chọn Ed25519 (mở khoá offline không kiểm được) → ưu tiên ES256/RS256 + hỗ trợ Ed25519;
+tự đăng xuất xoá luôn vân tay → chỉ xoá khi bị thu hồi / đặt lại mật khẩu.
+Hồi quy: đăng nhập 22/22 · vân tay 11/11 · trang Tài khoản 12/12 · đồng bộ 8/8 · ảnh GD & gõ nhanh 19/19 · Lỗi JS: []

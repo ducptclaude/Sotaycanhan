@@ -147,6 +147,8 @@ Lệnh 1 kiểm tra chuỗi băm (không cần mã) · lệnh 2 giải mã thử
 - Từ lúc đó, **mọi thiết bị phải đăng nhập** (ID hoặc SĐT + mật khẩu, hoặc vân tay / Face ID). Mã `SYNC_TOKEN` **không còn mở được dữ liệu** – chỉ dùng để **đặt lại mật khẩu** khi quên.
 - Các máy khác đang dùng mã cũ sẽ tự hiện màn hình **Đăng nhập** → đăng nhập 1 lần → tiếp tục đồng bộ như cũ.
 
+**Giao diện đăng nhập (từ bản 1.11.0):** ảnh nền tài chính – **ảnh dọc** trên điện thoại / máy tính bảng dọc, **ảnh ngang** trên web (laptop, màn hình lớn); khung kính mờ (trên điện thoại ở phần trời tối phía trên, trên web ở bên trái). Ảnh nằm trong `assets/`, lưu sẵn để màn hình khoá hiện cả khi mất mạng. Thay ảnh: ghi đè `assets/dang-nhap-dien-thoai.webp` (dọc) và `assets/dang-nhap-web.webp` (ngang).
+
 **Khoá app:** khoá khi mở app và sau **5 phút** không dùng (đổi được: 1 / 5 / 15 / 30 phút hoặc chỉ khi mở app). Mở bằng **👆 vân tay / Face ID / Windows Hello** hoặc mật khẩu – **chạy cả khi mất mạng**.
 
 **Trang Tài khoản (nút 👤 ở góc trên, từ bản 1.6.0)** – chấm xanh trên 👤 = đã đăng nhập:
@@ -162,6 +164,29 @@ Thu hồi một máy (VD bị mất) → máy đó bị đăng xuất, **không 
 **An toàn (rà soát bản 1.6.0):** chống dò mật khẩu cả khi đổi địa chỉ IP (10 lần sai / 15 phút → khoá mật khẩu, vân tay vẫn đăng nhập được) · thời gian phản hồi như nhau dù ID đúng hay sai (không đoán được ID/SĐT) · `/health` công khai chỉ trả "ok" · không cho trang web khác gọi máy chủ (CORS) · chống nhúng trang (clickjacking), bắt buộc HTTPS · mật khẩu băm scrypt (máy chủ) và PBKDF2 (máy, để mở khi mất mạng) – không lưu dạng chữ · vân tay không rời khỏi máy (chuẩn WebAuthn / passkey, máy chủ chỉ giữ khoá công khai) · sai mật khẩu 5 lần → khoá 15 phút (tăng dần) · ID / SĐT không hiện ở bất kỳ đường dẫn công khai nào.
 
 **Quên mật khẩu:** màn hình đăng nhập → **Quên mật khẩu?** → nhập mã `SYNC_TOKEN` (trong Railway → Variables) + mật khẩu mới → mọi máy khác bị đăng xuất.
+
+**Sinh trắc thiết bị – không dùng passkey đồng bộ (từ bản 1.9.0):**
+| Hạng mục | Cách làm |
+|---|---|
+| Loại khoá | Chỉ cảm biến **gắn trong máy** (`platform`), **không tạo passkey** trong iCloud Keychain / Google Password Manager (`residentKey: discouraged`), **bắt buộc xác thực** sinh trắc / khoá màn hình thiết bị (`userVerification: required`) |
+| Chính sách | Máy chủ **từ chối khoá đồng bộ đám mây** (cờ sao lưu BE/BS) khi đăng ký **và mỗi lần dùng**; số đếm chữ ký không tăng → coi là khoá bị sao chép, chặn. Nới bằng biến `BIO_ALLOW_SYNCED=1` (không khuyến nghị) |
+| Không cá nhân hoá | Khoá chỉ mang tên chung "Sổ Cá Nhân", mã người dùng ngẫu nhiên – **không** chứa ID, SĐT, họ tên |
+| CSDL riêng – máy chủ | Bảng **`scn_sinh_trac`** trong Postgres (tự tạo nếu chưa có; không có Postgres → tệp `sinh-trac.json`), tách khỏi hồ sơ tài khoản & dữ liệu sổ |
+| CSDL riêng – thiết bị | IndexedDB **`so-ca-nhan-sinh-trac`**: lưu khoá công khai của cảm biến máy này |
+| Mở khoá có mạng | Máy chủ phát thử thách & **kiểm chữ ký** (đồng thời kiểm khoá còn hợp lệ, chưa bị xoá / đồng bộ) |
+| Mở khoá mất mạng | **Kiểm chữ ký ngay trên máy** bằng khoá công khai (ES256 / RS256 / Ed25519), kiểm cờ xác thực người dùng & số đếm |
+| Thu hồi / đặt lại mật khẩu | Xoá khoá sinh trắc của máy đó khỏi CSDL; tự đăng xuất thì giữ (đăng nhập lại bằng vân tay được) |
+**Xác thực lại cho thao tác nhạy cảm (từ bản 1.10.0 – tương tự app ngân hàng yêu cầu sinh trắc khi chuyển khoản lớn):**
+- **Luôn yêu cầu** (máy chủ kiểm, hiệu lực 5 phút – biến `STEPUP_SEC`): thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu máy chủ; trên máy: tải tệp sao lưu, xoá dữ liệu tài chính.
+- **Tuỳ chọn** (👤 Tài khoản): lưu / xoá giao dịch từ 5 / 10 / 20 / 50 / 100 triệu (tham khảo QĐ 2345/QĐ-NHNN: giao dịch > 10 triệu phải xác thực sinh trắc).
+- Cách xác thực: 👆 sinh trắc thiết bị (có mạng: máy chủ kiểm chữ ký; mất mạng: kiểm trên máy) hoặc mật khẩu.
+- Nhận diện bộ xác thực qua **AAGUID** (Windows Hello, Chrome trên Mac, Google Password Manager, iCloud Keychain, 1Password, Bitwarden, Dashlane…): loại đồng bộ đám mây bị chặn thêm một lớp ngoài cờ BE/BS.
+
+**Vì sao app ngân hàng / VNeID dùng được sinh trắc ở mọi máy còn web thì hạn chế:** app cài đặt gọi thẳng API hệ điều hành – Android `BiometricPrompt` + Keystore (`setUserAuthenticationRequired`, `BIOMETRIC_STRONG`, `setInvalidatedByBiometricEnrollment`, StrongBox, Key Attestation, Play Integrity); iOS `LocalAuthentication` + Secure Enclave (`.biometryCurrentSet`, `ThisDeviceOnly`, App Attest); VNeID / ngân hàng còn đọc chip CCCD qua NFC (ICAO 9303: DG1, DG2 ảnh, SOD) và so khớp khuôn mặt + liveness. Trình duyệt **không mở** các API này – chỉ có WebAuthn; Safari trên iPhone luôn tạo khoá đồng bộ iCloud; Web NFC không đọc được chip CCCD. Muốn đạt mức như app ngân hàng cần **bọc thành app cài đặt** (VD Capacitor / TWA cho Android – miễn phí; iOS cần tài khoản Apple Developer, có phí).
+
+- Dữ liệu vân tay / khuôn mặt **không bao giờ rời chip bảo mật của thiết bị** – app & máy chủ chỉ nhận chữ ký số sau khi thiết bị đã xác thực.
+- ⚠️ **iPhone / iPad (Safari)** chỉ tạo được khoá đồng bộ iCloud → theo chính sách này **không bật được Face ID / Touch ID**, máy đó dùng mật khẩu. Android / Windows Hello / máy tính: tuỳ thiết bị – app sẽ báo rõ nếu bị từ chối.
+- Web không phân biệt được "vân tay" với "mã PIN / hình vẽ khoá màn hình" của thiết bị: cả hai đều là xác thực người dùng của thiết bị.
 
 **Lưu ý:**
 - Vân tay / Face ID gắn với tên miền `sotaycanhan-production.up.railway.app`. Đổi sang tên miền khác thì cần bật lại vân tay (mật khẩu vẫn dùng được).
