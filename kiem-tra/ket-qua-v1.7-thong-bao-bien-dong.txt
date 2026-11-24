@@ -1,0 +1,31 @@
+Kiểm tra bản 1.7.0 – thông báo biến động kiểu tin nhắn ngân hàng (dịch vụ push giả HTTPS, giải mã RFC 8291)
+✅ Thêm 2 tài khoản → mỗi máy 2 thông báo, có tổng số dư
+     [A] 🏦 Tài khoản mới: VCB | Số dư ban đầu 10.000.000 đ ⏎ Tổng số dư mọi tài khoản: 11.000.000 đ ⏎ từ Điện thoại A
+     [A] 🏦 Tài khoản mới: Tiền mặt | Số dư ban đầu 1.000.000 đ ⏎ Tổng số dư mọi tài khoản: 11.000.000 đ ⏎ từ Điện thoại A
+✅ Chi 150.000 → báo cả 3 máy (kể cả máy A vừa nhập) · số dư 9.850.000 · luỹ kế Ăn uống 150.000
+     [B] 💸 Chi −150.000 đ · Ăn uống | TK VCB · số dư 9.850.000 đ ⏎ Luỹ kế Ăn uống tháng 11/2026: 150.000 đ (1 GD) ⏎ “Phở” · ngày 24/11 ⏎ từ Điện thoại A
+✅ Chi thêm 200.000 (từ máy B) → số dư 9.650.000 · luỹ kế 350.000 (2 GD) · ghi "từ Laptop B"
+     [A] 💸 Chi −200.000 đ · Ăn uống | TK VCB · số dư 9.650.000 đ ⏎ Luỹ kế Ăn uống tháng 11/2026: 350.000 đ (2 GD) ⏎ ngày 24/11 ⏎ từ Laptop B
+✅ Thu lương 20 tr + chi điện 1,5 tr cùng lúc → 2 thông báo, số dư lần lượt 29.650.000 rồi 28.150.000
+     [C] 💰 Thu +20.000.000 đ · Lương | TK VCB · số dư 29.650.000 đ ⏎ Luỹ kế Lương tháng 11/2026: 20.000.000 đ (1 GD) ⏎ ngày 24/11 ⏎ từ Điện thoại A
+     [C] 💸 Chi −1.500.000 đ · Điện | TK VCB · số dư 28.150.000 đ ⏎ Luỹ kế Điện tháng 11/2026: 1.500.000 đ (1 GD) ⏎ ngày 24/11 ⏎ từ Điện thoại A
+✅ Chuyển 2 tr VCB → Tiền mặt → báo số dư cả 2 tài khoản
+     [A] 🔁 Chuyển khoản 2.000.000 đ | VCB → Tiền mặt ⏎ Số dư VCB: 26.150.000 đ ⏎ Số dư Tiền mặt: 3.000.000 đ ⏎ “Rút tiền” · ngày 24/11 ⏎ từ Điện thoại A
+✅ Tiết kiệm mới → số tiền + tổng tiết kiệm luỹ kế (50 tr → 80 tr)
+     [A] 🐷 Tiết kiệm mới 50.000.000 đ | Sổ 6 tháng · VCB · 5,2%/năm · 6 tháng ⏎ Tổng tiết kiệm đang gửi: 50.000.000 đ ⏎ từ Điện thoại A
+     [A] 🐷 Tiết kiệm mới 30.000.000 đ | Sổ 12 tháng · BIDV · 5,8%/năm · 12 tháng ⏎ Tổng tiết kiệm đang gửi: 80.000.000 đ ⏎ từ Điện thoại A
+✅ Khoản vay 100 tr → tổng dư nợ; trả nợ gốc 10 tr → dư nợ còn 90 tr
+     [A] 🏦 Khoản vay/nợ mới 100.000.000 đ | Vay mua nhà · VCB · 9%/năm ⏎ Tổng dư nợ: 100.000.000 đ ⏎ từ Điện thoại A
+     [A] 🏦 Trả nợ −11.000.000 đ | TK VCB · số dư 15.150.000 đ ⏎ Tổng dư nợ còn lại: 90.000.000 đ ⏎ ngày 24/11 ⏎ từ Điện thoại A
+✅ Tài sản mới → tổng giá trị tài sản
+     [A] 🏷️ Tài sản mới 16.000.000 đ | Vàng SJC 2 chỉ ⏎ Tổng giá trị tài sản: 16.000.000 đ ⏎ từ Điện thoại A
+✅ Ghi chú & chỉ số sức khỏe → thông báo nội dung chính
+     [A] 📝 Thêm ghi chú: Họp với CĐT thứ 5 | từ Điện thoại A
+     [A] ❤️ Chỉ số sức khỏe mới | Cân nặng 70,5 kg · Huyết áp 120/80 ⏎ ngày 24/11 ⏎ từ Điện thoại A
+✅ Máy B tắt "báo cả mục mình nhập" → B không nhận; máy C ẩn số tiền → hiện •••
+     [A] 💸 Chi −99.000 đ · Đi lại | TK Tiền mặt · số dư 2.901.000 đ ⏎ Luỹ kế Đi lại tháng 11/2026: 99.000 đ (1 GD) ⏎ ngày 24/11 ⏎ từ Laptop B
+     [C] 💸 Chi ••• · Đi lại | TK Tiền mặt ⏎ ngày 24/11 ⏎ từ Laptop B
+✅ Nhập 6 giao dịch một lúc → 1 thông báo tóm tắt (thu/chi)
+     [A] 📥 Vừa thêm 6 mục mới | 6 giao dịch ⏎ Thu +1.200.000 đ · Chi −900.000 đ ⏎ từ Điện thoại A
+✅ Không báo khi: sửa mục cũ · dữ liệu mẫu · dữ liệu cũ gửi lại (khôi phục) · thay đổi cài đặt
+Hồi quy: trang Tài khoản 12/12 · đồng bộ 8/8 · tức thời/hiện thông báo/lịch sử đạt (bước hiện thông báo lỗi 1 lần do thời gian chờ của bài kiểm tra, chạy lại 2 lần đều đạt) · Lỗi JS: []

@@ -103,9 +103,11 @@ function createSync({ file, store, token, allowOrigin = '*', allowNoToken = fals
     for (const d of Object.values(db.docs)) { if (d.del) continue; (data[d.col] = data[d.col] || {})[d.id] = d.data; n++; }
     return { app: 'so-ca-nhan', source: 'server', exportedAt: new Date().toISOString(), epoch: db.epoch, seq: db.seq, count: n, data };
   }
+  // Toàn bộ bản ghi (chưa xoá) của 1 nhóm – dùng để tính số dư / luỹ kế cho thông báo
+  const all = col => { const o = {}; for (const d of Object.values(db.docs)) if (d.col === col && !d.del) o[d.id] = d.data; return o; };
   const isLive = d => !!d && [...streams].some(s => s.device === d);
   // Ngắt kênh tức thời (thiết bị bị thu hồi / đăng xuất / đổi mật khẩu) – thiết bị sẽ phải xác thực lại
   const dropStreams = (mode, device) => { for (const s of [...streams]) if (mode === 'all' || (mode === 'device' && s.device === device) || (mode === 'others' && s.device !== device)) { try { s.res.end(); } catch (e) { } streams.delete(s); } };
-  return { dropStreams, handle, flush, close: async () => { flush(); await store.flush(); }, store, auth, readJson, send, broadcast, snapshot, isLive, info: () => ({ seq: db.seq, docs: Object.keys(db.docs).length, epoch: db.epoch, live: streams.size }) };
+  return { all, dropStreams, handle, flush, close: async () => { flush(); await store.flush(); }, store, auth, readJson, send, broadcast, snapshot, isLive, info: () => ({ seq: db.seq, docs: Object.keys(db.docs).length, epoch: db.epoch, live: streams.size }) };
 }
 module.exports = { createSync };

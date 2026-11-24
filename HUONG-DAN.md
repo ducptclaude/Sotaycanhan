@@ -85,6 +85,20 @@ Khi đã cài máy chủ đồng bộ, Service Worker (`sw.js`) tự đồng b�
 - Nhận thông báo **sao lưu hằng tuần** (thành công / lỗi / nhắc tải tệp nếu chưa bật GitHub).
 - **iPhone/iPad:** cần iOS 16.4+, **Thêm vào MH chính** rồi mở app từ biểu tượng mới bật được.
 
+## 4d2. Thông báo biến động – như tin nhắn ngân hàng (từ bản 1.7.0)
+Mỗi khi có **dữ liệu mới** (nhập trên bất kỳ máy nào, kể cả máy đang dùng), mọi máy đã bật thông báo nhận ngay:
+| Loại | Ví dụ thông báo |
+|---|---|
+| Chi / thu | **💸 Chi −150.000 đ · Ăn uống** — TK VCB · số dư 9.850.000 đ · Luỹ kế Ăn uống tháng 11/2026: 350.000 đ (2 GD) · “Phở” · ngày 24/11 · từ Điện thoại A |
+| Chuyển khoản | **🔁 Chuyển khoản 2.000.000 đ** — VCB → Tiền mặt · số dư cả 2 tài khoản |
+| Trả nợ | **🏦 Trả nợ −11.000.000 đ** — số dư TK · Tổng dư nợ còn lại |
+| Tiết kiệm / Vay / Tài sản | Số tiền + **tổng tiết kiệm đang gửi / tổng dư nợ / tổng giá trị tài sản** |
+| Tài khoản mới | Số dư ban đầu + tổng số dư mọi tài khoản |
+| Sức khỏe, ghi chú, sự kiện… | Nội dung chính (VD Cân nặng 70,5 kg · Huyết áp 120/80) |
+- Số dư là số dư **ngay sau giao dịch đó** (nhập nhiều giao dịch liền nhau vẫn đúng từng bước); nhập hàng loạt > 3 mục → 1 thông báo tóm tắt.
+- Không báo khi: sửa mục cũ, dữ liệu mẫu, khôi phục dữ liệu cũ, thay đổi cài đặt.
+- Tuỳ chọn từng máy (👤 → 🔔 Thông báo): bật/tắt báo dữ liệu mới · **báo cả mục do chính máy này nhập** · **hiện số tiền & số dư** (tắt → hiện •••, hợp khi lo người khác nhìn màn hình khoá).
+
 ## 4e. Lịch sử giao dịch (Tài chính → Lịch sử)
 - **📜 Sao kê:** mọi giao dịch của một hoặc tất cả tài khoản, **số dư sau từng giao dịch (SD)**, tổng theo tháng; lọc 30 ngày / 3 tháng / 12 tháng / năm nay / tất cả; tiền vào / tiền ra / chuyển khoản; tìm theo nội dung, ghi chú, số tiền; sao chép CSV.
 - Xem tất cả tài khoản: chuyển khoản nội bộ hiện 1 dòng ⇄, không tính vào tiền vào/ra.
