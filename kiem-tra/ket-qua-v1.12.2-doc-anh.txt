@@ -1,0 +1,17 @@
+Kiểm tra bản 1.12.2 – đọc ảnh nghiêng / nền tối + bắt buộc xác nhận số tiền chưa chắc
+
+Bộ 61 ảnh (gốc, nén, chụp lại, mờ, nghiêng) + biên lai CAKE:
+  1.12.0: TỔNG 61 ảnh · số tiền 53/61 (86.9%) · thu/chi 60/61 · ngày 50/61 · TB 641 ms/ảnh
+  1.12.1: TỔNG 61 ảnh · số tiền 54/61 (88.5%) · thu/chi 60/61 · ngày 51/61 · TB 773 ms/ảnh
+  1.12.2: TỔNG 61 ảnh · số tiền 56/61 (91.8%) · thu/chi 61/61 · ngày 52/61 · TB 1013 ms/ảnh
+
+Còn sai (ảnh mờ nặng + nghiêng) – TẤT CẢ đều bị gắn 'chưa chắc' → bắt buộc xác nhận / sửa trước khi lưu:
+r03-kho2.jpg  ✗       9000 (đúng 89000) ✓expense ✗- · cao
+r04-kho2.jpg  ✗  120000000 (đúng 20000000) ✓income ✗- · trung bình
+r06-kho2.jpg  ✗    2345009 (đúng 2345000) ✓expense ✗- · cao
+r09-kho2.jpg  ✗       null (đúng 500000) ✓expense ✗- · không có
+r10-kho2.jpg  ✗ 1000000009 (đúng 1000000000) ✓expense ✗- · trung bình
+
+Luồng xác nhận:
+✅ Ảnh mờ → Lưu → hộp xác nhận, không tự lưu · ✅ Sửa lại → form giữ nguyên · ✅ Sửa số → lưu thẳng · ✅ Đúng → lưu · ✅ Ảnh rõ → không hỏi · ✅ Không đọc được → để trống
+Giao diện đính kèm ảnh / gõ nhanh / chia sẻ / mất mạng: 19/19

@@ -7,8 +7,8 @@
 <meta name="description" content="Sổ cá nhân: tài chính, lịch âm dương, sức khỏe, học tập, kế hoạch – dùng được cả khi không có mạng.">
 <meta name="theme-color" content="#1e2a5e">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.12.1">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.12.1">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.12.2">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.12.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -726,6 +726,7 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
 #updbar{position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));transform:translate(-50%,200%);background:#1e2a5e;color:#fff;border-radius:14px;padding:8px 10px 8px 14px;display:flex;gap:10px;align-items:center;z-index:280;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:13px;transition:transform .3s;width:max-content;max-width:calc(100% - 24px)}#updbar.show{transform:translate(-50%,0)}
 .sysrow{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.sysrow:last-child{border:none}.sysrow span{color:var(--text2)}.sysrow b{text-align:right}.st-off{color:#b42318}.st-err,.st-wait{color:#9a6a10}.st-on{color:#16795a}
 @media (display-mode: standalone){body{padding-top:env(safe-area-inset-top)}}
+.cfo{position:fixed;inset:0;z-index:270;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}.cfo-b{background:var(--card,#fff);color:inherit;border-radius:18px;padding:20px 18px 14px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}.cfo-b .actions{justify-content:center}
 </style>
 </head>
 <body>
@@ -752,7 +753,7 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1031,7 +1032,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.12.1';
+const APP_VER = '1.12.2';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1468,20 +1469,20 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.1" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
@@ -1861,21 +1862,48 @@ async function ocrPrep(file) {
   const thumbBlob = await new Promise(r => t.toBlob(r, 'image/jpeg', 0.72));
   return { canvas: c, thumb: t, thumbBlob, scale: t.width / W };
 }
+// Ảnh chụp nghiêng: dò góc nghiêng theo hàng chữ (độ "sắc" của biểu đồ chiếu ngang lớn nhất khi chữ nằm thẳng) rồi xoay lại
+function ocrDeskew(src) {
+  const k = Math.min(1, 500 / src.width), w = Math.round(src.width * k), h = Math.round(src.height * k), t = document.createElement('canvas'); t.width = w; t.height = h;
+  const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(src, 0, 0, w, h); const d = tx.getImageData(0, 0, w, h).data; const pts = [];
+  for (let y = 0; y < h; y += 1) for (let x = 0; x < w; x += 1) if (d[(y * w + x) * 4] < 110) pts.push(x - w / 2, y - h / 2);
+  if (pts.length < 200) return { canvas: src, angle: 0 };
+  const score = deg => { const a = deg * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a), off = h, bins = new Float64Array(h * 2 + 2); for (let i = 0; i < pts.length; i += 2) { const r = Math.round(pts[i + 1] * c - pts[i] * sn) + off; if (r >= 0 && r < bins.length) bins[r]++; } let v = 0; for (let i = 1; i < bins.length; i++) { const df = bins[i] - bins[i - 1]; v += df * df; } return v; };
+  let best = 0, bs = score(0); for (let a = -15; a <= 15; a += 1) { const v = score(a); if (v > bs) { bs = v; best = a; } }
+  for (let a = best - 0.8; a <= best + 0.8; a += 0.2) { const v = score(a); if (v > bs) { bs = v; best = a; } }
+  if (Math.abs(best) < 0.6) return { canvas: src, angle: 0 };
+  const r = best * Math.PI / 180, W = src.width, H = src.height, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.translate(W / 2, H / 2); x.rotate(-r); x.drawImage(src, -W / 2, -H / 2); return { canvas: c, angle: best };
+}
+// Nền tối có vệt sáng / gradient: tách chữ theo ngưỡng cục bộ (so với độ sáng trung bình vùng xung quanh)
+function ocrBinarize(src) {
+  const W = src.width, H = src.height, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(src, 0, 0);
+  const im = x.getImageData(0, 0, W, H), p = im.data, I = new Float64Array((W + 1) * (H + 1)), R = Math.max(8, Math.round(W / 40));
+  for (let y = 0; y < H; y++) { let row = 0; for (let xx = 0; xx < W; xx++) { row += p[(y * W + xx) * 4]; I[(y + 1) * (W + 1) + xx + 1] = I[y * (W + 1) + xx + 1] + row; } }
+  for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++) { const x0 = Math.max(0, xx - R), x1 = Math.min(W, xx + R + 1), y0 = Math.max(0, y - R), y1 = Math.min(H, y + R + 1);
+    const m = (I[y1 * (W + 1) + x1] - I[y0 * (W + 1) + x1] - I[y1 * (W + 1) + x0] + I[y0 * (W + 1) + x0]) / ((x1 - x0) * (y1 - y0)), i = (y * W + xx) * 4, v = p[i] < m * 0.88 ? 0 : 255; p[i] = p[i + 1] = p[i + 2] = v; }
+  x.putImageData(im, 0, 0); return c;
+}
 async function ocrReceipt(file, prog) {
   _ocrProg = prog; const w = await ocrWorker(); const pre = await ocrPrep(file);
   // Đọc nhiều lượt, lấy lượt có điểm số tiền cao nhất:
   //  PSM 3 (tự phân tích bố cục – bắt số tiền chữ to) → chưa chắc: PSM 6 (một khối – tốt với ảnh mờ) → vẫn không thấy số: PSM 11 (chữ rời rạc)
-  const pass = async psm => { await w.setParameters({ tessedit_pageseg_mode: psm }); const { data } = await w.recognize(pre.canvas, {}, { blocks: true, text: true }); return { data, p: parseReceipt(data.text) }; };
-  let best;
+  const pass = async (psm, img = pre.canvas, map = null) => { await w.setParameters({ tessedit_pageseg_mode: psm }); const { data } = await w.recognize(img, {}, { blocks: true, text: true }); return { data, p: parseReceipt(data.text), map }; };
+  let best; const take = r => { if (r.p.score > best.p.score) best = r; };
   try {
     best = await pass('3');
-    if (best.p.score < 10) { const b6 = await pass('6'); if (b6.p.score > best.p.score) best = b6; }
+    if (best.p.score < 10) take(await pass('6'));
+    if (best.p.score < 10) { // ảnh khó: xoay thẳng ảnh nghiêng, rồi tách chữ theo vùng (nền tối / vệt sáng)
+      const ds = ocrDeskew(pre.canvas);
+      if (ds.angle) { take(await pass('6', ds.canvas, ds.angle)); if (best.p.score < 10) take(await pass('3', ds.canvas, ds.angle)); }
+      if (best.p.score < 10) { const bz = ocrBinarize(ds.canvas); take(await pass('6', bz, ds.angle || null)); if (best.p.score < 10) take(await pass('3', bz, ds.angle || null)); }
+    }
     if (!best.p.amount) { const b11 = await pass('11'); if (b11.p.amount) { best = b11; best.p.confidence = 'thấp'; } } // mất nhãn dòng → luôn yêu cầu kiểm tra lại
   } finally { await w.setParameters({ tessedit_pageseg_mode: '3' }); }
   const { data, p } = best, words = [];
   (data.blocks || []).forEach(b => b.paragraphs.forEach(pa => pa.lines.forEach(l => l.words.forEach(x => words.push(x)))));
   const dg = String(p.amount || ''), hit = p.amount ? words.filter(x => { const d = x.text.replace(/\D/g, ''); return d.length >= 3 && dg.includes(d); }) : [];
-  return { ...p, text: data.text, wconf: hit.length ? Math.round(Math.min(...hit.map(x => x.confidence))) : 0, boxes: hit.map(x => x.bbox), thumb: pre.thumb, thumbBlob: pre.thumbBlob, scale: pre.scale };
+  return { ...p, text: data.text, wconf: hit.length ? Math.round(Math.min(...hit.map(x => x.confidence))) : 0, boxes: best.map ? [] : hit.map(x => x.bbox), thumb: pre.thumb, thumbBlob: pre.thumbBlob, scale: pre.scale };
 }
 function drawThumb(c, res, low) { // ảnh thu nhỏ + khung tô quanh số tiền đã đọc
   c.width = res.thumb.width; c.height = res.thumb.height; const x = c.getContext('2d'); x.drawImage(res.thumb, 0, 0);
@@ -2092,6 +2120,16 @@ function txRow(id, t) {
 function openModal(html, mount) { const ov = document.getElementById('ov'), sh = document.getElementById('sheet'); sh.innerHTML = html; ov.classList.add('show'); document.body.style.overflow = 'hidden'; if (mount) mount(sh); }
 function closeModal() { document.getElementById('ov').classList.remove('show'); document.getElementById('sheet').innerHTML = ''; document.body.style.overflow = ''; }
 document.getElementById('ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
+// Hộp xác nhận NỔI trên form đang mở (không thay nội dung form như confirmDlg)
+function confirmOver(msg, okText, noText) {
+  return new Promise(res => {
+    const o = document.createElement('div'); o.className = 'cfo';
+    o.innerHTML = `<div class="cfo-b" role="dialog" aria-modal="true"><p>${msg}</p><div class="actions"><button class="btn" data-n>${noText || 'Huỷ'}</button><button class="btn primary" data-y>${okText || 'Đồng ý'}</button></div></div>`;
+    const done = v => { o.remove(); res(v); };
+    o.querySelector('[data-n]').onclick = () => done(false); o.querySelector('[data-y]').onclick = () => done(true); o.onclick = e => { if (e.target === o) done(false); };
+    document.body.appendChild(o); o.querySelector('[data-y]').focus();
+  });
+}
 function confirmDlg(msg, okText) {
   return new Promise(res => {
     openModal(`<h3>Xác nhận</h3><p>${msg}</p><div class="actions"><button class="btn" id="c-no">Huỷ</button><button class="btn danger" id="c-yes">${okText || 'Xoá'}</button></div>`, sh => {
@@ -2159,6 +2197,7 @@ function txForm(id, preset, shareImg) {
     if (!id) setTimeout(() => { const f = sh.querySelector('#f-quick') || sh.querySelector('#f-amt'); if (f && f.isConnected) f.focus(); }, 50);
     // ---- Ô gõ nhanh @thu/chi@chi tiết số tiền ----
     let rc = null; // kết quả đọc ảnh biên lai (lưu kèm giao dịch)
+    let ocrChk = 0; // số tiền đọc từ ảnh nhưng CHƯA CHẮC → bắt buộc xác nhận trước khi lưu (nếu chưa sửa)
     const qEl = sh.querySelector('#f-quick'), sgEl = sh.querySelector('#f-sug'), amtEl = sh.querySelector('#f-amt'), noteEl = sh.querySelector('#f-note'), accEl = sh.querySelector('#f-acc');
     const setAmt = n => { amtEl.value = amtVal(n); amtEl.dispatchEvent(new Event('input', { bubbles: true })); };
     let sugList = [], sugIdx = 0;
@@ -2211,7 +2250,7 @@ function txForm(id, preset, shareImg) {
         ${low ? '<div class="warn">⚠ Chưa chắc chắn – hãy đối chiếu số tiền (ô vàng trên ảnh) trước khi lưu.</div>' : ''}
         ${dup ? `<div class="warn err">⚠ Biên lai này (mã ${esc(p.ref)}) có vẻ đã nhập ngày ${fmtDate(dup[1].date)}: ${fmt(dup[1].amount)}.</div>` : ''}`;
       if (res) { const c = box.querySelector('#f-thumb'); drawThumb(c, res, low); c.onclick = () => { const u = URL.createObjectURL(res.thumbBlob || new Blob()); window.open(u, '_blank'); }; }
-      amtEl.classList.toggle('chk', low);
+      amtEl.classList.toggle('chk', low); ocrChk = low ? p.amount : 0;
     };
     const runOcr = async file => {
       if (!file || !/^image\//.test(file.type || 'image/')) return toast('Hãy chọn tệp ảnh.');
@@ -2233,6 +2272,10 @@ function txForm(id, preset, shareImg) {
     sh.querySelector('#txf').addEventListener('submit', e => { e.preventDefault(); busy(save, async () => {
       const amount = parseAmt(sh.querySelector('#f-amt').value);
       if (amount <= 0) return toast('Nhập số tiền lớn hơn 0.');
+      if (ocrChk && amount === ocrChk) { // ảnh mờ / nghiêng: không cho lưu số đọc được khi chưa xác nhận
+        if (!(await confirmOver(`🔎 Số tiền đọc từ ảnh <b>chưa chắc chắn</b> (ảnh mờ / nghiêng):<div style="font-size:28px;font-weight:800;margin:10px 0">${fmt(amount)}</div>Đúng như trên ảnh giao dịch?`, '✓ Đúng, lưu', '✏️ Sửa lại'))) { const a = sh.querySelector('#f-amt'); a.focus(); a.select(); return toast('Sửa lại số tiền cho đúng rồi bấm Lưu.'); }
+        ocrChk = 0;
+      }
       if (bigTxNeed(amount) && !(await localStepUp('Lưu giao dịch ' + fmt(amount)))) return;
       const accountId = sh.querySelector('#f-acc').value, toAccountId = sh.querySelector('#f-to').value;
       const date = sh.querySelector('#f-date').value || today();
