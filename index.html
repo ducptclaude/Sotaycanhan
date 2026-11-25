@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#1e2a5e">
 <script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light',_d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.0">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.0">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.1">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -733,6 +733,8 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
 .pref-mini{display:inline-flex;gap:6px;margin-left:6px}.pref-mini button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;cursor:pointer;font-weight:600}
 html.i18n-wait body{visibility:hidden}
 
+
+
 /* ==== GIAO DIỆN TỐI (tự sinh) ==== */
 /* bảng biến tối – ghi đè cả lớp màu thiết kế (navy · xanh ngọc · be) */
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0e1320;--card:#161c2b;--card2:#1d2436;--text:#e7eaf5;--text2:#aeb5cf;--muted:#7d859f;--line:#2a3248;--beige:#2a3248;
@@ -747,11 +749,13 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] :is(.f input,.f select,.f textarea,input,select,textarea){background:var(--card2);color:var(--text);border-color:var(--line)}
 :root[data-theme="dark"] .bar{background:var(--card2)}
 :root[data-theme="dark"] .banner{background:var(--card2);color:var(--text2)}
+:root[data-theme="dark"] .svstt{color:color-mix(in srgb,var(--tone) 50%,#fff)}
+:root[data-theme="dark"] .agt{color:color-mix(in srgb,var(--accent) 60%,#fff)}
 :root[data-theme="dark"] .tag.ok{background:color-mix(in srgb,#17803d 25%,var(--card));color:#7fe0a6}
 :root[data-theme="dark"] [style*="background:#fff"],:root[data-theme="dark"] [style*="background: #fff"]{background:var(--card)!important}
 :root[data-theme="dark"] [style*="background:#eef1fa"]{background:var(--card2)!important}
 :root[data-theme="dark"] img.mono,:root[data-theme="dark"] .lock img{filter:none}
-:root[data-theme="dark"] :is(.amt-input.chk){background:color-mix(in srgb,#fff6e0 6%,var(--card))}
+:root[data-theme="dark"] :is(.amt-input.chk){background:color-mix(in srgb,#fff6e0 6%,var(--card)) !important}
 :root[data-theme="dark"] :is(.cal .d.sel .dots i){background:color-mix(in srgb,#fff 6%,var(--card))}
 :root[data-theme="dark"] :is(.drb i){background:color-mix(in srgb,#fff 6%,var(--card))}
 :root[data-theme="dark"] :is(html,body){background:var(--bg)}
@@ -772,7 +776,7 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] :is(.svcnt){background:color-mix(in srgb,#fff 6%,var(--card));color:var(--text)}
 :root[data-theme="dark"] :is(.svbtn){background:color-mix(in srgb,#fff 6%,var(--card));color:var(--text)}
 :root[data-theme="dark"] :is(/* Bảng cân đối A · B · C */ .bs){background:color-mix(in srgb,#fff 6%,var(--card))}
-:root[data-theme="dark"] :is(.bssec){background:color-mix(in srgb,#fff 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.bssec){background:color-mix(in srgb,#fff 6%,var(--card)) !important;border-color:var(--line)}
 :root[data-theme="dark"] :is(.bssec.owe){border-color:var(--line)}
 :root[data-theme="dark"] :is(.bst b){color:var(--text)}
 :root[data-theme="dark"] :is(.bsr){border-top-color:var(--line)}
@@ -873,7 +877,7 @@ html.i18n-wait body{visibility:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -913,6 +917,8 @@ function themeSet(t) { PREF.set('theme', t); themeApply(t); prefUIRefresh(); }
 const I18N = { lang: PREF.get('lang', 'vi'), dict: null, keys: null, re: null, obs: null, busy: false };
 const I18N_SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE', 'PRE', 'NOSCRIPT']);
 const I18N_ATTR = ['placeholder', 'title', 'aria-label', 'alt'];
+const I18N_SKIP_ATTR = new Set(['SCRIPT', 'STYLE', 'CODE', 'PRE', 'NOSCRIPT']); // ô nhập: không đụng giá trị nhưng VẪN dịch chữ gợi ý (placeholder)
+function i18nAttrs(el) { if (I18N_SKIP_ATTR.has(el.tagName) || el.isContentEditable || (el.closest && el.closest('.noi18n'))) return; for (const a of I18N_ATTR) { const v = el.getAttribute(a); if (v) { const t = i18nStr(v); if (t !== v) { (el.__via || (el.__via = {}))[a] = v; el.setAttribute(a, t); } } } }
 const LX = (vi, en) => I18N.lang === 'en' ? en : vi; // chuỗi song ngữ viết sẵn trong code (khi cần)
 async function i18nLoad() {
   if (I18N.dict) return true;
@@ -925,8 +931,8 @@ async function i18nLoad() {
     return true;
   } catch (e) { console.warn('Không tải được từ điển English:', e.message); return false; }
 }
-const I18N_UNIT = { 'ngày': 'days', 'tháng': 'months', 'năm': 'years', 'giờ': 'h', 'phút': 'min', 'giây': 's', 'tuần': 'weeks', 'mục': 'items', 'lần': 'times', 'việc': 'tasks', 'cuốn': 'books', 'trang': 'pages', 'bước': 'steps', 'viên': 'pills', 'ly': 'glasses', 'người': 'people', 'khoản': 'items', 'thẻ': 'cards', 'từ': 'words', 'buổi': 'sessions', 'liều': 'doses', 'giọt': 'drops', 'tr': 'M', 'triệu': 'million', 'tỷ': 'billion', 'dòng': 'rows', 'loại': 'types', 'danh mục': 'categories' };
-const I18N_PRE = { 'ngày': 'day', 'tháng': 'month', 'năm': 'year', 'Ngày': 'Day', 'Tháng': 'Month', 'Năm': 'Year', 'Tuần': 'Week', 'tuần': 'week', 'Còn': 'Left', 'còn': 'left', 'Trễ': 'Late', 'trễ': 'late', 'Quý': 'Q', 'quý': 'Q', 'đạt': 'reached', 'Đạt': 'Reached' };
+const I18N_UNIT = { 'ngày': 'days', 'tháng': 'months', 'năm': 'years', 'giờ': 'h', 'phút': 'min', 'giây': 's', 'tuần': 'weeks', 'mục': 'items', 'lần': 'times', 'việc': 'tasks', 'cuốn': 'books', 'trang': 'pages', 'bước': 'steps', 'viên': 'pills', 'ly': 'glasses', 'người': 'people', 'khoản': 'items', 'thẻ': 'cards', 'từ': 'words', 'buổi': 'sessions', 'liều': 'doses', 'giọt': 'drops', 'tr': 'M', 'triệu': 'million', 'tỷ': 'billion', 'dòng': 'rows', 'loại': 'types', 'danh mục': 'categories', 'sổ': 'books', 'thể loại': 'genres', 'nhóm': 'groups', 'tập': 'volumes', 'tuổi': 'years old', 'chứng chỉ': 'certificates', 'sự kiện': 'events', 'giai đoạn': 'stages' };
+const I18N_PRE = { 'ngày': 'day', 'tháng': 'month', 'năm': 'year', 'Ngày': 'Day', 'Tháng': 'Month', 'Năm': 'Year', 'Tuần': 'Week', 'tuần': 'week', 'Còn': 'Left', 'còn': 'left', 'Trễ': 'Late', 'trễ': 'late', 'Quý': 'Q', 'quý': 'Q', 'đạt': 'reached', 'Đạt': 'Reached', 'Kỳ': 'Period', 'kỳ': 'period' };
 // tra nguyên cụm sau khi bỏ biểu tượng / dấu ở 2 đầu (giống cách trích từ điển)
 function i18nSeg(seg) {
   const m = seg.match(/^(\s*[^\p{L}\p{N}]*)([\s\S]*?)([\s:;|–\-·,.!?()"'›▾…]*)$/u); if (!m || !m[2]) return null;
@@ -934,11 +940,14 @@ function i18nSeg(seg) {
 }
 function i18nLoose(p) { // không khớp nguyên cụm: thay các CỤM TỪ đã biết (≥ 2 chữ) + số & đơn vị
   I18N.re.lastIndex = 0; p = p.replace(I18N.re, m => I18N.dict[m] != null ? I18N.dict[m] : m);
-  p = p.replace(/(?<![\p{L}])(ngày|tháng|năm|Ngày|Tháng|Năm|Tuần|tuần|Còn|còn|Trễ|trễ|Quý|quý|đạt|Đạt)\s(?=\d)/gu, (x, w) => I18N_PRE[w] + ' ');
-  p = p.replace(/(?<![\p{L}])năm\s(?=[A-ZĐ])/gu, 'year ').replace(/(?<![\p{L}])Năm\s(?=[A-ZĐ])/gu, 'Year ').replace(/(?<![\p{L}])ngày\s(?=[A-ZĐ])/gu, 'day ').replace(/(?<![\p{L}])ÂL\s(?=\d)/gu, 'Lunar ');
-  p = p.replace(/(\d[\d.,]*)\s(ngày|tháng|năm|giờ|phút|giây|tuần|mục|lần|việc|cuốn|trang|bước|viên|ly|người|khoản|thẻ|từ|buổi|liều|giọt|triệu|tỷ|tr|dòng|loại|danh mục)(?![\p{L}])/gu, (x, n, u) => n + ' ' + I18N_UNIT[u]);
+  p = p.replace(/Tròn (\d+) tuổi/gu, 'Turning $1').replace(/Giỗ lần thứ (\d+)/gu, 'Death anniversary #$1').replace(/lần thứ (\d+)/gu, '#$1').replace(/Kỷ niệm (\d+) năm/gu, '$1-year anniversary');
+  p = p.replace(/(?<![\p{L}])(ngày|tháng|năm|Ngày|Tháng|Năm|Tuần|tuần|Còn|còn|Trễ|trễ|Quý|quý|đạt|Đạt|Kỳ|kỳ)\s(?=\d)/gu, (x, w) => I18N_PRE[w] + ' ');
+  p = p.replace(/(?<![\p{L}])năm\s(?=[A-ZĐ])/gu, 'year ').replace(/(?<![\p{L}])Năm\s(?=[A-ZĐ])/gu, 'Year ').replace(/(?<![\p{L}])ngày\s(?=[A-ZĐ])/gu, 'day ').replace(/(?<![\p{L}])Kỳ\s(?=[A-Z])/gu, 'Period ').replace(/(?<![\p{L}])ÂL\s(?=\d)/gu, 'Lunar ');
+  p = p.replace(/(\d[\d.,]*)\s(ngày|tháng|năm|giờ|phút|giây|tuần|mục|lần|việc|cuốn|trang|bước|viên|ly|người|khoản|thẻ|từ|buổi|liều|giọt|triệu|tỷ|tr|dòng|thể loại|loại|danh mục|sổ|nhóm|tập|tuổi|chứng chỉ|sự kiện|giai đoạn)(?![\p{L}])/gu, (x, n, u) => n + ' ' + I18N_UNIT[u]);
   p = p.replace(/(\d+)g(?=\s|\d|$|[^\p{L}])/gu, '$1h').replace(/(\d+)p(?![\p{L}])/gu, '$1m'); // 1g 25p → 1h 25m
-  p = p.replace(/(\d+ (?:days?|weeks?|months?|years?|h|min))\strước/gu, '$1 before').replace(/(\d+ (?:days?|weeks?|months?|years?|h|min))\ssau/gu, '$1 after').replace(/(\d+) days before/g, (x, n) => n === '1' ? '1 day before' : x);
+  p = p.replace(/(?<![\p{L}])(Từ|từ|đến|Đến)\s(?=\d)/gu, (x, w) => ({ 'Từ': 'From ', 'từ': 'from ', 'đến': 'to ', 'Đến': 'To ' })[w]);
+  p = p.replace(/(\d+ (?:days?|weeks?|months?|h|min|hours?|minutes?))\stới/gu, 'next $1');
+  p = p.replace(/(\d+ (?:days?|weeks?|months?|years?|h|min|hours?|minutes?))\strước/gu, '$1 before').replace(/(\d+ (?:days?|weeks?|months?|years?|h|min))\ssau/gu, '$1 after').replace(/(\d+) days before/g, (x, n) => n === '1' ? '1 day before' : x);
   return p;
 }
 function i18nStr(t) {
@@ -946,24 +955,32 @@ function i18nStr(t) {
   const tr = t.trim(); if (!tr || !/[À-ỹđĐ]|[A-Za-z]/.test(tr)) return t;
   const ex = I18N.dict[tr]; if (ex != null) return t.replace(tr, ex);
   const whole = i18nSeg(t); if (whole != null) return whole;
+  if (/^[\d\s/·.,:–-]*\d+[gp](\s*\d+p)?[\d\s/·.,:–-]*$/.test(tr)) return i18nLoose(t); // "2g 10p" → "2h 10m"
   if (!/[À-ỹđĐ]/.test(tr) && !/\b(Thu|Chi)\b/.test(tr)) return t; // không có chữ tiếng Việt → giữ nguyên
-  const parts = t.split(/(\s+[·|•]\s+|\s+[–—-]\s+|:\s+|\s*→\s*|\n)/);
-  return parts.map((x, i) => i % 2 ? x : (i18nSeg(x) ?? i18nLoose(x))).join('');
+  return i18nTree(t, 0);
+}
+// tách theo TẦNG: câu → dấu · | → dấu – : → → dấu phẩy; tầng nào khớp nguyên cụm thì dừng (không cắt vụn câu đã có bản dịch)
+const I18N_LV = [/(\.\s+|\n)/, /(\s+[·|•]\s+)/, /(\s+[–—-]\s+|:\s+|\s*→\s*)/, /(,\s+)/];
+function i18nTree(x, lv) {
+  const seg = i18nSeg(x); if (seg != null) return seg;
+  if (lv >= I18N_LV.length) return i18nLoose(x);
+  const parts = x.split(I18N_LV[lv]); if (parts.length === 1) return i18nTree(x, lv + 1);
+  return parts.map((p, i) => i % 2 ? p : i18nTree(p, lv + 1)).join('');
 }
 const _i18nSkip = el => { for (let e = el; e && e !== document.body; e = e.parentElement) { if (I18N_SKIP.has(e.tagName) || e.isContentEditable || (e.classList && e.classList.contains('noi18n'))) return true; } return false; };
 function i18nNode(n) {
-  if (n.nodeType === 3) { if (n.parentElement && !_i18nSkip(n.parentElement)) { const v = n.nodeValue, t = i18nStr(v); if (t !== v) n.nodeValue = t; } return; }
-  if (n.nodeType !== 1 || _i18nSkip(n)) return;
-  for (const a of I18N_ATTR) { const v = n.getAttribute(a); if (v) { const t = i18nStr(v); if (t !== v) n.setAttribute(a, t); } }
+  if (n.nodeType === 3) { if (n.parentElement && !_i18nSkip(n.parentElement)) { const v = n.nodeValue, t = i18nStr(v); if (t !== v) { n.__vi = v; n.nodeValue = t; } } return; }
+  if (n.nodeType !== 1) return;
+  i18nAttrs(n); if (_i18nSkip(n)) return;
   if (n.tagName === 'OPTION' || n.tagName === 'BUTTON' && n.type === 'submit') { /* chữ con xử lý ở dưới */ }
   const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
   for (let c = w.nextNode(); c; c = w.nextNode()) {
-    if (c.nodeType === 1) { if (_i18nSkip(c)) continue; for (const a of I18N_ATTR) { const v = c.getAttribute(a); if (v) { const t = i18nStr(v); if (t !== v) c.setAttribute(a, t); } } }
-    else { const v = c.nodeValue, t = i18nStr(v); if (t !== v && !_i18nSkip(c.parentElement)) c.nodeValue = t; }
+    if (c.nodeType === 1) i18nAttrs(c);
+    else { const v = c.nodeValue, t = i18nStr(v); if (t !== v && !_i18nSkip(c.parentElement)) { c.__vi = v; c.nodeValue = t; } } // nhớ chữ gốc để đổi về Tiếng Việt không cần tải lại
   }
 }
 function i18nStart() {
-  document.documentElement.lang = 'en'; document.title = i18nStr(document.title);
+  document.documentElement.lang = 'en'; if (!I18N.title0) I18N.title0 = document.title; document.title = i18nStr(document.title);
   i18nNode(document.body);
   if (I18N.obs) return;
   I18N.obs = new MutationObserver(ms => {
@@ -973,6 +990,16 @@ function i18nStart() {
   });
   I18N.obs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: I18N_ATTR });
 }
+function i18nStop() {
+  if (I18N.obs) { I18N.obs.disconnect(); I18N.obs = null; }
+  I18N.lang = 'vi'; document.documentElement.lang = 'vi'; if (I18N.title0) document.title = I18N.title0;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  for (let c = w.currentNode; c; c = w.nextNode()) {
+    if (c.nodeType === 3) { if (c.__vi != null) { c.nodeValue = c.__vi; c.__vi = null; } }
+    else if (c.__via) { for (const [a, v] of Object.entries(c.__via)) c.setAttribute(a, v); c.__via = null; }
+  }
+  try { render(); } catch (e) { } // vẽ lại trang hiện tại bằng tiếng Việt
+}
 async function langInit() {
   if (I18N.lang !== 'en') { document.documentElement.classList.remove('i18n-wait'); return; }
   if (await i18nLoad()) i18nStart(); else { I18N.lang = 'vi'; document.documentElement.lang = 'vi'; }
@@ -980,7 +1007,7 @@ async function langInit() {
 }
 async function langSet(l) {
   if (l === I18N.lang) return; PREF.set('lang', l);
-  if (l === 'vi') { location.reload(); return; } // về tiếng Việt: tải lại trang để hiện đúng chữ gốc
+  if (l === 'vi') { i18nStop(); prefUIRefresh(); return; } // về tiếng Việt: khôi phục chữ gốc ngay, KHÔNG tải lại trang (tải lại sẽ khoá app)
   I18N.lang = 'en'; if (!(await i18nLoad())) { I18N.lang = 'vi'; PREF.set('lang', 'vi'); return toast('Chưa tải được bản tiếng Anh – hãy kết nối mạng rồi thử lại.'); }
   i18nStart(); prefUIRefresh();
 }
@@ -1255,7 +1282,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.13.0';
+const APP_VER = '1.13.1';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1693,20 +1720,20 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.1" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.1" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
