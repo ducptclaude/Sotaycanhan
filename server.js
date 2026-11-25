@@ -23,10 +23,10 @@ const ON_RAILWAY = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PRO
 let sync = null, push = null, backup = null, store = null, auth = null;
 
 // ---- Tệp tĩnh: CHỈ các tệp của ứng dụng (không lộ server/, data/, kiem-tra/…) ----
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json; charset=utf-8', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 const PUBLIC = ['index.html', 'sw.js', 'manifest.webmanifest'];
 try { fs.readdirSync(path.join(ROOT, 'icons')).forEach(f => PUBLIC.push('icons/' + f)); } catch (e) { }
-try { fs.readdirSync(path.join(ROOT, 'assets')).filter(f => /\.(webp|png|jpg|svg)$/.test(f)).forEach(f => PUBLIC.push('assets/' + f)); } catch (e) { } // ảnh nền đăng nhập
+try { fs.readdirSync(path.join(ROOT, 'assets')).filter(f => /\.(webp|png|jpg|svg|json)$/.test(f)).forEach(f => PUBLIC.push('assets/' + f)); } catch (e) { } // ảnh nền đăng nhập
 const FILES = new Map(); // nạp sẵn vào bộ nhớ + nén gzip một lần
 for (const rel of PUBLIC) {
   const ext = path.extname(rel), buf = fs.readFileSync(path.join(ROOT, rel));
