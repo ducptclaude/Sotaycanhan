@@ -6,9 +6,10 @@
 <title>Sổ Cá Nhân</title>
 <meta name="description" content="Sổ cá nhân: tài chính, lịch âm dương, sức khỏe, học tập, kế hoạch – dùng được cả khi không có mạng.">
 <meta name="theme-color" content="#1e2a5e">
+<script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light',_d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.12.2">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.12.2">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.0">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,8 +25,8 @@
   --pos:#17803d; --neg:#c2410c; --warn:#a16207; --crit:#c62828;
   --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
 }
-@media (prefers-color-scheme: dark) and (max-width: 0px){
-  :root:where(:not([data-theme="light"])){
+@media all{ /* giao diện tối: bật bằng <html data-theme="dark"> (Sáng / Tối / Theo máy – ⚙️ hoặc 👤) */
+  :root[data-theme="dark"]{
     color-scheme: dark;
     --bg:#121211; --card:#1a1a19; --card2:#232321; --text:#f0efec; --text2:#c3c2b7; --muted:#8f8e86; --line:#2e2e2b;
     --accent:#3987e5; --inc:#3987e5; --exp:#d95926;
@@ -207,7 +208,7 @@ details summary{cursor:pointer;color:var(--accent);font-size:13px;margin-top:8px
 .stackbar{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:12px;gap:2px;background:var(--card2)}
 .stackbar i{display:block;height:100%}
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#6250d6}
-@media (prefers-color-scheme: dark) and (max-width: 0px){:root{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#9085e9}}
+@media all{:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#9085e9}}
 .click{cursor:pointer}
 .hero2{border-radius:18px;padding:16px 16px 14px;margin-bottom:12px;color:#fff;background:linear-gradient(135deg,#123d73 0%,#1c5cab 55%,#2a78d6 100%);box-shadow:0 6px 18px rgba(28,92,171,.25)}
 .hero2 .hl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:600}
@@ -727,6 +728,125 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
 .sysrow{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.sysrow:last-child{border:none}.sysrow span{color:var(--text2)}.sysrow b{text-align:right}.st-off{color:#b42318}.st-err,.st-wait{color:#9a6a10}.st-on{color:#16795a}
 @media (display-mode: standalone){body{padding-top:env(safe-area-inset-top)}}
 .cfo{position:fixed;inset:0;z-index:270;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}.cfo-b{background:var(--card,#fff);color:inherit;border-radius:18px;padding:20px 18px 14px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}.cfo-b .actions{justify-content:center}
+.pref-seg{display:inline-flex;background:var(--card2);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap;justify-content:flex-end}.pref-seg button{border:0;background:transparent;padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2);white-space:nowrap}.pref-seg button.on{background:var(--card);color:var(--text);font-weight:600;box-shadow:var(--shadow)}
+.pref-box .kv2{flex-wrap:wrap}
+.pref-mini{display:inline-flex;gap:6px;margin-left:6px}.pref-mini button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;cursor:pointer;font-weight:600}
+html.i18n-wait body{visibility:hidden}
+
+/* ==== GIAO DIỆN TỐI (tự sinh) ==== */
+/* bảng biến tối – ghi đè cả lớp màu thiết kế (navy · xanh ngọc · be) */
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1320;--card:#161c2b;--card2:#1d2436;--text:#e7eaf5;--text2:#aeb5cf;--muted:#7d859f;--line:#2a3248;--beige:#2a3248;
+  --accent:#6f8cff;--inc:#6f8cff;--exp:#e0965a;--pos:#45c27f;--neg:#f07b62;--warn:#e3b04b;--crit:#f07b62;--teal:#4fc3b5;--gold:#d6b46e;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.25)}
+:root[data-theme="dark"],:root[data-theme="dark"] body{background:#0e1320 linear-gradient(180deg,#0c1120 0,#0e1320 320px,#0e1320 100%)}
+/* chữ dùng màu navy (đậm) → sáng; nền navy (thanh tab, nút chính, thông báo) giữ nguyên */
+:root[data-theme="dark"] :is(header.top h1,.card h2,.stat .val,.val,.btn,.sheet h3,.secthead,.sechd,.subnav a,.hello,h1,h2,h3){color:var(--text)}
+:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .subnav a.on,:root[data-theme="dark"] .seg button.on{color:#fff}
+:root[data-theme="dark"] :is(.sheet,.card,.gcard,.svc,.subnav a){background:var(--card)}
+:root[data-theme="dark"] .seg{background:var(--card2)}
+:root[data-theme="dark"] :is(.f input,.f select,.f textarea,input,select,textarea){background:var(--card2);color:var(--text);border-color:var(--line)}
+:root[data-theme="dark"] .bar{background:var(--card2)}
+:root[data-theme="dark"] .banner{background:var(--card2);color:var(--text2)}
+:root[data-theme="dark"] .tag.ok{background:color-mix(in srgb,#17803d 25%,var(--card));color:#7fe0a6}
+:root[data-theme="dark"] [style*="background:#fff"],:root[data-theme="dark"] [style*="background: #fff"]{background:var(--card)!important}
+:root[data-theme="dark"] [style*="background:#eef1fa"]{background:var(--card2)!important}
+:root[data-theme="dark"] img.mono,:root[data-theme="dark"] .lock img{filter:none}
+:root[data-theme="dark"] :is(.amt-input.chk){background:color-mix(in srgb,#fff6e0 6%,var(--card))}
+:root[data-theme="dark"] :is(.cal .d.sel .dots i){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.drb i){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(html,body){background:var(--bg)}
+:root[data-theme="dark"] :is(header.top h1){color:var(--text)}
+:root[data-theme="dark"] :is(.card h2){color:var(--text)}
+:root[data-theme="dark"] :is(.stat .val,.val){color:var(--text)}
+:root[data-theme="dark"] :is(.btn){color:var(--text)}
+:root[data-theme="dark"] :is(.subnav a){color:var(--text);background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.seg){background:color-mix(in srgb,#e6eaf4 14%,var(--card))}
+:root[data-theme="dark"] :is(.secthead,.sechd){color:var(--text)}
+:root[data-theme="dark"] :is(.f input,.f select,.f textarea){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.sheet){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.sheet h3){color:var(--text)}
+:root[data-theme="dark"] :is(.bar){background:color-mix(in srgb,#ecebf3 14%,var(--card))}
+:root[data-theme="dark"] :is(.banner){background:color-mix(in srgb,#f6f2e8 14%,var(--card))}
+:root[data-theme="dark"] :is(.drb i){background:var(--bg)}
+:root[data-theme="dark"] :is(/* Khối tiêu đề mục (svSec) */ .svsec){background:var(--bg);border-color:var(--line)}
+:root[data-theme="dark"] :is(.svcnt){background:color-mix(in srgb,#fff 6%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.svbtn){background:color-mix(in srgb,#fff 6%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(/* Bảng cân đối A · B · C */ .bs){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.bssec){background:color-mix(in srgb,#fff 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.bssec.owe){border-color:var(--line)}
+:root[data-theme="dark"] :is(.bst b){color:var(--text)}
+:root[data-theme="dark"] :is(.bsr){border-top-color:var(--line)}
+:root[data-theme="dark"] :is(.bsnt){color:var(--text)}
+:root[data-theme="dark"] :is(.bsv){color:var(--text)}
+:root[data-theme="dark"] :is(.bsd){border-left-color:var(--line)}
+:root[data-theme="dark"] :is(/* Bảng số liệu */ .svt9 th){color:var(--text);background:color-mix(in srgb,#f6f4ee 6%,var(--card))}
+:root[data-theme="dark"] :is(.svt9 td){border-bottom-color:var(--line)}
+:root[data-theme="dark"] :is(.svt9 tfoot td){background:color-mix(in srgb,#eef1fa 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.svt9 tr.grp td){background:color-mix(in srgb,#f4f6fb 6%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.tile,.mini){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.ti){background:color-mix(in srgb,#f4f6fb 6%,var(--card))}
+:root[data-theme="dark"] :is(.ti b){color:var(--text)}
+:root[data-theme="dark"] :is(.svb,.asb){background:color-mix(in srgb,#eef1fa 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.svnow){background:var(--bg);border-color:var(--line)}
+:root[data-theme="dark"] :is(.asnow){background:var(--bg);border-color:var(--line)}
+:root[data-theme="dark"] :is(.asnow b){color:var(--text)}
+:root[data-theme="dark"] :is(.rcpt){background:color-mix(in srgb,#fcfbf8 6%,var(--card))}
+:root[data-theme="dark"] :is(.asgh){background:color-mix(in srgb,#f6f8fd 6%,var(--card))}
+:root[data-theme="dark"] :is(.asgh.open){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.asgk){border-left-color:var(--line)}
+:root[data-theme="dark"] :is(.dpill){color:var(--text);background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.mono.cash){background:color-mix(in srgb,#eaf5ef 14%,var(--card))}
+:root[data-theme="dark"] :is(.mono.img){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.svt9 tr.cur td){background:color-mix(in srgb,#f3f5fc 6%,var(--card))}
+:root[data-theme="dark"] :is(.pkw){color:color-mix(in srgb,#8a8fa8 45%,#fff)}
+:root[data-theme="dark"] :is(.pkd.mid){background:color-mix(in srgb,#e6ebfa 14%,var(--card))}
+:root[data-theme="dark"] :is(.pkq button:hover){color:var(--text)}
+:root[data-theme="dark"] :is(.dbadge){background:color-mix(in srgb,#fff 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.gio i){background:color-mix(in srgb,#fbf7ee 6%,var(--card));color:color-mix(in srgb,#8a6a1f 45%,#fff)}
+:root[data-theme="dark"] :is(.cal .d.off){background:color-mix(in srgb,#fdf0ee 14%,var(--card))}
+:root[data-theme="dark"] :is(.gchip.g5){background:color-mix(in srgb,#e3f5ee 14%,var(--card));color:color-mix(in srgb,#16795a 45%,#fff)}
+:root[data-theme="dark"] :is(.gchip.g4){background:color-mix(in srgb,#e6efff 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.gchip.g3){background:color-mix(in srgb,#fff4dc 6%,var(--card));color:color-mix(in srgb,#9a6a10 45%,#fff)}
+:root[data-theme="dark"] :is(.gchip.g2){background:color-mix(in srgb,#fdecdf 14%,var(--card));color:color-mix(in srgb,#b0561d 45%,#fff)}
+:root[data-theme="dark"] :is(.gchip.g1){background:color-mix(in srgb,#fde6e4 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(#rempop){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.remchips button,.tpl button){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.mt){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.slot.late){background:color-mix(in srgb,#fff8f7 6%,var(--card))}
+:root[data-theme="dark"] :is(.slot.ok){background:color-mix(in srgb,#f3fbf8 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.adh i.ok){background:color-mix(in srgb,#e3f5ee 14%,var(--card));color:color-mix(in srgb,#16795a 45%,#fff)}
+:root[data-theme="dark"] :is(.adh i.half){background:color-mix(in srgb,#fff4dc 6%,var(--card));color:color-mix(in srgb,#9a6a10 45%,#fff)}
+:root[data-theme="dark"] :is(.adh i.miss){background:color-mix(in srgb,#fde6e4 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.adh i.na){background:color-mix(in srgb,#f2f3f7 14%,var(--card))}
+:root[data-theme="dark"] :is(.adh i.wait){background:color-mix(in srgb,#eef2fb 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.agi.an .agt){color:color-mix(in srgb,#9a6a10 45%,#fff)}
+:root[data-theme="dark"] :is(.agi.med .agt){color:color-mix(in srgb,#1f7a70 45%,#fff)}
+:root[data-theme="dark"] :is(.agi.fin .agt){color:color-mix(in srgb,#16795a 45%,#fff)}
+:root[data-theme="dark"] :is(.entest){background:color-mix(in srgb,#fffcf4 6%,var(--card))}
+:root[data-theme="dark"] :is(#reader){background:color-mix(in srgb,#fdfcf9 6%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(#reader.th-sepia){background:color-mix(in srgb,#f4ecd8 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.rpc.sw-light){background:color-mix(in srgb,#fdfcf9 6%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.rpc.sw-sepia){background:color-mix(in srgb,#f4ecd8 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.gchips button){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.gcats button){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.newbox){background:color-mix(in srgb,#fbfaf7 6%,var(--card))}
+:root[data-theme="dark"] :is(.newbox input){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.emo button){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.cchip button){background:color-mix(in srgb,#f3eee2 14%,var(--card))}
+:root[data-theme="dark"] :is(.netpill){background:color-mix(in srgb,#fff 6%,var(--card))}
+:root[data-theme="dark"] :is(.netpill.off){background:color-mix(in srgb,#fde9e7 14%,var(--card))}
+:root[data-theme="dark"] :is(.netpill.off b){color:var(--text)}
+:root[data-theme="dark"] :is(.netpill.err,.netpill.wait){background:color-mix(in srgb,#fff6e0 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.netpill.sync){background:color-mix(in srgb,#eef2fb 14%,var(--card))}
+:root[data-theme="dark"] :is(.ocrbox .warn){background:color-mix(in srgb,#fff6e0 6%,var(--card));border-color:var(--line);color:var(--text)}
+:root[data-theme="dark"] :is(.ocrbox .warn.err){background:color-mix(in srgb,#fde9e7 14%,var(--card));color:var(--text)}
+:root[data-theme="dark"] :is(.syncfab.ok){color:color-mix(in srgb,#17803d 45%,#fff)}
+:root[data-theme="dark"] :is(.syncfab.wait,.syncfab.err){color:color-mix(in srgb,#b45309 45%,#fff);background:color-mix(in srgb,#fff6e0 6%,var(--card));border-color:var(--line)}
+:root[data-theme="dark"] :is(.syncfab.off){color:var(--text);background:color-mix(in srgb,#fde9e7 14%,var(--card))}
+:root[data-theme="dark"] :is(.st-off){color:var(--text)}
+:root[data-theme="dark"] :is(.st-err,.st-wait){color:color-mix(in srgb,#9a6a10 45%,#fff)}
+:root[data-theme="dark"] :is(.st-on){color:color-mix(in srgb,#16795a 45%,#fff)}
+/* ==== HẾT GIAO DIỆN TỐI ==== */
 </style>
 </head>
 <body>
@@ -753,7 +873,7 @@ html.locked .lock{display:flex}html.locked body{overflow:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -774,6 +894,109 @@ function shiftYM(ym, k) { const [y, m] = ym.split('-').map(Number); const t = ne
 function daysBetween(a, b) { const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number); return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000); }
 function fmtDate(ds) { if (!ds) return ''; const [y, m, d] = ds.split('-'); return d + '/' + m + '/' + y; }
 function monthLabel(ym) { const [y, m] = ym.split('-'); return 'Tháng ' + Number(m) + '/' + y; }
+// ================= GIAO DIỆN SÁNG / TỐI & NGÔN NGỮ =================
+// Lựa chọn lưu trên từng máy (localStorage). Ngôn ngữ: chữ trong code giữ tiếng Việt; khi chọn English, bộ dịch đổi chữ HIỂN THỊ
+// theo từ điển assets/i18n-en.json (tải 1 lần, Service Worker lưu sẵn để dùng offline). Dữ liệu người dùng không bị sửa.
+const PREF = {
+  get: (k, d) => { try { return localStorage.getItem('scn-' + k) || d; } catch (e) { return d; } },
+  set: (k, v) => { try { localStorage.setItem('scn-' + k, v); } catch (e) { } },
+};
+function themeApply(t) {
+  t = t || PREF.get('theme', 'light');
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#121211' : '#1e2a5e';
+}
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (PREF.get('theme', 'light') === 'auto') themeApply('auto'); }); } catch (e) { }
+function themeSet(t) { PREF.set('theme', t); themeApply(t); prefUIRefresh(); }
+
+const I18N = { lang: PREF.get('lang', 'vi'), dict: null, keys: null, re: null, obs: null, busy: false };
+const I18N_SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE', 'PRE', 'NOSCRIPT']);
+const I18N_ATTR = ['placeholder', 'title', 'aria-label', 'alt'];
+const LX = (vi, en) => I18N.lang === 'en' ? en : vi; // chuỗi song ngữ viết sẵn trong code (khi cần)
+async function i18nLoad() {
+  if (I18N.dict) return true;
+  try {
+    const r = await fetch('assets/i18n-en.json'); if (!r.ok) throw new Error(r.status);
+    I18N.dict = await r.json();
+    const ks = Object.keys(I18N.dict).filter(k => k.length >= 5 && /\s/.test(k)) // chỉ CỤM TỪ (≥ 2 chữ) được thay giữa câu; từ đơn chỉ dịch khi khớp nguyên cụm.sort((a, b) => b.length - a.length);
+    const esc2 = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    I18N.re = new RegExp('(?<![\\p{L}\\p{N}])(' + ks.map(esc2).join('|') + ')(?![\\p{L}\\p{N}])', 'gu');
+    return true;
+  } catch (e) { console.warn('Không tải được từ điển English:', e.message); return false; }
+}
+const I18N_UNIT = { 'ngày': 'days', 'tháng': 'months', 'năm': 'years', 'giờ': 'h', 'phút': 'min', 'giây': 's', 'tuần': 'weeks', 'mục': 'items', 'lần': 'times', 'việc': 'tasks', 'cuốn': 'books', 'trang': 'pages', 'bước': 'steps', 'viên': 'pills', 'ly': 'glasses', 'người': 'people', 'khoản': 'items', 'thẻ': 'cards', 'từ': 'words', 'buổi': 'sessions', 'liều': 'doses', 'giọt': 'drops', 'tr': 'M', 'triệu': 'million', 'tỷ': 'billion', 'dòng': 'rows', 'loại': 'types', 'danh mục': 'categories' };
+const I18N_PRE = { 'ngày': 'day', 'tháng': 'month', 'năm': 'year', 'Ngày': 'Day', 'Tháng': 'Month', 'Năm': 'Year', 'Tuần': 'Week', 'tuần': 'week', 'Còn': 'Left', 'còn': 'left', 'Trễ': 'Late', 'trễ': 'late', 'Quý': 'Q', 'quý': 'Q', 'đạt': 'reached', 'Đạt': 'Reached' };
+// tra nguyên cụm sau khi bỏ biểu tượng / dấu ở 2 đầu (giống cách trích từ điển)
+function i18nSeg(seg) {
+  const m = seg.match(/^(\s*[^\p{L}\p{N}]*)([\s\S]*?)([\s:;|–\-·,.!?()"'›▾…]*)$/u); if (!m || !m[2]) return null;
+  const ex = I18N.dict[m[2]]; return ex != null ? m[1] + ex + m[3] : null;
+}
+function i18nLoose(p) { // không khớp nguyên cụm: thay các CỤM TỪ đã biết (≥ 2 chữ) + số & đơn vị
+  I18N.re.lastIndex = 0; p = p.replace(I18N.re, m => I18N.dict[m] != null ? I18N.dict[m] : m);
+  p = p.replace(/(?<![\p{L}])(ngày|tháng|năm|Ngày|Tháng|Năm|Tuần|tuần|Còn|còn|Trễ|trễ|Quý|quý|đạt|Đạt)\s(?=\d)/gu, (x, w) => I18N_PRE[w] + ' ');
+  p = p.replace(/(?<![\p{L}])năm\s(?=[A-ZĐ])/gu, 'year ').replace(/(?<![\p{L}])Năm\s(?=[A-ZĐ])/gu, 'Year ').replace(/(?<![\p{L}])ngày\s(?=[A-ZĐ])/gu, 'day ').replace(/(?<![\p{L}])ÂL\s(?=\d)/gu, 'Lunar ');
+  p = p.replace(/(\d[\d.,]*)\s(ngày|tháng|năm|giờ|phút|giây|tuần|mục|lần|việc|cuốn|trang|bước|viên|ly|người|khoản|thẻ|từ|buổi|liều|giọt|triệu|tỷ|tr|dòng|loại|danh mục)(?![\p{L}])/gu, (x, n, u) => n + ' ' + I18N_UNIT[u]);
+  p = p.replace(/(\d+)g(?=\s|\d|$|[^\p{L}])/gu, '$1h').replace(/(\d+)p(?![\p{L}])/gu, '$1m'); // 1g 25p → 1h 25m
+  p = p.replace(/(\d+ (?:days?|weeks?|months?|years?|h|min))\strước/gu, '$1 before').replace(/(\d+ (?:days?|weeks?|months?|years?|h|min))\ssau/gu, '$1 after').replace(/(\d+) days before/g, (x, n) => n === '1' ? '1 day before' : x);
+  return p;
+}
+function i18nStr(t) {
+  if (!t || I18N.lang !== 'en' || !I18N.dict) return t;
+  const tr = t.trim(); if (!tr || !/[À-ỹđĐ]|[A-Za-z]/.test(tr)) return t;
+  const ex = I18N.dict[tr]; if (ex != null) return t.replace(tr, ex);
+  const whole = i18nSeg(t); if (whole != null) return whole;
+  if (!/[À-ỹđĐ]/.test(tr) && !/\b(Thu|Chi)\b/.test(tr)) return t; // không có chữ tiếng Việt → giữ nguyên
+  const parts = t.split(/(\s+[·|•]\s+|\s+[–—-]\s+|:\s+|\s*→\s*|\n)/);
+  return parts.map((x, i) => i % 2 ? x : (i18nSeg(x) ?? i18nLoose(x))).join('');
+}
+const _i18nSkip = el => { for (let e = el; e && e !== document.body; e = e.parentElement) { if (I18N_SKIP.has(e.tagName) || e.isContentEditable || (e.classList && e.classList.contains('noi18n'))) return true; } return false; };
+function i18nNode(n) {
+  if (n.nodeType === 3) { if (n.parentElement && !_i18nSkip(n.parentElement)) { const v = n.nodeValue, t = i18nStr(v); if (t !== v) n.nodeValue = t; } return; }
+  if (n.nodeType !== 1 || _i18nSkip(n)) return;
+  for (const a of I18N_ATTR) { const v = n.getAttribute(a); if (v) { const t = i18nStr(v); if (t !== v) n.setAttribute(a, t); } }
+  if (n.tagName === 'OPTION' || n.tagName === 'BUTTON' && n.type === 'submit') { /* chữ con xử lý ở dưới */ }
+  const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  for (let c = w.nextNode(); c; c = w.nextNode()) {
+    if (c.nodeType === 1) { if (_i18nSkip(c)) continue; for (const a of I18N_ATTR) { const v = c.getAttribute(a); if (v) { const t = i18nStr(v); if (t !== v) c.setAttribute(a, t); } } }
+    else { const v = c.nodeValue, t = i18nStr(v); if (t !== v && !_i18nSkip(c.parentElement)) c.nodeValue = t; }
+  }
+}
+function i18nStart() {
+  document.documentElement.lang = 'en'; document.title = i18nStr(document.title);
+  i18nNode(document.body);
+  if (I18N.obs) return;
+  I18N.obs = new MutationObserver(ms => {
+    if (I18N.busy) return; I18N.busy = true;
+    try { for (const m of ms) { if (m.type === 'childList') m.addedNodes.forEach(i18nNode); else if (m.type === 'characterData') i18nNode(m.target); else if (m.type === 'attributes') i18nNode(m.target); } }
+    finally { I18N.busy = false; }
+  });
+  I18N.obs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: I18N_ATTR });
+}
+async function langInit() {
+  if (I18N.lang !== 'en') { document.documentElement.classList.remove('i18n-wait'); return; }
+  if (await i18nLoad()) i18nStart(); else { I18N.lang = 'vi'; document.documentElement.lang = 'vi'; }
+  document.documentElement.classList.remove('i18n-wait');
+}
+async function langSet(l) {
+  if (l === I18N.lang) return; PREF.set('lang', l);
+  if (l === 'vi') { location.reload(); return; } // về tiếng Việt: tải lại trang để hiện đúng chữ gốc
+  I18N.lang = 'en'; if (!(await i18nLoad())) { I18N.lang = 'vi'; PREF.set('lang', 'vi'); return toast('Chưa tải được bản tiếng Anh – hãy kết nối mạng rồi thử lại.'); }
+  i18nStart(); prefUIRefresh();
+}
+// Khối chọn giao diện & ngôn ngữ (dùng ở ⚙️ Ứng dụng, 👤 Tài khoản, màn đăng nhập)
+function prefUI(compact) {
+  const t = PREF.get('theme', 'light'), l = I18N.lang;
+  const seg = (k, opts, cur) => `<div class="seg pref-seg" data-pref="${k}">${opts.map(([v, lb]) => `<button type="button" data-v="${v}" class="${cur === v ? 'on' : ''}">${lb}</button>`).join('')}</div>`;
+  if (compact) return `<div class="pref-mini noi18n"><button type="button" data-pref-q="theme" title="Sáng / Tối">${document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</button><button type="button" data-pref-q="lang" title="English / Tiếng Việt">${l === 'en' ? 'VI' : 'EN'}</button></div>`;
+  return `<div class="pref-box"><div class="kv2"><span class="l">🎨 Giao diện</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['auto', '🖥️ Theo máy']], t)}</div>
+    <div class="kv2"><span class="l">🌐 Ngôn ngữ</span><div class="seg pref-seg noi18n" data-pref="lang">${[['vi', '🇻🇳 Tiếng Việt'], ['en', '🇬🇧 English']].map(([v, lb]) => `<button type="button" data-v="${v}" class="${l === v ? 'on' : ''}">${lb}</button>`).join('')}</div></div></div>`;
+}
+function prefUIRefresh() { document.querySelectorAll('.pref-box').forEach(b => { b.outerHTML = prefUI(); }); document.querySelectorAll('.pref-mini').forEach(b => { b.outerHTML = prefUI(true); }); }
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pref-seg button'); if (b) { const k = b.closest('.pref-seg').dataset.pref; if (k === 'theme') themeSet(b.dataset.v); else langSet(b.dataset.v); return; }
+  const q = e.target.closest('[data-pref-q]'); if (q) { if (q.dataset.prefQ === 'theme') themeSet(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); else langSet(I18N.lang === 'en' ? 'vi' : 'en'); }
+});
 function fmt(n) { n = Math.round(Number(n) || 0); return n.toLocaleString('vi-VN') + ' ₫'; }
 function fmtShort(n) {
   n = Number(n) || 0; const a = Math.abs(n), s = n < 0 ? '−' : '';
@@ -1032,7 +1255,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.12.2';
+const APP_VER = '1.13.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1315,6 +1538,7 @@ async function sysForm() {
   let est = ''; try { const e = await navigator.storage.estimate(); est = (e.usage / 1048576).toFixed(1) + ' MB đã dùng'; } catch (e) { }
   const inst = isStandaloneDisplay();
   openModal(`<h3>⚙️ Ứng dụng & dữ liệu<button class="iconbtn" data-x>✕</button></h3>
+    <div class="card acp" style="margin:0 0 12px;padding:4px 14px">${prefUI()}</div>
     <div class="card" style="margin:0 0 12px" id="sys-live">${sysStatusHTML()}</div>
     ${MODE === 'idb' ? `<div class="f"><label>🔐 Tài khoản & bảo mật</label><div id="sys-acct" class="muted" style="font-size:12.5px">Đang kiểm tra…</div></div>` : ''}
     ${STANDALONE_HOST ? `<div class="f"><label>📲 Cài vào màn hình chính</label>${inst ? '<div class="banner">✓ Đang chạy như ứng dụng đã cài.</div>' : _installEvt ? '<button type="button" class="btn primary" id="sys-inst">Cài đặt ứng dụng</button>' : isIOS() ? '<div class="banner">iPhone/iPad: mở bằng <b>Safari</b> → bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) → <b>Thêm vào MH chính</b> → <b>Thêm</b>.</div>' : '<div class="banner">Android/Chrome: bấm menu <b>⋮</b> → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b>).</div>'}</div>` : ''}
@@ -1469,27 +1693,27 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.12.2" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.0" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
       <button class="btn ${st.passkeys ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Đăng nhập</button></form>
       <div class="links"><a id="lk-reset">Quên mật khẩu?</a>${L.on ? '<a id="lk-out">Đăng xuất khỏi máy này</a>' : ''}</div>`;
   }
-  box.innerHTML = h + `<div class="lfoot">🔐 HTTPS · Sinh trắc gắn máy · Dữ liệu riêng tư · v${APP_VER}</div>`;
+  box.innerHTML = h + `<div class="lfoot">🔐 HTTPS · Sinh trắc gắn máy · Dữ liệu riêng tư · v${APP_VER}${prefUI(true)}</div>`;
   const q = id => box.querySelector('#' + id), busy = (b, on) => { if (b) { b.disabled = on; } };
   if (q('lk-id')) q('lk-id').addEventListener('input', e => { AUTH.idTyped = e.target.value; });
   if (q('lk-bio')) q('lk-bio').onclick = () => unlockBio();
@@ -1770,6 +1994,7 @@ function viewAccount() {
   // 1. Hồ sơ
   h += `<div class="card"><div class="hero"><div class="av">👤</div><div style="min-width:0"><h2 style="margin:0">${esc(L.id || '')}</h2><div class="sub" style="margin:2px 0 0">${esc(L.phone || 'Chưa có số điện thoại')} · ${esc(devName())}</div>
     <div class="sub" style="margin:2px 0 0;font-size:12px">${offline ? '📴 Ngoại tuyến – hiển thị thông tin đã lưu trên máy' : 'Tài khoản tạo lúc ' + dt(me.created)}</div></div></div></div>`;
+  h += `<div class="sechd"><span>🎨 Giao diện & ngôn ngữ</span></div><div class="card">${prefUI()}</div>`;
   h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa ID / số điện thoại</button></div>
     <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
@@ -2005,6 +2230,7 @@ async function idbSaveFile(file) { const id = 'idb_' + genId(); await idbSet('fi
 async function fileURL(id) { if (String(id).startsWith('idb_')) { const b = await idbGet('files', id); return b ? URL.createObjectURL(b) : ''; } return ''; }
 
 async function init() {
+  langInit(); // English: tải từ điển + dịch giao diện (không chặn khởi động)
   route(); render();
   try { await idbBoot(); MODE = 'idb'; NOTE = ''; await authBoot(); }
   catch (e) { MODE = 'memory'; NOTE = 'Trình duyệt không cho lưu dữ liệu trên máy (có thể đang ở chế độ ẩn danh). Dữ liệu chỉ tạm thời.'; lockHide(); }

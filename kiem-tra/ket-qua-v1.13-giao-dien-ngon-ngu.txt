@@ -1,0 +1,9 @@
+Kiểm tra bản 1.13.0 – giao diện Sáng/Tối + Tiếng Việt/English
+
+Chuyển đổi (9/9):
+✅ Mặc định Sáng + Tiếng Việt · ✅ Tối đổi ngay · ✅ English dịch ngay không tải lại · ✅ Thông báo hiện sau cũng dịch · ✅ Tải lại vẫn giữ Tối + English · ✅ Mất mạng English vẫn hiện · ✅ Về Tiếng Việt · ✅ Theo máy tự đổi · ✅ Màn đăng nhập nút EN
+
+8 trang × (Sáng/Tối × Việt/Anh): không lỗi JS; chữ Việt còn sót ở English chỉ còn tên can chi âm lịch (Bính Ngọ, Quý Mão…) – giữ nguyên tên riêng
+Giao diện tối: 95 quy tắc tự sinh từ màu viết cứng + bảng biến tối
+
+Hồi quy: gắn máy 8/8 · tài khoản 12/12 · đăng nhập 21 bước · đọc ảnh 19/19
