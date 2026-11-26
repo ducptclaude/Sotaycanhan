@@ -737,12 +737,13 @@ html.i18n-wait body{visibility:hidden}
 
 
 
+
 /* ==== GIAO DIỆN TỐI (tự sinh) ==== */
 /* bảng biến tối – ghi đè cả lớp màu thiết kế (navy · xanh ngọc · be) */
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0e1320;--card:#161c2b;--card2:#1d2436;--text:#e7eaf5;--text2:#aeb5cf;--muted:#7d859f;--line:#2a3248;--beige:#2a3248;
   --accent:#6f8cff;--inc:#6f8cff;--exp:#e0965a;--pos:#45c27f;--neg:#f07b62;--warn:#e3b04b;--crit:#f07b62;--teal:#4fc3b5;--gold:#d6b46e;
   --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.25)}
-:root[data-theme="dark"],:root[data-theme="dark"] body{background:#0e1320 linear-gradient(180deg,#0c1120 0,#0e1320 320px,#0e1320 100%)}
+:root[data-theme="dark"],:root[data-theme="dark"] body{background:#0e1320}
 /* chữ dùng màu navy (đậm) → sáng; nền navy (thanh tab, nút chính, thông báo) giữ nguyên */
 :root[data-theme="dark"] :is(header.top h1,.card h2,.stat .val,.val,.btn,.sheet h3,.secthead,.sechd,.subnav a,.hello,h1,h2,h3){color:var(--text)}
 :root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .subnav a.on,:root[data-theme="dark"] .seg button.on{color:#fff}
@@ -753,27 +754,31 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] .banner{background:var(--card2);color:var(--text2)}
 :root[data-theme="dark"] .svstt{color:color-mix(in srgb,var(--tone) 50%,#fff)}
 :root[data-theme="dark"] .agt{color:color-mix(in srgb,var(--accent) 60%,#fff)}
-/* giao diện tối DỊU MẮT: thẻ tổng (hero) giữ sắc từng mục nhưng trầm, bỏ bóng phát sáng */
-:root[data-theme="dark"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero){box-shadow:none!important;border:1px solid rgba(255,255,255,.07)}
-:root[data-theme="dark"] :is(.hero2,.bstot,.calhero){background:linear-gradient(125deg,#161f3a 0%,#1b2a4d 55%,#1c3a47 100%)!important}
-:root[data-theme="dark"] .svhero{background:linear-gradient(125deg,#11281f 0%,#153626 55%,#18442f 100%)!important}
-:root[data-theme="dark"] :is(.calhero,.svhero.calhero){background:linear-gradient(125deg,#161f3a 0%,#1a2b4c 55%,#183a44 100%)!important}
-:root[data-theme="dark"] .ashero{background:linear-gradient(125deg,#1b1934 0%,#241f4a 55%,#2c265b 100%)!important}
-:root[data-theme="dark"] .lrhero{background:linear-gradient(125deg,#161f3a 0%,#1d2a55 55%,#233363 100%)!important}
-:root[data-theme="dark"] .enhero{background:linear-gradient(125deg,#14203b 0%,#1a2e52 55%,#1b3c48 100%)!important}
-:root[data-theme="dark"] .bookhero{background:linear-gradient(125deg,#231b14 0%,#33271b 55%,#45341f 100%)!important}
-:root[data-theme="dark"] .medhero{background:linear-gradient(125deg,#0f2826 0%,#143632 55%,#18443e 100%)!important}
+/* giao diện tối PHẲNG: không gradient / không hiệu ứng highlight – mỗi mục một màu phẳng trầm, viền mảnh */
+:root[data-theme="dark"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero){box-shadow:none!important;border:1px solid rgba(255,255,255,.07);background-image:none!important}
+:root[data-theme="dark"] :is(.hero2,.bstot){background:#1a2644!important}
+:root[data-theme="dark"] .svhero{background:#163526!important}
+:root[data-theme="dark"] :is(.calhero,.svhero.calhero){background:#1a2a45!important}
+:root[data-theme="dark"] .ashero{background:#241f47!important}
+:root[data-theme="dark"] .lrhero{background:#1c2a50!important}
+:root[data-theme="dark"] .enhero{background:#1a2c4b!important}
+:root[data-theme="dark"] .bookhero{background:#33281c!important}
+:root[data-theme="dark"] .medhero{background:#15362f!important}
 :root[data-theme="dark"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero) :is(.hl,.asof,small,.sub){opacity:.85}
-/* thanh tab dưới, nút +, nút chính & nút đang chọn: bớt rực */
-:root[data-theme="dark"] nav.tabs{background:linear-gradient(90deg,#121a2e 0%,#151f36 60%,#152a33 100%)!important;box-shadow:0 -1px 0 rgba(255,255,255,.06)!important}
+:root[data-theme="dark"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero)::before,:root[data-theme="dark"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero)::after{background-image:none!important;box-shadow:none!important}
+/* thanh tab, nút +, nút chính & nút đang chọn: màu phẳng */
+:root[data-theme="dark"] nav.tabs{background:#131a2c!important;box-shadow:0 -1px 0 rgba(255,255,255,.06)!important}
 :root[data-theme="dark"] nav.tabs a{color:rgba(226,232,248,.62)}
 :root[data-theme="dark"] nav.tabs a.on{background:rgba(255,255,255,.08);color:#e7eaf5}
-:root[data-theme="dark"] .fab{background:linear-gradient(135deg,#246e69,#2b8179)!important;box-shadow:0 4px 12px rgba(0,0,0,.4)!important}
-:root[data-theme="dark"] :is(.btn.primary,.subnav a.on,.seg button.on,.remchips button.on,.tpl button.on,.gchips button.on,.pkd.on,.pkb.on,.dbadge.now,.bstag){background:linear-gradient(135deg,#263468,#33489a)!important;box-shadow:none!important}
-:root[data-theme="dark"] .bssec.owe .bstag{background:linear-gradient(135deg,#6b2a1d,#8a3826)!important}
+:root[data-theme="dark"] .fab{background:#267570!important;box-shadow:0 3px 10px rgba(0,0,0,.4)!important}
+:root[data-theme="dark"] :is(.btn.primary,.subnav a.on,.seg button.on,.remchips button.on,.tpl button.on,.gchips button.on,.pkd.on,.pkb.on,.dbadge.now,.bstag){background:#2c3d7a!important;box-shadow:none!important}
+:root[data-theme="dark"] .bssec.owe .bstag{background:#7a3222!important}
 :root[data-theme="dark"] :is(.svnow,.asnow){background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
-:root[data-theme="dark"] .svsic{background:linear-gradient(135deg,color-mix(in srgb,var(--tone) 40%,#10162a),color-mix(in srgb,var(--tone) 60%,#10162a))}
-:root[data-theme="dark"] .drb i,:root[data-theme="dark"] .tlbar i{filter:saturate(.75) brightness(.9)}
+:root[data-theme="dark"] .svsec{background:var(--card)!important}
+:root[data-theme="dark"] .svsic{background:color-mix(in srgb,var(--tone) 45%,#10162a)!important}
+:root[data-theme="dark"] .svhi{background:color-mix(in srgb,var(--s3) 12%,var(--card))!important}
+:root[data-theme="dark"] .tlbar i{background:color-mix(in srgb,var(--s3) 80%,#000)!important}
+:root[data-theme="dark"] .drb i{background:var(--teal)!important}
 :root[data-theme="dark"]{--accent:#7b90e0;--inc:#7b90e0;--teal:#45a99f}
 :root[data-theme="dark"] .tag.ok{background:color-mix(in srgb,#17803d 25%,var(--card));color:#7fe0a6}
 :root[data-theme="dark"] [style*="background:#fff"],:root[data-theme="dark"] [style*="background: #fff"]{background:var(--card)!important}
