@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#1e2a5e">
 <script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light',_d=_t==='dark'||_t==='binance'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_t==='binance'?'binance':'';if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.2">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.2">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.3">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -904,6 +904,7 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] :is(.st-err,.st-wait){color:color-mix(in srgb,#9a6a10 45%,#fff)}
 :root[data-theme="dark"] :is(.st-on){color:color-mix(in srgb,#16795a 45%,#fff)}
 /* ==== HẾT GIAO DIỆN TỐI ==== */
+.flag{display:inline-block;width:20px;height:14px;border-radius:3px;overflow:hidden;vertical-align:-2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);flex:none}.flag svg{display:block;width:100%;height:100%}.pref-seg button{display:inline-flex;align-items:center;gap:6px}.pref-mini button{display:inline-flex;align-items:center;gap:5px}.pref-mini .flag{width:16px;height:11px}
 </style>
 </head>
 <body>
@@ -930,7 +931,7 @@ html.i18n-wait body{visibility:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1064,13 +1065,18 @@ async function langSet(l) {
   I18N.lang = 'en'; if (!(await i18nLoad())) { I18N.lang = 'vi'; PREF.set('lang', 'vi'); return toast('Chưa tải được bản tiếng Anh – hãy kết nối mạng rồi thử lại.'); }
   i18nStart(); prefUIRefresh();
 }
+// Cờ vẽ bằng SVG (Windows không hiển thị emoji cờ 🇻🇳 🇬🇧 – chỉ hiện chữ "VN"/"GB")
+const FLAG = {
+  vi: '<span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#da251d"/><polygon fill="#ffdd00" points="15,3.6 16.27,7.5 20.4,7.5 17.07,9.93 18.34,13.84 15,11.42 11.66,13.84 12.93,9.93 9.6,7.5 13.73,7.5"/></svg></span>',
+  en: '<span class="flag" aria-hidden="true"><svg viewBox="0 0 60 30"><clipPath id="fg-uk-a"><path d="M0,0v30h60V0z"/></clipPath><clipPath id="fg-uk-b"><path d="M30,15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#fg-uk-a)"><path d="M0,0v30h60V0z" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30M60,0 0,30" clip-path="url(#fg-uk-b)" stroke="#C8102E" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></g></svg></span>',
+};
 // Khối chọn giao diện & ngôn ngữ (dùng ở ⚙️ Ứng dụng, 👤 Tài khoản, màn đăng nhập)
 function prefUI(compact) {
   const t = PREF.get('theme', 'light'), l = I18N.lang;
   const seg = (k, opts, cur) => `<div class="seg pref-seg" data-pref="${k}">${opts.map(([v, lb]) => `<button type="button" data-v="${v}" class="${cur === v ? 'on' : ''}">${lb}</button>`).join('')}</div>`;
-  if (compact) return `<div class="pref-mini noi18n"><button type="button" data-pref-q="theme" title="Sáng / Tối">${document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</button><button type="button" data-pref-q="lang" title="English / Tiếng Việt">${l === 'en' ? 'VI' : 'EN'}</button></div>`;
+  if (compact) return `<div class="pref-mini noi18n"><button type="button" data-pref-q="theme" title="Sáng / Tối">${document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</button><button type="button" data-pref-q="lang" title="English / Tiếng Việt">${l === 'en' ? FLAG.vi + ' VI' : FLAG.en + ' EN'}</button></div>`;
   return `<div class="pref-box"><div class="kv2"><span class="l">🎨 Giao diện</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['binance', '🟡 Binance'], ['auto', '🖥️ Theo máy']], t)}</div>
-    <div class="kv2"><span class="l">🌐 Ngôn ngữ</span><div class="seg pref-seg noi18n" data-pref="lang">${[['vi', '🇻🇳 Tiếng Việt'], ['en', '🇬🇧 English']].map(([v, lb]) => `<button type="button" data-v="${v}" class="${l === v ? 'on' : ''}">${lb}</button>`).join('')}</div></div></div>`;
+    <div class="kv2"><span class="l">🌐 Ngôn ngữ</span><div class="seg pref-seg noi18n" data-pref="lang">${[['vi', FLAG.vi + ' Tiếng Việt'], ['en', FLAG.en + ' English']].map(([v, lb]) => `<button type="button" data-v="${v}" class="${l === v ? 'on' : ''}">${lb}</button>`).join('')}</div></div></div>`;
 }
 function prefUIRefresh() { document.querySelectorAll('.pref-box').forEach(b => { b.outerHTML = prefUI(); }); document.querySelectorAll('.pref-mini').forEach(b => { b.outerHTML = prefUI(true); }); }
 document.addEventListener('click', e => {
@@ -1335,7 +1341,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.13.2';
+const APP_VER = '1.13.3';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1773,20 +1779,20 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.2" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.2" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
@@ -2824,7 +2830,7 @@ function quickMenu() {
 }
 
 // ================= THÓI QUEN =================
-const HB_ICONS = ['📖', '🏃', '💧', '🧘', '🛌', '🥗', '🚭', '🍺', '💪', '🙏', '✍️', '🇬🇧', '💰', '📵', '🚶', '☀️'];
+const HB_ICONS = ['📖', '🏃', '💧', '🧘', '🛌', '🥗', '🚭', '🍺', '💪', '🙏', '✍️', '🔤', '💰', '📵', '🚶', '☀️'];
 const WDS = [['T2', 1], ['T3', 2], ['T4', 3], ['T5', 4], ['T6', 5], ['T7', 6], ['CN', 0]];
 function habitList() { return Object.entries(S.habits).map(([id, x]) => ({ id, ...x })).filter(x => !x.archived).sort((a, b) => (a.order || 0) - (b.order || 0) || (a.created || 0) - (b.created || 0)); }
 function viewHabits() {
@@ -2874,7 +2880,7 @@ function habitForm(id) {
   });
 }
 async function habitSamples() {
-  const S4 = [['Đọc 10 trang sách', '📖'], ['Uống đủ 2 lít nước', '💧'], ['Đi bộ / tập 30 phút', '🏃'], ['Học tiếng Anh 30 phút', '🇬🇧']];
+  const S4 = [['Đọc 10 trang sách', '📖'], ['Uống đủ 2 lít nước', '💧'], ['Đi bộ / tập 30 phút', '🏃'], ['Học tiếng Anh 30 phút', '🔤']];
   try { for (let i = 0; i < S4.length; i++) await put('habits', genId(), { name: S4[i][0], icon: S4[i][1], kind: 'build', days: [0, 1, 2, 3, 4, 5, 6], note: '', log: {}, created: Date.now(), start: today(), order: i }); toast('Đã tạo 4 thói quen. Sửa lại cho phù hợp nhé.'); } catch (e) { }
 }
 
@@ -3220,7 +3226,7 @@ function gioHoangDao(ds) { const p = GIO_HD[((jdOf(ds) + 1) % 12) % 6]; const ou
 const lunarFull = ds => { const [d, m, y, lp] = lunarOf(ds); return `Ngày ${d} tháng ${m}${lp ? ' nhuận' : ''} năm ${canChiYear(y)}`; };
 
 // ---- Ngày lễ – Tết ----
-const HOL_SOLAR = [['01-01', 'Tết Dương lịch', '🎆', 1], ['02-03', 'Thành lập Đảng Cộng sản Việt Nam', '🚩', 0], ['02-14', 'Lễ Tình nhân (Valentine)', '💝', 0], ['03-08', 'Quốc tế Phụ nữ', '🌷', 0], ['04-29', 'Truyền thống ngành Xây dựng Việt Nam', '🏗️', 0], ['04-30', 'Ngày Giải phóng miền Nam', '🇻🇳', 1], ['05-01', 'Quốc tế Lao động', '🛠️', 1], ['05-19', 'Ngày sinh Chủ tịch Hồ Chí Minh', '🌺', 0], ['06-01', 'Quốc tế Thiếu nhi', '🧒', 0], ['06-28', 'Ngày Gia đình Việt Nam', '👨‍👩‍👧', 0], ['07-27', 'Ngày Thương binh – Liệt sĩ', '🕯️', 0], ['08-19', 'Cách mạng tháng Tám', '🚩', 0], ['09-02', 'Quốc khánh', '🇻🇳', 1], ['10-10', 'Giải phóng Thủ đô', '🏛️', 0], ['10-13', 'Ngày Doanh nhân Việt Nam', '💼', 0], ['10-20', 'Ngày Phụ nữ Việt Nam', '🌹', 0], ['11-20', 'Ngày Nhà giáo Việt Nam', '📚', 0], ['12-22', 'Thành lập Quân đội Nhân dân Việt Nam', '🎖️', 0], ['12-24', 'Đêm Giáng sinh', '🎄', 0], ['12-25', 'Lễ Giáng sinh', '🎄', 0]];
+const HOL_SOLAR = [['01-01', 'Tết Dương lịch', '🎆', 1], ['02-03', 'Thành lập Đảng Cộng sản Việt Nam', '🚩', 0], ['02-14', 'Lễ Tình nhân (Valentine)', '💝', 0], ['03-08', 'Quốc tế Phụ nữ', '🌷', 0], ['04-29', 'Truyền thống ngành Xây dựng Việt Nam', '🏗️', 0], ['04-30', 'Ngày Giải phóng miền Nam', '⭐', 1], ['05-01', 'Quốc tế Lao động', '🛠️', 1], ['05-19', 'Ngày sinh Chủ tịch Hồ Chí Minh', '🌺', 0], ['06-01', 'Quốc tế Thiếu nhi', '🧒', 0], ['06-28', 'Ngày Gia đình Việt Nam', '👨‍👩‍👧', 0], ['07-27', 'Ngày Thương binh – Liệt sĩ', '🕯️', 0], ['08-19', 'Cách mạng tháng Tám', '🚩', 0], ['09-02', 'Quốc khánh', '⭐', 1], ['10-10', 'Giải phóng Thủ đô', '🏛️', 0], ['10-13', 'Ngày Doanh nhân Việt Nam', '💼', 0], ['10-20', 'Ngày Phụ nữ Việt Nam', '🌹', 0], ['11-20', 'Ngày Nhà giáo Việt Nam', '📚', 0], ['12-22', 'Thành lập Quân đội Nhân dân Việt Nam', '🎖️', 0], ['12-24', 'Đêm Giáng sinh', '🎄', 0], ['12-25', 'Lễ Giáng sinh', '🎄', 0]];
 const HOL_LUNAR = [[1, 1, 'Tết Nguyên Đán – Mùng 1', '🧧', 1], [2, 1, 'Tết Nguyên Đán – Mùng 2', '🧧', 1], [3, 1, 'Tết Nguyên Đán – Mùng 3', '🧧', 1], [15, 1, 'Rằm tháng Giêng (Tết Nguyên tiêu)', '🏮', 0], [3, 3, 'Tết Hàn thực', '🍡', 0], [10, 3, 'Giỗ Tổ Hùng Vương', '🏯', 1], [15, 4, 'Lễ Phật đản', '🪷', 0], [5, 5, 'Tết Đoan ngọ', '🍑', 0], [15, 7, 'Lễ Vu Lan', '🪷', 0], [15, 8, 'Tết Trung thu', '🥮', 0], [23, 12, 'Ông Công Ông Táo', '🐟', 0]];
 const _holCache = new Map();
 function holidaysOn(ds) {
@@ -3913,7 +3919,7 @@ EN.push(
   { t: 'Tổng ôn & kiểm tra đầu ra', g: 'Ôn toàn bộ các thì và cấu trúc đã học', p: ["Let me introduce myself and my work.|Xin tự giới thiệu bản thân và công việc.", "I've worked in construction for ten years.|Tôi làm trong ngành xây dựng 10 năm.", 'My biggest project was a hospital.|Dự án lớn nhất của tôi là một bệnh viện.', 'I am responsible for cost and contracts.|Tôi phụ trách chi phí và hợp đồng.', 'My goal is to work with foreign partners.|Mục tiêu của tôi là làm việc với đối tác nước ngoài.', 'Thank you for listening.|Cảm ơn đã lắng nghe.'], v: ['experience|kinh nghiệm', 'achievement|thành tựu', 'skill|kỹ năng', 'goal|mục tiêu', 'career|sự nghiệp', 'improve|cải thiện', 'confident|tự tin', 'fluent|trôi chảy', 'practice|luyện tập', 'success|thành công'], s: 'Bài nói 3 phút giới thiệu bản thân & sự nghiệp. So với bản ghi âm tuần 1 và tuần 12.' }
 );
 const EN_WEEKS = EN.length;
-const LEARN_CATS = { en: ['Tiếng Anh giao tiếp', '🇬🇧', '#3552c8', 210], pro: ['Chuyên môn (QLDA, QS, đấu thầu, pháp lý XD)', '🏗️', '#c27a3e', 120], cert: ['Chứng chỉ & khóa học', '🎓', '#8a5cc7', 60], digital: ['Kỹ năng số (Excel, Power BI, AI)', '💻', '#2fa58f', 60], soft: ['Kỹ năng mềm (thuyết trình, đàm phán, lãnh đạo)', '🗣️', '#d4688a', 30], fin: ['Tài chính – đầu tư', '💹', '#c9a45c', 30], read: ['Đọc sách', '📚', '#2b3f7a', 140], other: ['Khác', '📌', '#8a8fa8', 0] };
+const LEARN_CATS = { en: ['Tiếng Anh giao tiếp', '🔤', '#3552c8', 210], pro: ['Chuyên môn (QLDA, QS, đấu thầu, pháp lý XD)', '🏗️', '#c27a3e', 120], cert: ['Chứng chỉ & khóa học', '🎓', '#8a5cc7', 60], digital: ['Kỹ năng số (Excel, Power BI, AI)', '💻', '#2fa58f', 60], soft: ['Kỹ năng mềm (thuyết trình, đàm phán, lãnh đạo)', '🗣️', '#d4688a', 30], fin: ['Tài chính – đầu tư', '💹', '#c9a45c', 30], read: ['Đọc sách', '📚', '#2b3f7a', 140], other: ['Khác', '📌', '#8a8fa8', 0] };
 const LEARN_TIPS = {
   en: ['Mỗi ngày 30–45 phút: 10\' ôn thẻ từ → 10\' nghe & nhại câu (shadowing) → 10\' tự nói/ghi âm → 5\' ngữ pháp', 'Cuối mỗi tuần tự chấm 5 kỹ năng (Nghe, Nói, Đọc, Viết, Từ vựng) theo thang 10', 'Cuối mỗi giai đoạn (tuần 4, 8, 12, 16, 20, 24) làm bài kiểm tra tổng hợp'],
   pro: ['Hệ thống văn bản pháp luật xây dựng hiện hành (luật, nghị định, thông tư về quản lý dự án, chi phí, hợp đồng, đấu thầu)', 'Định mức – đơn giá, lập & thẩm tra dự toán, quản lý hợp đồng FIDIC', 'Mỗi tuần đọc 1 văn bản mới / 1 tình huống thực tế và ghi tóm tắt'],
@@ -4078,7 +4084,7 @@ function courseForm(id) {
 }
 
 // ---- Đọc sách ----
-const BOOK_GENRES = { biz: ['Kinh doanh – quản trị', '💼', '#3552c8'], fin: ['Tài chính – đầu tư', '💹', '#c9a45c'], self: ['Phát triển bản thân', '🌱', '#2fa58f'], skill: ['Kỹ năng (giao tiếp, lãnh đạo…)', '🗣️', '#d4688a'], pro: ['Chuyên ngành xây dựng – QLDA', '🏗️', '#c27a3e'], tech: ['Khoa học – công nghệ', '🔬', '#2b3f7a'], hist: ['Lịch sử – tiểu sử', '🏛️', '#8e2c48'], psy: ['Tâm lý – triết học', '🧠', '#8a5cc7'], lit: ['Văn học – tiểu thuyết', '📖', '#e07a5f'], health: ['Sức khỏe – lối sống', '❤️', '#c0392b'], lang: ['Ngoại ngữ', '🇬🇧', '#4fc3b5'], family: ['Gia đình – nuôi dạy con', '👨‍👩‍👧', '#6d4c8f'], other: ['Khác', '📚', '#8a8fa8'] };
+const BOOK_GENRES = { biz: ['Kinh doanh – quản trị', '💼', '#3552c8'], fin: ['Tài chính – đầu tư', '💹', '#c9a45c'], self: ['Phát triển bản thân', '🌱', '#2fa58f'], skill: ['Kỹ năng (giao tiếp, lãnh đạo…)', '🗣️', '#d4688a'], pro: ['Chuyên ngành xây dựng – QLDA', '🏗️', '#c27a3e'], tech: ['Khoa học – công nghệ', '🔬', '#2b3f7a'], hist: ['Lịch sử – tiểu sử', '🏛️', '#8e2c48'], psy: ['Tâm lý – triết học', '🧠', '#8a5cc7'], lit: ['Văn học – tiểu thuyết', '📖', '#e07a5f'], health: ['Sức khỏe – lối sống', '❤️', '#c0392b'], lang: ['Ngoại ngữ', '🔤', '#4fc3b5'], family: ['Gia đình – nuôi dạy con', '👨‍👩‍👧', '#6d4c8f'], other: ['Khác', '📚', '#8a8fa8'] };
 const BOOK_ST = { reading: ['Đang đọc', '📖', '#3552c8'], want: ['Muốn đọc', '🔖', '#c9a45c'], done: ['Đã đọc', '✅', '#2fa58f'], drop: ['Bỏ dở', '⏸️', '#8a8fa8'] };
 const BOOK_SUGG = [['Đắc nhân tâm', 'Dale Carnegie', 'skill'], ['Thói quen nguyên tử (Atomic Habits)', 'James Clear', 'self'], ['7 thói quen của người thành đạt', 'Stephen R. Covey', 'self'], ['Tâm lý học về tiền', 'Morgan Housel', 'fin'], ['Nhà đầu tư thông minh', 'Benjamin Graham', 'fin'], ['Cha giàu cha nghèo', 'Robert Kiyosaki', 'fin'], ['Từ tốt đến vĩ đại', 'Jim Collins', 'biz'], ['Tư duy nhanh và chậm', 'Daniel Kahneman', 'psy'], ['Sapiens: Lược sử loài người', 'Yuval Noah Harari', 'hist'], ['Nhà giả kim', 'Paulo Coelho', 'lit'], ['PMBOK Guide', 'Project Management Institute', 'pro'], ['Đời ngắn đừng ngủ dài', 'Robin Sharma', 'self']];
 const bookList = () => Object.entries(S.books || {}).map(([id, b]) => ({ id, ...b }));
