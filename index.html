@@ -6,10 +6,10 @@
 <title>Sổ Cá Nhân</title>
 <meta name="description" content="Sổ cá nhân: tài chính, lịch âm dương, sức khỏe, học tập, kế hoạch – dùng được cả khi không có mạng.">
 <meta name="theme-color" content="#1e2a5e">
-<script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light',_d=_t==='dark'||_t==='binance'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_t==='binance'?'binance':'';if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
+<script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_d?'binance':'';if(_d){var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content='#0b0e11'}if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.3">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.3">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.4">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -931,7 +931,7 @@ html.i18n-wait body{visibility:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.4" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -961,9 +961,10 @@ const PREF = {
 };
 function themeApply(t) {
   t = t || PREF.get('theme', 'light');
-  const dark = t === 'dark' || t === 'binance' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.documentElement.dataset.skin = t === 'binance' ? 'binance' : ''; // Binance = giao diện tối biến thể (nền đen, nhấn vàng)
-  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === 'binance' ? '#0b0e11' : dark ? '#1d1e25' : '#1e2a5e';
+  if (t === 'binance') { t = 'dark'; PREF.set('theme', 'dark'); } // bản 1.13.2 có lựa chọn Binance riêng → nay là "Tối"
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.documentElement.dataset.skin = dark ? 'binance' : ''; // giao diện Tối = bộ màu tối kiểu Binance (nền đen, nhấn vàng)
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#0b0e11' : '#1e2a5e';
 }
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (PREF.get('theme', 'light') === 'auto') themeApply('auto'); }); } catch (e) { }
 function themeSet(t) { PREF.set('theme', t); themeApply(t); prefUIRefresh(); }
@@ -1075,7 +1076,7 @@ function prefUI(compact) {
   const t = PREF.get('theme', 'light'), l = I18N.lang;
   const seg = (k, opts, cur) => `<div class="seg pref-seg" data-pref="${k}">${opts.map(([v, lb]) => `<button type="button" data-v="${v}" class="${cur === v ? 'on' : ''}">${lb}</button>`).join('')}</div>`;
   if (compact) return `<div class="pref-mini noi18n"><button type="button" data-pref-q="theme" title="Sáng / Tối">${document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</button><button type="button" data-pref-q="lang" title="English / Tiếng Việt">${l === 'en' ? FLAG.vi + ' VI' : FLAG.en + ' EN'}</button></div>`;
-  return `<div class="pref-box"><div class="kv2"><span class="l">🎨 Giao diện</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['binance', '🟡 Binance'], ['auto', '🖥️ Theo máy']], t)}</div>
+  return `<div class="pref-box"><div class="kv2"><span class="l">🎨 Giao diện</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['auto', '🖥️ Theo máy']], t === 'binance' ? 'dark' : t)}</div>
     <div class="kv2"><span class="l">🌐 Ngôn ngữ</span><div class="seg pref-seg noi18n" data-pref="lang">${[['vi', FLAG.vi + ' Tiếng Việt'], ['en', FLAG.en + ' English']].map(([v, lb]) => `<button type="button" data-v="${v}" class="${l === v ? 'on' : ''}">${lb}</button>`).join('')}</div></div></div>`;
 }
 function prefUIRefresh() { document.querySelectorAll('.pref-box').forEach(b => { b.outerHTML = prefUI(); }); document.querySelectorAll('.pref-mini').forEach(b => { b.outerHTML = prefUI(true); }); }
@@ -1341,7 +1342,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.13.3';
+const APP_VER = '1.13.4';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1779,20 +1780,20 @@ async function lockRender() {
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.4" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
       ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
       <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.4" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
       <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
       <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
       <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
       <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.3" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
+    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.4" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
       ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
       <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
