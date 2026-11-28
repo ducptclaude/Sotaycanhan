@@ -751,6 +751,9 @@ html.i18n-wait body{visibility:hidden}
 .lockbox .lk-top .pref-mini{margin:0}
 .lockbox .hd{text-align:center;margin-bottom:14px}
 .lockbox .lk-av{position:relative;width:76px;height:76px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.55);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.profile-avatar{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+.home-avatar{width:48px;height:48px;flex:none;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
+.avatar-preview{width:76px;height:76px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:var(--bg);font-size:30px}
 .lockbox .lk-av span{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.02em}
 .lockbox .lk-av.logo{background:transparent;border:0;box-shadow:none}.lockbox .lk-av.logo img{width:76px;height:76px;border-radius:20px}
 .lockbox .lk-av .lk-lock{position:absolute;right:-4px;bottom:-2px;font-style:normal;font-size:18px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
@@ -1249,6 +1252,7 @@ nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
 :root[data-ui] header.top h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:480px){:root[data-ui="analytics"] header.top h1{font-size:15.5px;letter-spacing:.02em}.hdr-logo img{width:34px;height:34px}.hdr-r{gap:6px}:root[data-ui] .netpill{max-width:104px}:root[data-ui] .netpill b{overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:11px}:root[data-ui] header.top h1{font-size:17px}}
 @media (max-width:420px){.db-analytics .dbchips a{font-size:10.5px;letter-spacing:-.01em}}
+.acctbtn.pic{padding:0;border-color:var(--line)}.acctbtn.pic .profile-avatar{width:100%;height:100%}
 /* nền digital theo mục cho Tối Navy (lưới + họa tiết rất mờ, cố định phía sau; thẻ vẫn màu đặc) */
 :root[data-theme="dark"][data-skin="navy"] body{background:transparent!important}
 :root[data-theme="dark"][data-skin="navy"]{--scn-grid:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3Cpattern id=%22g%22 width=%2248%22 height=%2248%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M48 0H0V48%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.032%22/%3E%3C/pattern%3E%3Cpattern id=%22p%22 width=%22192%22 height=%22192%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M-4 0h8M0-4v8%22 stroke=%22%23fff%22 stroke-opacity=%22.09%22 transform=%22translate(0 0)%22/%3E%3C/pattern%3E%3Cpattern id=%22d%22 width=%2210%22 height=%2210%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%22.8%22 fill=%22%23fff%22 fill-opacity=%22.06%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23g)%22/%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23p)%22/%3E%3Crect width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3Crect x=%221080%22 y=%22660%22 width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3C/svg%3E")}
@@ -1907,7 +1911,7 @@ function netUI() {
   const bar = document.getElementById('offbar'); if (bar) { bar.className = isOnline() ? '' : 'show'; bar.innerHTML = isOnline() ? '' : `📴 Mất kết nối Internet – bạn vẫn xem, nhập và sửa dữ liệu bình thường. ${MODE === 'idb' ? 'Mọi thay đổi đã lưu trên máy' + (IDB.cfg.url ? ' và sẽ tự đồng bộ khi có mạng.' : '.') : 'Thay đổi sẽ được gửi khi có mạng trở lại.'}`; }
   const sp = document.getElementById('sys-live'); if (sp) sp.innerHTML = sysStatusHTML();
   syncFabUI();
-  const ab = document.getElementById('acctbtn'); if (ab) { ab.style.display = MODE === 'idb' ? '' : 'none'; ab.classList.toggle('on', !!(AUTH.L && AUTH.L.on)); const fn = ((AUTH.L && AUTH.L.fullName) || '').trim().split(/\s+/).pop() || ''; ab.textContent = fn ? fn[0].toUpperCase() : '👤'; ab.classList.toggle('ini', !!fn); }
+  const ab = document.getElementById('acctbtn'); if (ab) { ab.style.display = MODE === 'idb' ? '' : 'none'; ab.classList.toggle('on', !!(AUTH.L && AUTH.L.on)); hdrAvatar(ab); }
 }
 // Nút đồng bộ nhanh (mũi tên xoay, trên nút +)
 let _syncSpinUntil = 0;
@@ -2140,6 +2144,17 @@ const BIO_ICON = {
   finger: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 7.5A10.5 10.5 0 0 1 26 14.5"/><path d="M5.5 12a11 11 0 0 1 1.3-2.6M26.5 18.5v1.5"/><path d="M10 26c1.3-2.3 2-5 2-8a4 4 0 0 1 8 0c0 1.5-.1 3-.4 4.4"/><path d="M14.5 28c1.3-2.9 1.9-6.2 1.9-10M18.6 26.6c.5-1.2.9-2.5 1.1-3.8"/><path d="M6.5 22.5c.9-1.4 1.5-3 1.5-4.5a8 8 0 0 1 14.3-4.9M23.5 21c.3-1 .5-2 .5-3"/></svg>',
 };
 const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+function hdrAvatar(ab) { // nút tài khoản trên thanh tiêu đề: ảnh đại diện → chữ cái đầu tên → 👤
+  ab = ab || document.getElementById('acctbtn'); if (!ab) return;
+  const L = AUTH.L || {}, photo = L.on ? profileAvatar(L.avatar) : '', fn = (L.fullName || '').trim().split(/\s+/).pop() || '';
+  const key = photo ? 'p:' + L.avatar.length + L.avatar.slice(-24) : 'i:' + fn; if (ab.dataset.k === key) return; ab.dataset.k = key;
+  if (photo) ab.innerHTML = photo; else ab.textContent = fn ? fn[0].toUpperCase() : '👤';
+  ab.classList.toggle('ini', !photo && !!fn); ab.classList.toggle('pic', !!photo);
+}
+function profileAvatar(avatar) {
+  return typeof avatar === 'string' && /^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(avatar)
+    ? `<img class="profile-avatar" src="${esc(avatar)}" alt="">` : '';
+}
 async function lockRender() {
   const box = document.querySelector('#lock .lockbox'); if (!box) return;
   const keep = id => ((box.querySelector('#' + id) || {}).value || ''); // giữ nội dung đã gõ khi vẽ lại (VD sau khi báo sai mật khẩu)
@@ -2155,7 +2170,8 @@ async function lockRender() {
   const isFace = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
   const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = isFace ? 'Face ID / Touch ID (Passkey)' : 'Vân tay (Passkey)';
   const top = `<div class="lk-top"><div class="lk-brand"><img src="icons/icon-192.png?v=${APP_VER}" alt=""><span>SỔ CÁ NHÂN</span></div>${prefUI(true)}</div>`;
-  const avatar = (lock) => `<div class="lk-av ${ini && (mode !== 'login' || known) ? '' : 'logo'}">${ini && (mode !== 'login' || known) ? `<span>${esc(ini)}</span>` : `<img src="icons/icon-192.png?v=${APP_VER}" alt="">`}${lock ? '<i class="lk-lock">🔒</i>' : ''}</div>`;
+  const photo = profileAvatar(L.avatar);
+  const avatar = (lock) => `<div class="lk-av ${photo || (ini && (mode !== 'login' || known)) ? '' : 'logo'}">${photo || (ini && (mode !== 'login' || known) ? `<span>${esc(ini)}</span>` : `<img src="icons/icon-192.png?v=${APP_VER}" alt="">`)}${lock ? '<i class="lk-lock">🔒</i>' : ''}</div>`;
   const greet = (mode !== 'login' || known)
     ? `<div class="lk-hi">${hello},</div><div class="lk-name noi18n">${esc(name || L.id || 'bạn')}</div>`
     : `<div class="lk-hi up">Kính chào Quý khách</div>`;
@@ -2242,10 +2258,16 @@ async function bioVerifyLocal(rec, cred, challenge) {
 async function credsRefresh() {
   if (!navigator.onLine || !IDB.cfg.token || !AUTH.L) return;
   try {
-    const list = await bioAll(); if (!list.length && !(AUTH.L.creds || []).length) return;
+    const token = IDB.cfg.token, previousAvatar = AUTH.L.avatar, list = await bioAll();
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
     const r = await fetch(authBase() + '/auth/me', { cache: 'no-store', signal: ctl.signal, headers: { Authorization: 'Bearer ' + IDB.cfg.token } }); clearTimeout(t);
     if (!r.ok) return; const me = await r.json();
+    if (token !== IDB.cfg.token) return;
+    if (previousAvatar === AUTH.L.avatar && AUTH.L.avatar !== (me.avatar || '')) {
+      AUTH.L.avatar = me.avatar || '';
+      await saveL();
+      if (AUTH.mode) lockRender(); else if (UI.tab === 'tong-quan') render();
+    }
     for (const x of list) if (!me.passkeys.some(p => x.id.startsWith(p.id))) await bioDel(x.id);
     await bioSyncMirror();
   } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
@@ -2352,7 +2374,7 @@ async function authReset(tok, pw, pw2) {
 async function authSaved(r, pw, credId) {
   const a = r.account || {}, old = AUTH.L || {}, same = old.id === a.id;
   IDB.cfg = { ...IDB.cfg, url: authBase(), token: r.token }; await idbSet('meta', 'sync', IDB.cfg);
-  AUTH.L = { on: true, need: false, id: a.id, phone: a.phone || '', fullName: a.fullName || '', lockMin: old.lockMin != null ? old.lockMin : 5,
+  AUTH.L = { on: true, need: false, id: a.id, phone: a.phone || '', fullName: a.fullName || '', avatar: a.avatar || '', lockMin: old.lockMin != null ? old.lockMin : 5,
     pass: pw ? await pwVerifier(pw) : same ? old.pass : null, creds: [] };
   if (!same) { for (const x of await bioAll()) await bioDel(x.id); } // tài khoản khác → xoá khoá sinh trắc cũ trên máy
   await bioSyncMirror(); await saveL(); lsLock(true); AUTH.st = { ...(AUTH.st || {}), setup: true };
@@ -2390,7 +2412,7 @@ async function authLogout(fromLock) {
   if (!wipe) return;
   try { if (navigator.onLine) await authPost('/auth/logout', {}, true); } catch (e) { }
   rtStop(); IDB.cfg = { ...IDB.cfg, token: '' }; await idbSet('meta', 'sync', IDB.cfg);
-  AUTH.L = { on: false, id: AUTH.L && AUTH.L.id, fullName: wipe.w ? '' : (AUTH.L && AUTH.L.fullName) || '', lockMin: AUTH.L && AUTH.L.lockMin }; await saveL(); lsLock(false); // giữ Họ tên để màn đăng nhập chào đúng người
+  AUTH.L = { on: false, id: AUTH.L && AUTH.L.id, fullName: wipe.w ? '' : (AUTH.L && AUTH.L.fullName) || '', avatar: wipe.w ? '' : (AUTH.L && AUTH.L.avatar) || '', lockMin: AUTH.L && AUTH.L.lockMin }; await saveL(); lsLock(false); // giữ Họ tên để màn đăng nhập chào đúng người
   try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); await idbSet('meta', 'push', { on: false }); } catch (e) { }
   if (wipe.w) { for (const x of await bioAll()) await bioDel(x.id); await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
   toast('Đã đăng xuất khỏi máy này.'); lockShow('login');
@@ -2441,7 +2463,7 @@ async function acctLoad(force) {
     const st = authBase() ? await authStatus() : null;
     let me = null, pushes = [];
     if (AUTH.L && AUTH.L.on && IDB.cfg.token && navigator.onLine) {
-      try { me = await apiFetch('/auth/me'); AUTH.L = { ...AUTH.L, id: me.id, phone: me.phone }; saveL(); } catch (e) { }
+      try { me = await apiFetch('/auth/me'); AUTH.L = { ...AUTH.L, id: me.id, phone: me.phone, avatar: me.avatar || '' }; saveL(); } catch (e) { }
       try { pushes = (await apiFetch('/push/list', { method: 'POST', body: '{}' })).devices || []; } catch (e) { }
     }
     const pm = (await idbGet('meta', 'push').catch(() => null)) || {};
@@ -2466,10 +2488,10 @@ function viewAccount() {
   }
   const offline = !navigator.onLine || !me;
   // 1. Hồ sơ
-  h += `<div class="card"><div class="hero"><div class="av">👤</div><div style="min-width:0"><h2 style="margin:0">${esc(L.id || '')}</h2><div class="sub" style="margin:2px 0 0">${esc(L.phone || 'Chưa có số điện thoại')} · ${esc(devName())}</div>
+  h += `<div class="card"><div class="hero"><div class="av">${profileAvatar(L.avatar) || '👤'}</div><div style="min-width:0"><h2 style="margin:0">${esc(L.id || '')}</h2><div class="sub" style="margin:2px 0 0">${esc(L.phone || 'Chưa có số điện thoại')} · ${esc(devName())}</div>
     <div class="sub" style="margin:2px 0 0;font-size:12px">${offline ? '📴 Ngoại tuyến – hiển thị thông tin đã lưu trên máy' : 'Tài khoản tạo lúc ' + dt(me.created)}</div></div></div></div>`;
   h += `<div class="sechd"><span>🎨 Giao diện & ngôn ngữ</span></div><div class="card">${prefUI()}</div>`;
-  h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">Họ tên</span><b>${esc(L.fullName || '—')}</b></div><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
+  h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">Ảnh đại diện</span><button class="btn sm" data-act="ac-avatar" ${offline ? 'disabled' : ''}>${L.avatar ? 'Đổi ảnh' : 'Thêm ảnh'}</button></div><div class="kv2"><span class="l">Họ tên</span><b>${esc(L.fullName || '—')}</b></div><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa họ tên / ID / số điện thoại</button></div>
     <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>Họ tên (hiện trong câu chào màn đăng nhập)</label><input id="ac-fn" value="${esc(L.fullName || '')}" autocomplete="name" maxlength="40" placeholder="VD: Nguyễn Văn Trung"></div><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
   // 2. Đăng nhập & bảo mật
@@ -2502,10 +2524,70 @@ function viewAccount() {
   h += `<div class="actions" style="justify-content:space-between;margin-top:14px"><button class="btn" data-act="ac-refresh">↻ Làm mới</button><button class="btn danger" data-act="ac-out">Đăng xuất khỏi máy này</button></div></div>`;
   return h;
 }
+function editProfileAvatar() {
+  const original = AUTH.L.avatar || '';
+  let avatar = original;
+  openModal(`<h3>Ảnh đại diện</h3><div class="avatar-preview" id="avatar-preview">${profileAvatar(avatar) || '👤'}</div>
+    <div class="f"><label for="avatar-file">Chọn ảnh</label><input type="file" id="avatar-file" accept="image/*"></div>
+    <div class="actions"><button class="btn" id="avatar-remove" ${avatar ? '' : 'hidden'}>Gỡ ảnh</button><button class="btn" data-x>Huỷ</button><button class="btn primary" id="avatar-save" disabled>Lưu</button></div>`, sh => {
+    const file = sh.querySelector('#avatar-file'), preview = sh.querySelector('#avatar-preview');
+    const remove = sh.querySelector('#avatar-remove'), save = sh.querySelector('#avatar-save');
+    const update = () => {
+      preview.innerHTML = profileAvatar(avatar) || '👤';
+      remove.hidden = !avatar;
+      save.disabled = avatar === original;
+    };
+    sh.querySelector('[data-x]').onclick = closeModal;
+    remove.onclick = () => { avatar = ''; file.value = ''; update(); };
+    file.onchange = async () => {
+      const selected = file.files[0];
+      if (!selected) return;
+      if (selected.size > 20 * 1024 * 1024) { file.value = ''; return toast('Hãy chọn ảnh nhỏ hơn 20 MB.'); }
+      file.disabled = remove.disabled = save.disabled = true;
+      const url = URL.createObjectURL(selected);
+      try {
+        const image = new Image();
+        image.src = url;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 192;
+        const ctx = canvas.getContext('2d'), size = Math.min(image.naturalWidth, image.naturalHeight);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, 192, 192);
+        ctx.drawImage(image, (image.naturalWidth - size) / 2, (image.naturalHeight - size) / 2, size, size, 0, 0, 192, 192);
+        const resized = canvas.toDataURL('image/jpeg', 0.85);
+        if (resized.length > 100000 || !profileAvatar(resized)) throw new Error();
+        avatar = resized;
+      } catch {
+        file.value = '';
+        toast('Không đọc được ảnh này.');
+      } finally {
+        URL.revokeObjectURL(url);
+        file.disabled = remove.disabled = false;
+        update();
+      }
+    };
+    save.onclick = async () => {
+      file.disabled = remove.disabled = save.disabled = true;
+      try {
+        const result = await authPost('/auth/avatar', { avatar }, true);
+        AUTH.L.avatar = result.avatar;
+        await saveL();
+        closeModal();
+        render();
+        toast('Đã lưu ảnh đại diện.');
+      } catch (error) {
+        file.disabled = remove.disabled = save.disabled = false;
+        toast(error.message || 'Không lưu được ảnh đại diện.');
+      }
+    };
+  });
+}
 async function acctAct(act, el) {
   const v = id => (document.getElementById(id) || {}).value || '', done = async m => { if (m) toast(m); UI.acctOpen = ''; await acctLoad(true); };
   try {
     switch (act) {
+      case 'ac-avatar': editProfileAvatar(); break;
       case 'ac-fold': UI.acctOpen = UI.acctOpen === el.dataset.k ? '' : el.dataset.k; render(); break;
       case 'ac-login': lockShow('login'); break;
       case 'ac-setup': setupForm(); break;
@@ -2744,6 +2826,7 @@ function render() {
   syncAssetCats(); syncEvCats();
   const grp = TABS[UI.tab];
   document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', !!a.dataset.tab && a.dataset.tab === grp));
+  try { hdrAvatar(); } catch (e) { }
   const nvm = document.querySelector('nav.tabs .nv-more'); if (nvm) nvm.classList.toggle('on', grp === 'cal' || grp === 'plan' || grp === 'acct');
   try { const bl = document.getElementById('hdrbell'), n = MODE === 'loading' ? 0 : attention().filter(a => a.sev >= 2).length, bd = bl && bl.querySelector('.bd'); if (bd) { bd.hidden = !n; bd.textContent = n > 9 ? '9+' : n; bl.setAttribute('aria-label', n ? 'Nhắc nhở: ' + n + ' mục cần chú ý' : 'Nhắc nhở'); } } catch (e) { }
   const navA = document.querySelector(`nav.tabs a[data-tab=${grp}]`); if (navA && grp !== 'home') navA.setAttribute('href', '#' + UI.tab);
@@ -6205,7 +6288,7 @@ document.addEventListener('click', e => {
     case 'sys-open': sysForm(); break;
     case 'sw-update': if (_swWaiting) _swWaiting.postMessage('skip'); else location.reload(); break;
     case 'sync-now': syncFabClick(); break;
-    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
+    case 'ac-avatar': case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
     case 'todo-new': todoForm(); break;

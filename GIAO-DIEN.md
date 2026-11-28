@@ -37,7 +37,7 @@ Giữ toàn bộ khối cũ của Trang chủ: Lịch hôm nay / ngày mai, Cầ
 
 - **iPhone / máy tính bảng**: thanh đáy 5 mục **Trang chủ · Tài chính · Sức khỏe · Học tập · Khác** (Khác = Lịch, Kế hoạch, Mục tiêu, Thói quen, Ghi chép, Danh bạ, Tổng kết tháng, Tài khoản). Vùng chạm ≥ 44 px, tôn trọng vùng an toàn (safe area).
 - **Máy tính ≥ 1024 px**: thanh điều hướng bên trái 248 px (logo + 7 mục), nội dung tối đa 1200 px, lưới 12 cột.
-- Tiêu đề: logo, 🔔 Nhắc nhở (số mục cần chú ý, mở trang Nhắc nhở), ảnh đại diện = chữ cái đầu tên.
+- Tiêu đề: logo, 🔔 Nhắc nhở (số mục cần chú ý, mở trang Nhắc nhở), nút tài khoản = **ảnh đại diện** (tính năng PR #28) → nếu chưa có ảnh: chữ cái đầu tên.
 - Không thêm nút tìm kiếm / thời tiết / chọn ngày như ảnh mẫu vì app chưa có chức năng tương ứng (không tạo nút chết).
 
 ## 4. Khác ảnh tham chiếu & lý do
@@ -52,7 +52,7 @@ Giữ toàn bộ khối cũ của Trang chủ: Lịch hôm nay / ngày mai, Cầ
 
 ## 5. Kiểm thử (đã chạy – `kiem-tra/ket-qua-v1.16-giao-dien.txt`)
 
-- Mới – giao diện 1.16: **16/16 đạt** (mặc định B + Theo máy, trạng thái trống, chọn phong cách, đổi chế độ riêng, Theo máy, lưu qua tải lại + không nháy, đánh dấu việc lưu thật, số liệu tài chính đúng, đổi kỳ, 5 mục + Khác, thanh bên máy tính, không cuộn ngang ở 320/375/390/430/768/1024/1440 × 3 phong cách, màn khoá che số liệu, vùng chạm ≥ 44 px).
+- Mới – giao diện 1.16: **17/17 đạt** (ảnh đại diện trên thanh tiêu đề + màn khoá, mặc định B + Theo máy, trạng thái trống, chọn phong cách, đổi chế độ riêng, Theo máy, lưu qua tải lại + không nháy, đánh dấu việc lưu thật, số liệu tài chính đúng, đổi kỳ, 5 mục + Khác, thanh bên máy tính, không cuộn ngang ở 320/375/390/430/768/1024/1440 × 3 phong cách, màn khoá che số liệu, vùng chạm ≥ 44 px).
 - Hồi quy (không lỗi): đăng nhập 21 bước · sinh trắc 11 · gắn máy 8 · vân tay 11 · xác thực lại 8 · tài khoản 12 · màn đăng nhập 8 · lời chào 4 · mã khôi phục 8 · giao diện/ngôn ngữ 9 · lỗi cũ 5 · Tối Navy 5 · đọc ảnh 19 · passkey A 10, B 6, D 2.
 - English: mọi chữ mới đã có bản dịch (+98 mục trong `assets/i18n-en.json`).
 - Ảnh: `kiem-tra/v1.16/` – so sánh với ảnh mẫu, iPhone 390×844, máy tính 1440×900, bộ chọn phong cách (dữ liệu **mẫu**, không phải dữ liệu thật).
