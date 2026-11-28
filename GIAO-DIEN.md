@@ -85,3 +85,9 @@ Bấm chuông trên thanh tiêu đề → mở **bảng Thông báo** như các 
 - Bấm một thông báo → mở đúng trang / mục liên quan, bảng tự đóng.
 - Lịch sử thông báo lưu **trên từng máy** (IndexedDB, tối đa 60 mục), Service Worker ghi khi nhận thông báo đẩy; xoá khi "Đăng xuất + xoá dữ liệu trên máy". Không đổi máy chủ.
 - Kiểm thử: 12/12 (`kiem-tra/v1.16/thong-bao-*.png`), hồi quy không lỗi.
+
+## 9. Bản 1.16.2 – số không bị cắt, menu Khác đồng bộ với web, chấm trạng thái
+
+- **Số tiền dài** (hàng tỷ, số âm) không còn bị cắt / tràn: thẻ Tài chính co theo màn hình, số tự thu nhỏ nhẹ, vòng chi/thu xuống dòng khi hẹp; tên việc / mục tiêu dài hiện tối đa 2 dòng. Kiểm bằng dữ liệu số lớn ở 320 / 360 / 375 / 390 / 414 / 430 px × 3 phong cách: không chỗ nào bị cắt.
+- **Một danh sách mục chung**: thanh bên web = 4 mục chính + nhóm **Khác** (Lịch, Kế hoạch, Mục tiêu, Thói quen, Ghi chép, Danh bạ, Tổng kết tháng, Tài khoản); menu **Khác** trên điện thoại hiện đúng các mục đó, cùng thứ tự, cùng biểu tượng, sáng mục đang mở. Trang con (VD Nhắc nhở) sáng mục cha (Lịch).
+- **Chấm trạng thái** thay nút "Đã đồng bộ": 🟢 xanh = đã đồng bộ · 🟡 vàng = chưa đồng bộ / đang chờ / đang đồng bộ · 🔴 đỏ = ngoại tuyến. Bấm chấm → mở Ứng dụng & dữ liệu (xem chi tiết). Bỏ chấm nhỏ "đã đăng nhập" ở ảnh đại diện để không nhầm.

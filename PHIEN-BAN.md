@@ -6,6 +6,7 @@ Mỗi phiên bản là một **nhánh cố định** `phien-ban/vX.Y.Z` trên Gi
 
 | Phiên bản | Ngày | Commit | Nội dung | Tải về |
 |---|---|---|---|---|
+| **v1.16.2** | 2026-11-28 | `8a853c8` | Số dài không bị cắt trên điện thoại, menu Khác = thanh bên web, chấm trạng thái đồng bộ | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.16.2) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.16.2.zip) |
 | **v1.16.1** | 2026-11-28 | `5a71f33` | Bảng Thông báo khi bấm 🔔 (như app khác): nhắc nhở, cần chú ý, lịch sử hoạt động | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.16.1) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.16.1.zip) |
 | **v1.16.0** | 2026-11-28 | `2073269` | Giao diện 3 phong cách (Light Premium · Light Analytics · Dark Digital) + Sáng/Tối/Theo máy, dashboard số liệu thật, ảnh đại diện | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.16.0) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.16.0.zip) |
 | **v1.15.0** | 2026-11-28 | `d92ce86` | Passkey Face ID / Touch ID + lời chào + nền Tối theo mục | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.15.0) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.15.0.zip) |
@@ -38,7 +39,7 @@ Mỗi phiên bản là một **nhánh cố định** `phien-ban/vX.Y.Z` trên Gi
 | **v1.2.0** | 2026-11-23 | `fe59f14` | Máy chủ gộp app + đồng bộ cho Railway | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.2.0) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.2.0.zip) |
 | **v1.1.0** | 2026-11-23 | `62955c0` | Đồng bộ qua máy chủ bằng Service Worker | [code](https://github.com/ducptclaude/Sotaycanhan/tree/phien-ban/v1.1.0) · [.zip](https://github.com/ducptclaude/Sotaycanhan/archive/refs/heads/phien-ban/v1.1.0.zip) |
 
-*1.9.0 và 1.10.0 được gộp vào `main` cùng 1.11.0; 1.13.5 cùng 1.14.0; 1.14.3 cùng 1.15.0; ảnh đại diện (PR #28) cùng 1.16.0; 1.1.0 là bản đầu tiên. Bản đang chạy trên Railway: **v1.16.1**.*
+*1.9.0 và 1.10.0 được gộp vào `main` cùng 1.11.0; 1.13.5 cùng 1.14.0; 1.14.3 cùng 1.15.0; ảnh đại diện (PR #28) cùng 1.16.0; 1.1.0 là bản đầu tiên. Bản đang chạy trên Railway: **v1.16.2**.*
 
 ## Cách rollback
 
