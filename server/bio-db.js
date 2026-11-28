@@ -26,15 +26,16 @@ async function openBioDB(store) {
       used_at     timestamptz
     )`);
     await pool.query(`ALTER TABLE scn_sinh_trac ADD COLUMN IF NOT EXISTS bind_hash text NOT NULL DEFAULT ''`); // băm mã gắn máy (bản 1.12)
+    await pool.query(`ALTER TABLE scn_sinh_trac ADD COLUMN IF NOT EXISTS user_handle text NOT NULL DEFAULT ''`); // WebAuthn user handle (bản 1.15) – khoá cũ để trống
     for (const r of (await pool.query('SELECT * FROM scn_sinh_trac')).rows) cache.set(r.cred_id, fromRow(r));
     let chain = Promise.resolve();
     save = (op, rec) => { chain = chain.then(async () => {
       try {
         if (op === 'del') await pool.query('DELETE FROM scn_sinh_trac WHERE cred_id = $1', [rec.id]);
-        else await pool.query(`INSERT INTO scn_sinh_trac (cred_id, public_key, counter, transports, device, name, device_type, backed_up, aaguid, created_at, used_at, bind_hash)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,to_timestamp($10/1000.0),$11,$12)
-          ON CONFLICT (cred_id) DO UPDATE SET counter = EXCLUDED.counter, name = EXCLUDED.name, device_type = EXCLUDED.device_type, backed_up = EXCLUDED.backed_up, used_at = EXCLUDED.used_at, bind_hash = EXCLUDED.bind_hash`,
-          [rec.id, rec.publicKey, rec.counter || 0, JSON.stringify(rec.transports || []), rec.device || '', rec.name || '', rec.deviceType || '', !!rec.backedUp, rec.aaguid || '', rec.created || Date.now(), rec.used ? new Date(rec.used) : null, rec.bindHash || '']);
+        else await pool.query(`INSERT INTO scn_sinh_trac (cred_id, public_key, counter, transports, device, name, device_type, backed_up, aaguid, created_at, used_at, bind_hash, user_handle)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,to_timestamp($10/1000.0),$11,$12,$13)
+          ON CONFLICT (cred_id) DO UPDATE SET counter = EXCLUDED.counter, name = EXCLUDED.name, device_type = EXCLUDED.device_type, backed_up = EXCLUDED.backed_up, used_at = EXCLUDED.used_at, bind_hash = EXCLUDED.bind_hash, user_handle = EXCLUDED.user_handle`,
+          [rec.id, rec.publicKey, rec.counter || 0, JSON.stringify(rec.transports || []), rec.device || '', rec.name || '', rec.deviceType || '', !!rec.backedUp, rec.aaguid || '', rec.created || Date.now(), rec.used ? new Date(rec.used) : null, rec.bindHash || '', rec.userHandle || '']);
       } catch (e) { console.error('Ghi CSDL sinh trắc lỗi:', e.message); }
     }); return chain; };
   } else {
@@ -42,7 +43,7 @@ async function openBioDB(store) {
     try { for (const r of JSON.parse(fs.readFileSync(file, 'utf8'))) cache.set(r.id, r); } catch (e) { }
     save = () => { try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file + '.tmp', JSON.stringify([...cache.values()])); fs.renameSync(file + '.tmp', file); } catch (e) { console.error('Ghi tệp sinh trắc lỗi:', e.message); } return Promise.resolve(); };
   }
-  function fromRow(r) { let tr = []; try { tr = JSON.parse(r.transports || '[]'); } catch (e) { } return { id: r.cred_id, publicKey: r.public_key, counter: Number(r.counter) || 0, transports: tr, device: r.device, name: r.name, deviceType: r.device_type, backedUp: !!r.backed_up, aaguid: r.aaguid, created: new Date(r.created_at).getTime(), used: r.used_at ? new Date(r.used_at).getTime() : 0, bindHash: r.bind_hash || '' }; }
+  function fromRow(r) { let tr = []; try { tr = JSON.parse(r.transports || '[]'); } catch (e) { } return { id: r.cred_id, publicKey: r.public_key, counter: Number(r.counter) || 0, transports: tr, device: r.device, name: r.name, deviceType: r.device_type, backedUp: !!r.backed_up, aaguid: r.aaguid, created: new Date(r.created_at).getTime(), used: r.used_at ? new Date(r.used_at).getTime() : 0, bindHash: r.bind_hash || '', userHandle: r.user_handle || '' }; }
   return {
     kind: store.kind === 'postgres' ? 'postgres:scn_sinh_trac' : 'file:sinh-trac.json',
     all: () => [...cache.values()],

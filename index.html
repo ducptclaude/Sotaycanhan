@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#1e2a5e">
 <script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_d?'binance':'';if(_d){var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content='#0b0e11'}if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.14.3">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.14.3">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.15.0">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.15.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -969,7 +969,7 @@ html.i18n-wait body{visibility:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.14.3" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.15.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1380,7 +1380,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.14.3';
+const APP_VER = '1.15.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1827,7 +1827,7 @@ async function lockRender() {
   const hr = new Date().getHours(), hello = hr < 11 ? 'Chào buổi sáng' : hr < 14 ? 'Chào buổi trưa' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
   const ini = (name ? name.split(' ').pop() : (L.id || '')).charAt(0).toUpperCase();
   const isFace = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-  const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = isFace ? 'Face ID' : 'Vân tay';
+  const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = isFace ? 'Face ID / Touch ID (Passkey)' : 'Vân tay (Passkey)';
   const top = `<div class="lk-top"><div class="lk-brand"><img src="icons/icon-192.png?v=${APP_VER}" alt=""><span>SỔ CÁ NHÂN</span></div>${prefUI(true)}</div>`;
   const avatar = (lock) => `<div class="lk-av ${ini && (mode !== 'login' || known) ? '' : 'logo'}">${ini && (mode !== 'login' || known) ? `<span>${esc(ini)}</span>` : `<img src="icons/icon-192.png?v=${APP_VER}" alt="">`}${lock ? '<i class="lk-lock">🔒</i>' : ''}</div>`;
   const greet = (mode !== 'login' || known)
@@ -1924,7 +1924,7 @@ async function credsRefresh() {
     await bioSyncMirror();
   } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
 }
-const BIO_ERR = e => e && e.name === 'NotAllowedError' ? 'Không xác thực được (vân tay / khuôn mặt không khớp, đã huỷ hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e && e.message) || 'Lỗi xác thực sinh trắc';
+const BIO_ERR = e => e && e.name === 'NotAllowedError' ? 'Không xác thực được (đã huỷ, không khớp hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : e && e.name === 'NotSupportedError' ? 'Thiết bị / trình duyệt này không hỗ trợ passkey. Hãy dùng mật khẩu.' : e && e.name === 'SecurityError' ? 'Passkey chỉ dùng được qua HTTPS trên đúng tên miền của app.' : e && e.name === 'InvalidStateError' ? 'Passkey này đã được đăng ký cho máy này.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e && e.message) || 'Lỗi xác thực';
 async function bioServerVerify() { // máy chủ phát thử thách → cảm biến thiết bị ký → máy chủ kiểm chữ ký (đồng thời ghi nhận "vừa xác thực lại")
   const { flow, options } = await authPost('/auth/bio/unlock-options', {}, true);
   const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
@@ -2005,8 +2005,9 @@ async function loginPw(login, pw, fromUnlock) {
 async function loginPasskey(btn) {
   try {
     if (btn) btn.disabled = true;
-    const { flow, options } = await authPost('/auth/bio/login-options', {});
-    const local = await bioAll(), mineIds = new Set(local.map(x => x.id)); // chỉ khoá đã bật trên CHÍNH máy này (khoá đồng bộ từ máy khác không dùng được)
+    if (!waSupported()) throw new Error('Trình duyệt / thiết bị này không hỗ trợ passkey (Face ID / Touch ID / vân tay). Hãy đăng nhập bằng mật khẩu.');
+    const local = await bioAll(), mineIds = new Set(local.map(x => x.id)); // khoá đã bật trên CHÍNH máy này
+    const { flow, options } = await authPost('/auth/bio/login-options', { discoverable: !mineIds.size }); // máy chưa có khoá → passkey discoverable: iOS tự hiện danh sách, không cần gõ ID
     const allow = (options.allowCredentials || []).filter(x => !mineIds.size || mineIds.has(x.id));
     if (mineIds.size && !allow.length) throw new Error('Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản – hãy đăng nhập bằng mật khẩu rồi bật lại.');
     const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: allow.map(x => ({ ...x, id: b64u(x.id) })) } });
@@ -2152,8 +2153,8 @@ function viewAccount() {
     <div class="fold ${UI.acctOpen === 'pw' ? 'open' : ''}"><div class="f"><input id="ac-cur" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại"></div><div class="f"><input id="ac-new" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (≥ 8 ký tự)"></div><div class="f"><input id="ac-new2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div><label class="check" style="font-size:12.5px"><input type="checkbox" id="ac-lo" checked> Đăng xuất mọi máy khác</label><button class="btn sm primary" data-act="ac-pw" style="margin-top:6px">Đổi mật khẩu</button></div>
     <div class="kv2"><span class="l">Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="kv2" style="align-items:flex-start"><span class="l">👆 Vân tay / Face ID<br><span class="muted" style="font-size:12px">${hasLocal ? '✓ Máy này đã bật' : A.plat ? 'Máy này chưa bật' : 'Máy này không có cảm biến'}</span></span>${!hasLocal && A.plat && !offline ? '<button class="btn sm primary" data-act="ac-pk">Bật cho máy này</button>' : ''}</div>
-    ${me ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được'} · không lưu thông tin cá nhân trong khoá</div>` : ''}
-    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.bound ? '🔗 gắn máy' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span>${p.provider ? `<span class="tag">${esc(p.provider)}</span>` : ''}<div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div>`).join('')}
+    ${me ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được'} · không lưu thông tin cá nhân trong khoá</div><div class="muted" style="font-size:12px;margin:0 0 4px">🔑 Passkey (Face ID / Touch ID / vân tay) đăng ký <b>một lần trên mỗi máy</b>. Khi xác thực, iPhone có thể cho dùng <b>mật mã máy</b> thay sinh trắc – đây là cơ chế của iOS, app không phân biệt được. Luôn giữ mật khẩu để đăng nhập khi mất máy.</div>` : ''}
+    ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.bound ? '🔗 gắn máy' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span>${p.provider ? `<span class="tag">${esc(p.provider)}</span>` : ''}<div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><div class="row" style="gap:6px;flex:none"><button class="btn sm" data-act="ac-pkren" data-id="${esc(p.cid || '')}" data-name="${esc(p.name)}" ${offline || !p.cid ? 'disabled' : ''}>✏️</button><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div></div>`).join('')}
     <div class="kv2" style="margin-top:6px"><span class="l">Xác thực lại khi lưu / xoá giao dịch từ<br><span class="muted" style="font-size:12px">tham khảo QĐ 2345/QĐ-NHNN: ngân hàng yêu cầu sinh trắc cho giao dịch &gt; 10 triệu</span></span><select id="ac-bigtx" style="width:auto">${[[0, 'Không yêu cầu'], [5e6, '5 triệu'], [1e7, '10 triệu'], [2e7, '20 triệu'], [5e7, '50 triệu'], [1e8, '100 triệu']].map(([k, l]) => `<option value="${k}" ${(L.bigTx || 0) === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="muted" style="font-size:12px;margin-top:4px">Luôn xác thực lại khi: thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu, xoá dữ liệu tài chính${me && me.stepUpLeft ? ` · đang còn hiệu lực ${Math.ceil(me.stepUpLeft / 60)} phút` : ''}.</div>
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-lockn">🔒 Khoá ngay</button></div></div>`;
@@ -2186,6 +2187,7 @@ async function acctAct(act, el) {
       case 'ac-lockn': lockShow('unlock'); break;
       case 'ac-out': authLogout(false); break;
       case 'ac-pk': await addPasskey(); await acctLoad(true); break;
+      case 'ac-pkren': { const nm = (window.prompt('Tên gợi nhớ cho passkey (VD: iPhone của tôi):', el.dataset.name || '') || '').trim(); if (!nm) break; await apiFetch('/auth/bio/rename', { method: 'POST', body: JSON.stringify({ id: el.dataset.id, name: nm }) }); await done('✓ Đã đổi tên passkey.'); break; }
       case 'ac-pkdel': if (await confirmDlg('Xoá vân tay / Face ID này? Thiết bị đó sẽ không mở bằng vân tay được nữa.')) { await apiFetch('/auth/bio/delete', { method: 'POST', body: JSON.stringify({ id: el.dataset.id }) }); await credsRefresh(); await done('Đã xoá vân tay.'); } break;
       case 'ac-rv': if (await confirmDlg('Thu hồi thiết bị này? Máy đó bị đăng xuất, không đồng bộ và không nhận thông báo nữa.', 'Thu hồi')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ sid: el.dataset.id }) }); await done('Đã thu hồi thiết bị.'); } break;
       case 'ac-rvall': if (await confirmDlg('Đăng xuất mọi máy khác?', 'Đăng xuất')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ all: true }) }); await done('Đã đăng xuất mọi máy khác.'); } break;
@@ -5707,7 +5709,7 @@ document.addEventListener('click', e => {
     case 'sys-open': sysForm(); break;
     case 'sw-update': if (_swWaiting) _swWaiting.postMessage('skip'); else location.reload(); break;
     case 'sync-now': syncFabClick(); break;
-    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
+    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
     case 'learn-seg': UI.learnSeg = el.dataset.k; render(); break;
