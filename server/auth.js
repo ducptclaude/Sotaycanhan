@@ -32,6 +32,7 @@ function normPhone(s) {
 }
 const validId = id => /^[a-z0-9][a-z0-9._-]{2,31}$/.test(id);
 const validPhone = p => /^0\d{9,10}$/.test(p);
+const normName = v => String(v || '').replace(/[<>"`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40); // Họ tên hiển thị (câu chào màn đăng nhập)
 
 function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpName = 'Sổ Cá Nhân' }) {
   // Chính sách sinh trắc (bản 1.12): iPhone (iCloud Keychain) & Android (Google Password Manager) LUÔN tạo khoá đồng bộ cho web →
@@ -113,7 +114,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
     flows.set(id, { type, challenge, exp: now + 5 * 60000 }); return id;
   }
   function takeFlow(id, type) { const f = flows.get(String(id || '')); flows.delete(String(id || '')); return f && f.type === type && f.exp > Date.now() ? f : null; }
-  const me = s => ({ id: acc.id, phone: acc.phone || '', created: acc.created,
+  const me = s => ({ id: acc.id, phone: acc.phone || '', fullName: acc.fullName || '', created: acc.created,
     passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, bound: !!p.bindHash, mine: !!(s && p.device === s.device), provider: (aaguidInfo(p.aaguid) || {}).name || '' })),
     stepUpLeft: s && acc.sessions[s.key] ? Math.max(0, Math.round((STEP_MS - (Date.now() - (acc.sessions[s.key].stepUp || 0))) / 1000)) : 0,
     bioDb: bio.kind, bioPolicy: ALLOW_SYNCED ? 'synced-bound' : 'device-only',
@@ -146,7 +147,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
           if (q.phone && !validPhone(phone)) return send(400, { error: 'Số điện thoại không hợp lệ (VD 0912345678)' });
           if (String(q.password || '').length < 8) return send(400, { error: 'Mật khẩu tối thiểu 8 ký tự' });
           const salt = crypto.randomBytes(16);
-          acc = { id, phone, pw: { salt: salt.toString('base64'), hash: (await scrypt(q.password, salt)).toString('base64') }, uid: b64u(crypto.randomBytes(16)), sessions: {}, created: Date.now() };
+          acc = { id, phone, fullName: normName(q.fullName), pw: { salt: salt.toString('base64'), hash: (await scrypt(q.password, salt)).toString('base64') }, uid: b64u(crypto.randomBytes(16)), sessions: {}, created: Date.now() };
           succeeded(req); const token = newSession(req, q, 'setup'); onRevoke('all');
           return send(200, { ok: true, token, account: me(sessionOf('Bearer ' + token)) });
         }
@@ -238,7 +239,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
             const id = q.id != null ? normId(q.id) : acc.id, phone = q.phone != null ? normPhone(q.phone) : acc.phone;
             if (!validId(id)) return send(400, { error: 'ID 3–32 ký tự: chữ thường không dấu, số, dấu . _ -' });
             if (phone && !validPhone(phone)) return send(400, { error: 'Số điện thoại không hợp lệ (VD 0912345678)' });
-            acc.id = id; acc.phone = phone;
+            acc.id = id; acc.phone = phone; if (q.fullName != null) acc.fullName = normName(q.fullName);
           }
           markStep(s); save(); return send(200, { ok: true, account: me(s) }); // đã nhập đúng mật khẩu hiện tại = xác thực lại
         }
