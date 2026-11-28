@@ -1,0 +1,28 @@
+name: Sotaycanhan
+options:
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+targets:
+  Sotaycanhan:
+    type: application
+    platform: iOS
+    sources: [Sotaycanhan]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ducptclaude.sotaycanhan
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Sổ Cá Nhân
+        INFOPLIST_KEY_NSFaceIDUsageDescription: Dùng Face ID để đăng nhập và mở khóa Sổ Cá Nhân trên iPhone này.
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_EXPAND_BUILD_SETTINGS: YES
+        SOTAYCANHAN_URL: ""
+    info:
+      path: Info.plist
+      properties:
+        SotaycanhanURL: $(SOTAYCANHAN_URL)
+        NSFaceIDUsageDescription: Dùng Face ID để đăng nhập và mở khóa Sổ Cá Nhân trên iPhone này.
+        UILaunchScreen: {}
