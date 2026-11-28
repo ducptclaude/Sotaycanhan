@@ -8,7 +8,7 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.15.0';
+const VERSION = 'scn-v1.15.0-avatar';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts', OCR = 'scn-ocr', SHARE = 'scn-share';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.15.0', './icons/icon-512.png?v=1.15.0', './icons/maskable-192.png?v=1.15.0', './icons/maskable-512.png?v=1.15.0', './icons/apple-touch-icon.png?v=1.15.0', './icons/favicon-32.png?v=1.15.0', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp', './assets/i18n-en.json']; // ảnh nền đăng nhập: hiện cả khi mất mạng
 

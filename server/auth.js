@@ -115,7 +115,7 @@ function createAuth({ store, bio, challenges, syncToken = process.env.SYNC_TOKEN
   async function newFlow(type, challenge, sid) { const id = b64u(crypto.randomBytes(16)); await chal.put(id, { type, challenge, sid: sid || '' }); return id; }
   async function takeFlow(id, type, sid) { const f = await chal.take(String(id || '')); return f && f.type === type && f.exp > Date.now() && (f.sid || '') === (sid || '') ? f : null; }
   const userHandle = () => { if (!acc.uid) { acc.uid = b64u(crypto.randomBytes(16)); save(); } return acc.uid; }; // WebAuthn user handle ỔN ĐỊNH, ngẫu nhiên – không phải ID / SĐT / email
-  const me = s => ({ id: acc.id, phone: acc.phone || '', fullName: acc.fullName || '', created: acc.created,
+  const me = s => ({ id: acc.id, phone: acc.phone || '', fullName: acc.fullName || '', avatar: acc.avatar || '', created: acc.created,
     passkeys: bio.all().map(p => ({ id: p.id.slice(0, 10), cid: p.id, name: p.name, created: p.created, used: p.used || 0, deviceType: p.deviceType, bound: !!p.bindHash, mine: !!(s && p.device === s.device), provider: (aaguidInfo(p.aaguid) || {}).name || '' })),
     stepUpLeft: s && acc.sessions[s.key] ? Math.max(0, Math.round((STEP_MS - (Date.now() - (acc.sessions[s.key].stepUp || 0))) / 1000)) : 0,
     bioDb: bio.kind, bioPolicy: ALLOW_SYNCED ? (BIND ? 'synced-bound' : 'synced') : 'device-only',
@@ -128,7 +128,7 @@ function createAuth({ store, bio, challenges, syncToken = process.env.SYNC_TOKEN
     if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return true; }
     if (url === '/auth/status' && req.method === 'GET') { send(200, info()); return true; }
     if (req.method !== 'POST' && url !== '/auth/me' && url !== '/auth/bio/credentials') { send(405, { error: 'method not allowed' }); return true; }
-    const needSession = ['/auth/stepup', '/auth/me', '/auth/bio/credentials', '/auth/bio/rename', '/auth/bio/register-options', '/auth/bio/register', '/auth/bio/delete', '/auth/profile', '/auth/password', '/auth/logout', '/auth/revoke'].includes(url);
+    const needSession = ['/auth/stepup', '/auth/me', '/auth/bio/credentials', '/auth/bio/rename', '/auth/bio/register-options', '/auth/bio/register', '/auth/bio/delete', '/auth/profile', '/auth/avatar', '/auth/password', '/auth/logout', '/auth/revoke'].includes(url);
     const s = needSession || url.startsWith('/auth/bio/unlock') ? sessionOf(req.headers.authorization) : null;
     if (needSession && !s) { send(401, { error: acc ? 'Phiên đăng nhập đã hết hạn – hãy đăng nhập lại' : 'Chưa tạo tài khoản' }); return true; }
     if (url === '/auth/me') { send(200, me(s)); return true; }
@@ -235,6 +235,16 @@ function createAuth({ store, bio, challenges, syncToken = process.env.SYNC_TOKEN
         }
         if (url === '/auth/bio/rename') { const id = String(q.id || ''), nm = String(q.name || '').replace(/[<>"`]/g, '').trim().slice(0, 40); const pk = bio.get(id); if (!pk || !nm) return send(400, { error: 'Không tìm thấy passkey hoặc tên trống' }); await bio.update(id, { name: nm }); return send(200, { ok: true, account: me(s) }); }
         if (url === '/auth/bio/delete') { const pre = String(q.id || '-'); bio.removeWhere(p => p.id.startsWith(pre)); return send(200, { ok: true, account: me(s) }); }
+        if (url === '/auth/avatar') {
+          const avatar = q?.avatar;
+          if (typeof avatar !== 'string' || avatar.length > 100000 ||
+              (avatar && !/^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(avatar))) {
+            return send(400, { error: 'Ảnh đại diện không hợp lệ.' });
+          }
+          acc.avatar = avatar;
+          save();
+          return send(200, { avatar });
+        }
         if (url === '/auth/password' || url === '/auth/profile') {
           const okPw = eq((await scrypt(q.current || '', Buffer.from(acc.pw.salt, 'base64'))).toString('base64'), acc.pw.hash);
           if (!okPw) { failed(req); return send(401, { error: 'Mật khẩu hiện tại không đúng' }); }
