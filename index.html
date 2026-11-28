@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sổ Cá Nhân</title>
 <meta name="description" content="Sổ cá nhân: tài chính, lịch âm dương, sức khỏe, học tập, kế hoạch – dùng được cả khi không có mạng.">
-<meta name="theme-color" content="#1e2a5e">
-<script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_d?'binance':'';if(_d){var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content='#0b0e11'}if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
+<meta name="theme-color" content="#eaf1f7">
+<script>/* phong cách, chế độ sáng/tối & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang (không nháy sai màu) */try{var D=document.documentElement,_t=localStorage.getItem('scn-theme')||'auto';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _u=localStorage.getItem('scn-ui');if(_u!=='premium'&&_u!=='digital')_u='analytics';var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);D.dataset.theme=_d?'dark':'light';D.dataset.skin=_d?'navy':'';D.dataset.ui=_u;var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content=_d?'#07131c':_u==='premium'?'#f5f8fa':'#eaf1f7';if(localStorage.getItem('scn-lang')==='en'){D.lang='en';D.classList.add('i18n-wait');setTimeout(function(){D.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.15.0">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.15.0">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.16.0">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.16.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -943,16 +943,333 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] :is(.st-err,.st-wait){color:color-mix(in srgb,#9a6a10 45%,#fff)}
 :root[data-theme="dark"] :is(.st-on){color:color-mix(in srgb,#16795a 45%,#fff)}
 /* ==== HẾT GIAO DIỆN TỐI ==== */
+/* ==== GIAO DIỆN 1.16: 3 PHONG CÁCH (Light Premium · Light Analytics · Dark Digital) + Sáng/Tối/Theo máy ==== */
+/* Token ngữ nghĩa: <html data-ui="premium|analytics|digital" data-theme="light|dark" data-skin="navy"> */
+:root[data-ui]{--radius-card:16px;--radius-control:12px;--on-accent:#fff;--info:#1769aa;
+  --track:#e3edf2;--grid:#e3eaf0;--inc-c:#0f9d6b;--exp-c:#e05a67;
+  --m-fin:#087f83;--m-health:#0f9d6b;--m-learn:#2563eb;--m-plan:#c27803;--m-goal:#7c3aed}
+:root[data-ui]:not([data-theme="dark"]){--pos:#087548;--neg:#b42332;--warn:#925600;--crit:#b42332;--inc:#087548;--exp:#b42332;--accent-ink:#fff;--s1:#087f83;--s2:#e05a67;--s3:#0f9d6b;--s4:#c27803;--s5:#7c3aed;--s6:#2563eb}
+:root[data-ui="premium"]:not([data-theme="dark"]){--bg:#f5f8fa;--card:#fff;--card2:#e8f4f5;--text:#10263a;--text2:#526779;--muted:#5f7385;--line:#dce6ed;--beige:#dce6ed;
+  --accent:#087f83;--navy:#10263a;--navy2:#17405c;--teal:#0a9396;--teal2:#087f83;--gold:#087f83;--hero1:#eaf5f7;--hero2:#c4e9e8;
+  --shadow:0 1px 2px rgba(16,38,58,.04),0 8px 24px rgba(16,38,58,.06)}
+:root[data-ui="analytics"]:not([data-theme="dark"]),:root[data-ui="digital"]:not([data-theme="dark"]){--bg:#eaf1f7;--card:#fff;--card2:#e0edf4;--text:#102238;--text2:#506478;--muted:#5b6f82;--line:#d7e3ec;--beige:#d7e3ec;
+  --accent:#087e87;--navy:#102238;--navy2:#16405a;--teal:#0a9aa3;--teal2:#087e87;--gold:#087e87;--hero1:#f5fafd;--hero2:#d9eaf2;
+  --shadow:0 1px 2px rgba(16,34,56,.04),0 6px 18px rgba(16,34,56,.06)}
+:root[data-ui]:not([data-theme="dark"]),:root[data-ui]:not([data-theme="dark"]) body{background:var(--bg)}
+/* Tối Navy – Teal (dùng chung cho cả 3 phong cách khi chọn Tối) */
+:root[data-theme="dark"][data-skin="navy"]{color-scheme:dark;--bg:#07131c;--card:#10242e;--card2:#142f3a;--text:#eaf4f8;--text2:#a9c0cf;--muted:#86a2b3;--line:#294651;--beige:#294651;
+  --accent:#2dd4bf;--accent-ink:#06221f;--on-accent:#06221f;--inc:#34d399;--exp:#fb7185;--pos:#34d399;--neg:#fb7185;--warn:#fbbf24;--crit:#fb7185;--info:#60a5fa;
+  --teal:#2dd4bf;--gold:#2dd4bf;--s1:#2dd4bf;--s2:#fb7185;--s3:#34d399;--s4:#fbbf24;--s5:#a78bfa;--s6:#60a5fa;
+  --track:#1b3a46;--grid:#1f3c48;--inc-c:#34d399;--exp-c:#fb7185;--m-fin:#2dd4bf;--m-health:#34d399;--m-learn:#60a5fa;--m-plan:#fbbf24;--m-goal:#a78bfa;
+  --hero1:#0b1829;--hero2:#10414a;--shadow:none}
+
+/* ---- Thành phần chung theo token (sáng) ---- */
+:root[data-ui]:not([data-theme="dark"]) :is(.btn.primary,.subnav a.on,.seg button.on){background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:none}
+:root[data-ui]:not([data-theme="dark"]) .seg{background:var(--card2)}
+:root[data-ui]:not([data-theme="dark"]) .fab{background:var(--accent);box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 38%,transparent)}
+:root[data-ui]:not([data-theme="dark"]) .f :is(input,select,textarea){background:#fff;border-color:var(--line)}
+:root[data-ui]:not([data-theme="dark"]) :is(.hero2,.svhero,.ashero){background:linear-gradient(120deg,#0f2a40 0%,#0d4a5a 55%,var(--accent) 100%);box-shadow:0 10px 24px rgba(16,38,58,.18)}
+:root[data-ui]:not([data-theme="dark"]) .banner{background:var(--card2);border-color:var(--line)}
+:root[data-ui]:not([data-theme="dark"]) .toast{background:var(--navy)}
+:root[data-ui] :is(.card,.gcard,.svc){border-radius:var(--radius-card)}
+:root[data-ui] :is(a,button,select,input,[data-act]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Tối Navy: thẻ tổng, thanh tab, nút */
+:root[data-theme="dark"][data-skin="navy"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.svhero.calhero,.lrhero,.enhero,.bookhero,.medhero){background:linear-gradient(120deg,#0b1829 0%,#0f2f3c 55%,#10414a 100%)!important;border:1px solid var(--line)!important;color:var(--text)}
+:root[data-theme="dark"][data-skin="navy"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero) .hl{color:var(--text2)!important}
+:root[data-theme="dark"][data-skin="navy"] :is(.hero2,.svhero,.ashero,.bstot,.calhero,.lrhero,.enhero,.bookhero,.medhero) :is(.svlive,.asof){background:rgba(45,212,191,.12)!important;color:var(--accent)!important}
+:root[data-theme="dark"][data-skin="navy"] :is(.btn.primary,.subnav a.on,.seg button.on,.remchips button.on,.tpl button.on,.gchips button.on,.pkd.on,.pkb.on,.dbadge.now,.bstag){background:var(--accent)!important;color:#06221f!important}
+:root[data-theme="dark"][data-skin="navy"] .bssec.owe .bstag{background:var(--neg)!important;color:#fff!important}
+:root[data-theme="dark"][data-skin="navy"] .fab{background:var(--accent)!important;color:#06221f!important;box-shadow:0 0 0 1px rgba(45,212,191,.35),0 8px 22px rgba(45,212,191,.22)!important}
+:root[data-theme="dark"][data-skin="navy"] .svsic{background:var(--card2)!important;border:1px solid var(--line)}
+:root[data-theme="dark"][data-skin="navy"] .svstt{color:var(--text)!important}
+:root[data-theme="dark"][data-skin="navy"] :is(.card,.gcard,.svc,.bssec,.svsec,.sheet){border:1px solid var(--line)}
+:root[data-theme="dark"][data-skin="navy"] .toast{background:#e6f6f4;color:#06221f}
+
+/* ---- Khung app: tiêu đề, logo, chuông, ảnh đại diện ---- */
+.hdr-l{display:flex;align-items:center;gap:10px;min-width:0}
+.hdr-logo{flex:none;display:block;line-height:0}.hdr-logo img{width:38px;height:38px;border-radius:50%;display:block}
+:root[data-ui] header.top{padding:8px 2px 12px}
+:root[data-ui] header.top h1{font-size:18px;font-weight:700;text-transform:none;letter-spacing:-.01em;color:var(--text)}
+:root[data-ui] header.top h1::before{display:none}
+:root[data-ui] header.top .sub{padding-left:0;font-size:12px;color:var(--text2)}
+:root[data-ui="analytics"] header.top h1{text-transform:uppercase;letter-spacing:.04em;font-weight:800;font-size:17px}
+.hdrbell{position:relative;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);flex:none}
+.hdrbell svg{width:20px;height:20px}.hdrbell .bd{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--crit);color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center;box-shadow:0 0 0 2px var(--card)}.hdrbell .bd[hidden]{display:none}
+.acctbtn.ini{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#10263a));color:#fff;font-weight:700;font-size:15px;border-color:transparent}
+:root[data-theme="dark"][data-skin="navy"] .acctbtn.ini{color:#06221f;background:var(--accent)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+@media (max-width:380px){.hdr-logo img{width:32px;height:32px}.hdrbell{width:32px;height:32px}.hdrbell svg{width:17px;height:17px}:root[data-ui] header.top .sub{display:none}}
+
+/* ---- Thanh điều hướng: 5 mục ở điện thoại/máy tính bảng, thanh bên trái ở máy tính ---- */
+nav.tabs .nv-d,nav.tabs .nv-brand{display:none}
+nav.tabs .nv-more{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:10.5px;white-space:nowrap;padding:4px 0;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
+:root[data-ui] nav.tabs{background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(16,38,58,.06);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+:root[data-ui] nav.tabs :is(a,.nv-more){color:var(--text2);font-size:11px;font-weight:500;min-height:48px}
+:root[data-ui] nav.tabs :is(a,.nv-more).on{color:var(--accent);background:transparent;font-weight:700}
+:root[data-theme="dark"][data-skin="navy"] nav.tabs{background:#0a1b25!important;box-shadow:0 -1px 0 var(--line)!important;border-color:var(--line)}
+:root[data-theme="dark"][data-skin="navy"] nav.tabs :is(a,.nv-more){color:var(--muted)}
+:root[data-theme="dark"][data-skin="navy"] nav.tabs :is(a,.nv-more).on{color:var(--accent);background:transparent}
+:root[data-theme="dark"][data-skin="navy"] nav.tabs :is(a,.nv-more).on .ic svg{filter:drop-shadow(0 0 5px rgba(45,212,191,.45))}
+@media (min-width:768px){:root[data-sec="home"] .wrap{max-width:980px}}
+@media (min-width:1024px){
+  body{padding-left:248px}
+  :root[data-ui] nav.tabs{top:0;bottom:0;left:0;right:auto;width:248px;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:4px;padding:18px 14px calc(18px + env(safe-area-inset-bottom));border-top:0;border-right:1px solid var(--line);box-shadow:none;overflow-y:auto}
+  :root[data-theme="dark"][data-skin="navy"] nav.tabs{box-shadow:1px 0 0 var(--line)!important}
+  :root[data-ui] nav.tabs a{flex:none;display:flex;align-items:center;gap:12px;font-size:14.5px;padding:10px 14px;min-height:44px;border-radius:12px;text-align:left}
+  :root[data-ui] nav.tabs a .ic svg{margin:0}
+  :root[data-ui] nav.tabs a.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+  :root[data-ui] nav.tabs a:not(.on):not(.nv-brand):hover{background:var(--card2)}
+  nav.tabs .nv-d{display:flex}nav.tabs .nv-more{display:none}
+  :root[data-ui] nav.tabs .nv-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;margin-bottom:10px;border-bottom:1px solid var(--line);border-radius:0;background:none!important;color:var(--text)}
+  nav.tabs .nv-brand img{width:42px;height:42px;border-radius:50%}nav.tabs .nv-brand b{display:block;font-size:15.5px;font-weight:800}nav.tabs .nv-brand small{display:block;font-size:11.5px;color:var(--text2);font-weight:500}
+  nav.tabs .nv-acct{margin-top:auto}
+  .wrap{max-width:1200px;padding:18px 32px 96px}
+  :root[data-sec="home"] .wrap{max-width:1200px}
+  :root:not([data-sec="home"]) #view,:root:not([data-sec="home"]) #note{max-width:960px}
+  header.top .hdr-logo{display:none}
+  .fab{right:32px;bottom:32px}.syncfab{right:38px;bottom:104px}
+}
+
+/* ---- Dashboard trang chủ ---- */
+.db{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.db>*{min-width:0}
+@media (min-width:768px){.db{grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}.db>*{grid-column:span 12}.db>:is(.s4,.s5,.s6,.s7){grid-column:span 6}}
+@media (min-width:1280px){.db>.s4{grid-column:span 4}.db>.s5{grid-column:span 5}.db>.s6{grid-column:span 6}.db>.s7{grid-column:span 7}}
+.dbi{width:20px;height:20px;flex:none}
+.dbcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card,16px);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+@media (min-width:1024px){.dbcard{padding:20px}}
+.dbc-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.dbc-h h3{margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text);min-width:0}
+.dbc-n{font-size:12.5px;color:var(--text2);white-space:nowrap}
+.hic{width:32px;height:32px;padding:7px;border-radius:10px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+.dbhealth .hic{color:var(--m-health);background:color-mix(in srgb,var(--m-health) 13%,transparent)}
+.dblearn .hic{color:var(--m-learn);background:color-mix(in srgb,var(--m-learn) 13%,transparent)}
+.dbtasks .hic,.dbagenda .hic{color:var(--m-plan);background:color-mix(in srgb,var(--m-plan) 14%,transparent)}
+.dbgoals .hic{color:var(--m-goal);background:color-mix(in srgb,var(--m-goal) 13%,transparent)}
+.dbatt .hic{color:var(--crit);background:color-mix(in srgb,var(--crit) 12%,transparent)}
+.dbmore{margin-top:auto;padding-top:12px;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;align-self:flex-start}
+.dbnone{color:var(--text2);font-size:13.5px;padding:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dbsel{font-size:16px;padding:5px 30px 5px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);max-width:150px}
+.dbbar{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:6px}.dbbar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.dbring{position:relative;flex:none}.dbring svg{width:100%;height:100%;display:block}
+.dbring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.15;padding:0 10px}
+.dbring-in b{font-size:19px;font-weight:700;color:var(--text)}.dbring-in small{font-size:11px;color:var(--text2)}
+/* lời chào */
+.dbhero{grid-column:1/-1;position:relative;overflow:hidden;border-radius:20px;padding:20px;background:linear-gradient(120deg,var(--hero1),var(--hero2));border:1px solid var(--line)}
+.dbwave{position:absolute;right:0;top:0;height:100%;width:62%;pointer-events:none}
+.dbh-t{position:relative;z-index:1;max-width:72%}
+.dbhello{margin:0;font-size:23px;font-weight:700;color:var(--text);line-height:1.25;letter-spacing:-.01em}
+.dbdate{color:var(--text2);font-size:13.5px;margin-top:6px}
+.dbstrip{position:relative;z-index:1;margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:color-mix(in srgb,var(--card) 90%,transparent);border:1px solid var(--line);border-radius:14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dbstrip>div{padding:10px 12px;min-width:0}.dbstrip>div+div{border-left:1px solid var(--line)}
+.dbstrip span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);white-space:nowrap}.dbstrip span .dbi{width:15px;height:15px;color:var(--accent)}
+.dbstrip b{display:block;font-size:16px;color:var(--text);margin-top:3px}
+.dbstrip small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbstrip .dbbar{height:6px}
+@media (min-width:1024px){.dbhero{padding:28px 28px 22px}.dbhello{font-size:28px}.dbstrip>div{padding:12px 18px}.dbstrip b{font-size:18px}}
+@media (max-width:400px){.dbhello{font-size:20px}.dbh-t{max-width:84%}.dbstrip>div{padding:9px 8px}.dbstrip span{font-size:11px}.dbstrip span .dbi{display:none}.dbstrip b{font-size:14.5px}}
+.db-analytics .dbhero{background:none;border:0;padding:4px 2px 0;overflow:visible;border-radius:0}
+.db-analytics .dbh-t{max-width:none}
+.dbchips{display:flex;gap:8px;overflow-x:auto;margin:14px -2px 0;padding:2px 2px 6px;scrollbar-width:none}.dbchips::-webkit-scrollbar{display:none}
+.dbchips a{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;min-height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600;white-space:nowrap;box-shadow:var(--shadow)}
+.dbchips a .dbi{width:17px;height:17px;color:var(--accent)}.dbchips a.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}.dbchips a.on .dbi{color:currentColor}
+.db-digital .dbhero{padding-bottom:20px}
+/* thẻ điều hướng mảng (bento) */
+.dbtiles{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dbtiles .t-fin{grid-column:span 2}
+@media (min-width:600px){.dbtiles{grid-template-columns:repeat(6,minmax(0,1fr))}.dbtiles>a{grid-column:span 2}.dbtiles>.t-plan,.dbtiles>.t-goal{grid-column:span 3}}
+.dbtile{display:flex;flex-direction:column;gap:4px;min-height:122px;padding:14px;border-radius:var(--radius-card,16px);text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.dbtile:hover{transform:translateY(-2px)}
+.dbt-h{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px}
+.dbt-h .tic{width:34px;height:34px;padding:7px;border-radius:11px;background:color-mix(in srgb,currentColor 12%,transparent)}
+.dbt-h .go{margin-left:auto;font-style:normal;opacity:.55;font-size:20px;line-height:1}
+.dbt-v{margin-top:6px}.dbt-v b{font-size:22px;font-weight:700;letter-spacing:-.01em}.dbt-v small{font-size:13px;font-weight:500}
+.dbt-s{font-size:12px;color:var(--text2)}
+.dbspark{display:flex;align-items:flex-end;gap:5px;height:30px;margin-top:auto;padding-top:6px}.dbspark i{flex:1;border-radius:3px 3px 0 0;opacity:.75}
+.dbtile .dbring{position:absolute;right:12px;bottom:12px}.dbtile .dbring small{font-size:10px;color:inherit}
+.dbtile .dbbar{margin-top:auto}
+.dbtile.t-fin .tic{color:var(--m-fin)}.dbtile.t-health .tic{color:var(--m-health)}.dbtile.t-learn .tic{color:var(--m-learn)}.dbtile.t-plan .tic{color:var(--m-plan)}.dbtile.t-goal .tic{color:var(--m-goal)}
+.dbtile.t-learn .dbbar>i{background:var(--m-learn)}.dbtile.t-goal .dbbar>i{background:var(--m-goal)}
+/* Premium sáng: Tài chính navy, Sức khỏe teal, còn lại xanh nhạt */
+:root:not([data-theme="dark"]) .db-premium .dbtile.t-fin{background:linear-gradient(135deg,#10263a,#183f5c);border-color:transparent;color:#fff}
+:root:not([data-theme="dark"]) .db-premium .dbtile.t-health{background:linear-gradient(135deg,#0b8f90,#08767a);border-color:transparent;color:#fff}
+:root:not([data-theme="dark"]) .db-premium .dbtile:is(.t-fin,.t-health) :is(.tic,.dbt-s){color:rgba(255,255,255,.86)}
+:root:not([data-theme="dark"]) .db-premium .dbtile:is(.t-fin,.t-health) .tic{background:rgba(255,255,255,.14)}
+:root:not([data-theme="dark"]) .db-premium .dbtile.t-fin .dbspark i{background:#5ec8c4!important}
+:root:not([data-theme="dark"]) .db-premium .dbtile:is(.t-learn,.t-plan,.t-goal){background:#eaf3f8;border-color:#d9e7ef}
+:root[data-theme="dark"] .db-premium .dbtile.t-fin{background:linear-gradient(135deg,#123247,#0f4c5c)}
+:root[data-theme="dark"] .db-premium .dbtile.t-health{background:linear-gradient(135deg,#0d4a46,#0b5f57)}
+.db-digital .dbtile .dbspark i{background:var(--m-fin)!important}
+:root[data-theme="dark"] .dbtile{box-shadow:none}
+:root[data-theme="dark"] .dbtile:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+/* tài chính */
+.dbnet span{font-size:12.5px;color:var(--text2)}.dbnet b{display:block;font-size:26px;font-weight:700;letter-spacing:-.01em;margin:2px 0}.dbnet em{font-style:normal;font-size:12.5px;font-weight:600}
+.dbfin-p{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.dbdonut{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.dblegend{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:13px;min-width:130px;flex:1}
+.dblegend li{display:flex;align-items:center;gap:8px}.dblegend i{width:10px;height:10px;border-radius:3px;flex:none}.dblegend span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)}
+.dbio{display:grid;gap:8px;flex:1;min-width:170px}
+:is(.dbio,.dbkpi)>div{padding:10px 12px;border-radius:12px;background:var(--card2);min-width:0}
+:is(.dbio,.dbkpi) span{display:block;font-size:12px;color:var(--text2)}:is(.dbio,.dbkpi) b{font-size:16px;font-weight:700;display:block;overflow:hidden;text-overflow:ellipsis}
+.k-in b{color:var(--pos)}.k-out b{color:var(--neg)}
+.dbfin-g{display:grid;gap:16px}
+@media (min-width:768px){.dbfin-g{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dbfin-g .dbside{grid-column:1/-1}}
+@media (min-width:1280px){.dbfin-g{grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr) minmax(0,1fr)}.dbfin-g .dbside{grid-column:auto}}
+.dbkpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
+.dbc-sub{font-size:12.5px;color:var(--text2);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.dblg{font-weight:500;white-space:nowrap}.dblg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 4px 0 8px}.dblg i.in{background:var(--inc-c)}.dblg i.out{background:var(--exp-c)}
+.dbbars{width:100%;height:auto;display:block;max-height:180px}.dbax{font-size:10.5px;fill:var(--text2)}
+.dbfg{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px}.dbfg .row span{display:flex;gap:6px;align-items:center;min-width:0}.dbfg .row span b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dbfg .dbi{color:var(--m-goal);width:17px;height:17px}.dbfg .dbbar>i{background:var(--m-goal)}.dbfg .muted{margin-top:4px;font-size:12px}
+/* sức khỏe / học tập */
+.dbmet{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.dbml{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;flex:1;min-width:190px}
+.dbml li{display:flex;gap:9px;align-items:center;min-width:0}.dbml li>div{min-width:0}
+.dbml .dbi{width:32px;height:32px;padding:7px;border-radius:10px;background:var(--card2);color:var(--m-health)}
+.dblearn .dbml .dbi{color:var(--m-learn)}
+.dbml b{display:block;font-size:15px;font-weight:700}.dbml small{display:block;font-size:11.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* việc hôm nay */
+.dbtl{list-style:none;margin:0;padding:0}
+.dbtl li{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--line);min-height:52px}.dbtl li:last-child{border-bottom:0}
+.dbck{position:relative;width:44px;height:44px;margin-left:-8px;border:0;background:none;flex:none;cursor:pointer;color:var(--on-accent);font-weight:800;font-size:13px;padding:0}
+.dbck::before{content:'';position:absolute;inset:11px;border:2px solid var(--muted);border-radius:7px;z-index:0}
+.dbtl li.done .dbck::before{background:var(--accent);border-color:var(--accent)}
+.dbck{z-index:0}.dbck:not(:empty){text-shadow:none}.dbtl li.done .dbck{color:var(--on-accent)}
+.dbtl .m{flex:1;min-width:0;cursor:pointer}.dbtl .m b{font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbtl .m small{display:block;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dbtl .m small.late{color:var(--crit)}
+.dbtl li.done .m b{text-decoration:line-through;color:var(--muted)}
+.dbpri{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:700;flex:none}
+.dbpri.p1{color:var(--crit);background:color-mix(in srgb,var(--crit) 12%,transparent)}.dbpri.p2{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+/* mục tiêu */
+.dbgl{padding:8px 0;cursor:pointer}.dbgl .row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;min-width:0}
+/* tổng quan tuần */
+.dbwk{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.db-digital .dbwk{flex-direction:row-reverse;justify-content:space-between}
+.dbwrs{flex:1;min-width:210px;display:grid;gap:11px}
+.dbwr{display:grid;grid-template-columns:minmax(92px,auto) 1fr 42px;align-items:center;gap:10px;font-size:13.5px}
+.dbwr .l{display:flex;gap:7px;align-items:center;color:var(--text)}.dbwr .l .dbi{width:17px;height:17px;color:var(--text2)}.dbwr .dbbar{margin:0}.dbwr b{text-align:right;font-size:13.5px}
+.dbfoot{margin-top:12px;font-size:12px}
+/* lịch hôm nay, cần chú ý, nhịp hôm nay */
+.dbagenda .secthead,.dbatt .secthead{margin-top:12px}
+.dbroutine{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.dbroutine button{border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:7px 11px;font-size:13px;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;min-height:44px;text-align:left}
+.dbroutine button small{color:var(--text2);font-size:11.5px}.dbroutine button.ok{border-color:color-mix(in srgb,var(--pos) 55%,transparent)}.dbroutine button.ok small{color:var(--pos)}
+/* menu "Khác" */
+.dbmenu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dbmenu a{display:flex;align-items:center;gap:10px;padding:14px;border-radius:14px;background:var(--card2);color:var(--text);text-decoration:none;font-weight:600;min-height:52px;border:1px solid var(--line)}.dbmenu .dbi{color:var(--accent)}
+/* chọn phong cách */
+.pref-ui{flex-direction:column;align-items:stretch!important}
+.uipick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin-top:8px}
+.uipick button{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:3px;color:var(--text);min-width:0}
+.uipick button.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.uipick b{font-size:12.5px}.uipick small{font-size:11px;color:var(--text2);line-height:1.25}
+.uiprev{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:18px 1fr;gap:3px;height:56px;padding:5px;border-radius:9px;margin-bottom:3px}
+.uiprev i{border-radius:4px}.uiprev i:first-child{grid-column:1/-1}.uiprev i:nth-child(4){display:none}
+.p-premium{background:#f5f8fa;border:1px solid #dce6ed}.p-premium i:nth-child(1){background:linear-gradient(90deg,#eaf5f7,#8fd3d1)}.p-premium i:nth-child(2){background:#10263a}.p-premium i:nth-child(3){background:#0b8f90}
+.p-analytics{background:#eaf1f7;border:1px solid #d7e3ec}.p-analytics i:nth-child(1){background:#fff;box-shadow:inset 22px 0 0 #087e87}.p-analytics i:nth-child(2){background:#fff;box-shadow:inset 0 -6px 0 #087e87}.p-analytics i:nth-child(3){background:#fff;box-shadow:inset 0 -10px 0 #e05a67}
+.p-digital{background:#07131c;border:1px solid #294651}.p-digital i:nth-child(1){background:linear-gradient(90deg,#0b1829,#10414a)}.p-digital i:nth-child(2),.p-digital i:nth-child(3){background:#10242e;border:1px solid #294651}.p-digital i:nth-child(2){border-color:#2dd4bf}
+@media (max-width:360px){.uipick{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.dbtile,.dbchips a{transition:none}.dbtile:hover{transform:none}}
+/* --- tinh chỉnh theo ảnh tham chiếu --- */
+:root[data-ui]:not([data-theme="dark"]){--inc-c:var(--accent);--exp-c:#c3d1dc}
+:root[data-theme="dark"][data-skin="navy"]{--inc-c:#2dd4bf;--exp-c:#4d6b79}
+.dbhello small{display:block;font-size:15px;font-weight:500;color:var(--text2);margin-bottom:2px}
+.db-premium .dbhello{font-size:25px}
+/* thẻ mảng: 3 + 2 cột (iPhone trở lên) */
+@media (min-width:340px){.dbtiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.dbtiles>a{grid-column:span 2}.dbtiles>.t-plan,.dbtiles>.t-goal{grid-column:span 3}}
+.dbtile{min-height:132px;padding:12px;gap:2px}
+.dbt-h{font-size:14px;gap:7px}.dbt-h span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dbt-h .tic{width:30px;height:30px;padding:6px}
+.dbt-s{margin-top:6px;font-size:11.5px;line-height:1.3}
+.dbt-v{margin-top:2px;line-height:1.25}.dbt-v b{font-size:17px}.dbt-v small{font-size:11.5px;color:var(--text2)}
+.dbt-x{margin-top:auto;display:flex;align-items:center;gap:8px;padding-top:6px}.dbt-x .dbbar{flex:1;margin:0;height:7px}.dbt-x em{font-style:normal;font-size:11.5px;font-weight:700}
+.dbt-x .dbspark{flex:1;margin:0}
+.dbtile .dbring{position:relative;right:auto;bottom:auto;margin-left:auto}
+.dbtile.t-health .dbt-x{justify-content:flex-end;margin-top:-26px;padding-top:0}
+.dbtile .pos{color:var(--pos)}.dbtile .neg{color:var(--neg)}
+:root:not([data-theme="dark"]) .db-premium .dbtile:is(.t-fin,.t-health) :is(.dbt-v small,.pos,.neg,em){color:#fff}
+@media (min-width:600px){.dbtile{padding:16px;min-height:150px}.dbt-v b{font-size:22px}.dbt-h{font-size:15px}.dbt-s{font-size:12.5px}.dbt-h .tic{width:34px;height:34px;padding:7px}}
+@media (max-width:400px){.dbt-h .go{display:none}}
+/* Digital: lời chào trên nền, núi mờ; thẻ viền teal */
+.db-digital .dbhero{background:none;border:0;border-radius:0;padding:6px 2px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;overflow:visible}
+.db-digital .dbhero .dbwave{top:-70px;right:-16px;height:200px;width:100%;opacity:.9}
+.db-digital .dbh-t{max-width:none;flex:1;min-width:0}
+.dbday{position:relative;z-index:1;display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--text2);line-height:1.35;text-align:left;flex:none;padding-top:6px}.dbday .dbi{color:var(--accent)}
+:root[data-theme="dark"] .db-digital :is(.dbtile,.dbcard){border-color:color-mix(in srgb,var(--accent) 30%,var(--line));background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--card)),var(--card))}
+:root[data-theme="dark"] .db-digital .dbtile .tic{background:none;padding:2px;color:var(--accent)}
+:root[data-theme="dark"] .db-digital .dbt-v b{color:var(--accent)}
+:root[data-theme="dark"] .db-digital .dbtile .dbbar>i,:root[data-theme="dark"] .db-digital .dbwr .dbbar>i{background:var(--accent)!important}
+/* Analytics: chip icon trên – chữ dưới */
+.db-analytics .dbchips{display:grid;grid-template-columns:repeat(6,minmax(62px,1fr));overflow-x:auto}
+.db-analytics .dbchips a{flex-direction:column;gap:5px;padding:10px 4px;font-size:12px;min-height:66px;justify-content:center;border-radius:14px}
+.db-analytics .dbchips a .dbi{width:22px;height:22px}
+.db-analytics .dbhero{display:block}
+/* Analytics tài chính: hàng số đầy đủ */
+.dbrows{display:flex;flex-direction:column}
+.dbrows>div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dbrows>div span{color:var(--text)}.dbrows b{font-size:15.5px}.dbrows .k-sv b{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);padding:2px 8px;border-radius:8px}
+.dbrows .k-rt{border-bottom:0}.dbrows .dbbar{margin-top:2px}
+/* chỉ số dạng hàng */
+.dbml{grid-template-columns:1fr;gap:6px;min-width:0}
+.dbml li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;font-size:13px;padding:3px 0}
+.dbml li span{color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.dbml .dbi{width:28px;height:28px;padding:6px}.dbml b{font-size:14px}
+.dbmet{flex-wrap:nowrap;gap:14px}
+@media (max-width:359px){.dbmet{flex-wrap:wrap}}
+.dbfin-p{flex-wrap:nowrap}.dbfin-p .dbio{min-width:0}
+@media (max-width:359px){.dbfin-p{flex-wrap:wrap}}
+/* tổng quan tuần: vòng cạnh danh sách */
+.dbwk{flex-wrap:nowrap;gap:14px}
+.dbwrs{min-width:0;gap:10px}
+.dbwr{grid-template-columns:minmax(0,auto) minmax(40px,1fr) 38px;gap:8px;font-size:13px}
+.db-analytics .dbwr{grid-template-columns:1fr 42px}.db-analytics .dbwr .dbbar{display:none}
+.db-analytics .dbwr .l .dbi{color:var(--accent)}
+@media (max-width:359px){.dbwk{flex-wrap:wrap}}
+/* thẻ mảng gọn cho iPhone: icon trên, tên dưới */
+.dbtile>.tic{width:32px;height:32px;padding:6px;border-radius:10px;background:color-mix(in srgb,currentColor 12%,transparent);flex:none}
+.dbtile.t-fin>.tic{color:var(--m-fin)}.dbtile.t-health>.tic{color:var(--m-health)}.dbtile.t-learn>.tic{color:var(--m-learn)}.dbtile.t-plan>.tic{color:var(--m-plan)}.dbtile.t-goal>.tic{color:var(--m-goal)}
+:root:not([data-theme="dark"]) .db-premium .dbtile:is(.t-fin,.t-health)>.tic{color:#fff;background:rgba(255,255,255,.16)}
+:root[data-theme="dark"] .db-digital .dbtile>.tic{background:none;padding:2px;color:var(--accent);width:30px;height:30px}
+.dbt-h{margin-top:8px;font-weight:700}
+.dbt-v b{font-size:16px;white-space:nowrap}
+.dbtile.t-health .dbt-x{margin-top:auto;padding-top:4px}
+.dbtile .dbring{width:40px!important;height:40px!important}
+.db-digital .dbhero .dbwave{right:0;width:100%}
+.dbring-in small{line-height:1.15}
+@media (min-width:600px){.dbtile>.tic{width:38px;height:38px;padding:8px}.dbt-v b{font-size:22px}.dbtile .dbring{width:48px!important;height:48px!important}}
+@media (min-width:600px){.dbtiles>.t-plan,.dbtiles>.t-goal{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-content:start}.dbtiles>:is(.t-plan,.t-goal)>.tic{grid-row:1/4}.dbtiles>:is(.t-plan,.t-goal) .dbt-h{margin-top:4px}.dbtiles>:is(.t-plan,.t-goal) .dbt-x{grid-column:2}}
+.db-analytics .dbchips{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.db-analytics .dbchips a{font-size:11px;padding:8px 2px;min-width:0}
+@media (min-width:600px){.db-analytics .dbchips{gap:10px}.db-analytics .dbchips a{font-size:13px;min-height:74px}}
+:root[data-ui] .hdr-r{flex-wrap:nowrap}
+:root[data-ui] header.top .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-l>div{min-width:0}
+@media (max-width:480px){:root[data-ui] .netpill span{display:none}:root[data-ui] .netpill{padding:4px 8px}}
+@media (min-width:1024px){:root[data-ui] nav.tabs :is(a,.nv-more){font-size:14.5px;font-weight:600}:root[data-ui] nav.tabs a .ic{display:inline-flex}}
+:root[data-ui] header.top h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:480px){:root[data-ui="analytics"] header.top h1{font-size:15.5px;letter-spacing:.02em}.hdr-logo img{width:34px;height:34px}.hdr-r{gap:6px}:root[data-ui] .netpill{max-width:104px}:root[data-ui] .netpill b{overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:11px}:root[data-ui] header.top h1{font-size:17px}}
+@media (max-width:420px){.db-analytics .dbchips a{font-size:10.5px;letter-spacing:-.01em}}
+/* nền digital theo mục cho Tối Navy (lưới + họa tiết rất mờ, cố định phía sau; thẻ vẫn màu đặc) */
+:root[data-theme="dark"][data-skin="navy"] body{background:transparent!important}
+:root[data-theme="dark"][data-skin="navy"]{--scn-grid:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3Cpattern id=%22g%22 width=%2248%22 height=%2248%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M48 0H0V48%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.032%22/%3E%3C/pattern%3E%3Cpattern id=%22p%22 width=%22192%22 height=%22192%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M-4 0h8M0-4v8%22 stroke=%22%23fff%22 stroke-opacity=%22.09%22 transform=%22translate(0 0)%22/%3E%3C/pattern%3E%3Cpattern id=%22d%22 width=%2210%22 height=%2210%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%22.8%22 fill=%22%23fff%22 fill-opacity=%22.06%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23g)%22/%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23p)%22/%3E%3Crect width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3Crect x=%221080%22 y=%22660%22 width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3C/svg%3E")}
+:root[data-theme="dark"][data-skin="navy"][data-sec="fin"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cpath d=%22M0 96 L144 96 L192 144 L384 144 L432 96 L624 96%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22624%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22144%22 cy=%2296%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22192%22 cy=%22144%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22384%22 cy=%22144%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22432%22 cy=%2296%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M0 240 L96 240 L144 192 L288 192%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22240%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22288%22 cy=%22192%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2296%22 cy=%22240%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22144%22 cy=%22192%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M1440 120 L1296 120 L1248 168 L1104 168 L1056 216 L960 216%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22120%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22960%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221296%22 cy=%22120%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221248%22 cy=%22168%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221104%22 cy=%22168%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221056%22 cy=%22216%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M1440 336 L1344 336 L1296 288 L1152 288%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22336%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221152%22 cy=%22288%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221344%22 cy=%22336%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221296%22 cy=%22288%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M0 720 L120 720 L168 672 L336 672 L384 624 L480 624%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22720%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22480%22 cy=%22624%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22120%22 cy=%22720%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22168%22 cy=%22672%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22336%22 cy=%22672%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22384%22 cy=%22624%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M720 0 L720 72 L768 120 L768 216%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22720%22 cy=%220%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22768%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22720%22 cy=%2272%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22768%22 cy=%22120%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M1200 900 L1200 820 L1248 772 L1392 772%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221200%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221392%22 cy=%22772%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221200%22 cy=%22820%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221248%22 cy=%22772%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M1440 600 L1320 600 L1272 552 L1176 552%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22600%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221176%22 cy=%22552%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221320%22 cy=%22600%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%221272%22 cy=%22552%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Cpath d=%22M240 900 L240 840 L288 792 L432 792%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.11%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22240%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22432%22 cy=%22792%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.18%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22240%22 cy=%22840%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Ccircle cx=%22288%22 cy=%22792%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.17%22/%3E%3Crect x=%221180%22 y=%22420%22 width=%2264%22 height=%2244%22 rx=%225%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.13%22 stroke-width=%221.3%22/%3E%3Cpath d=%22M1188 420v-9M1188 464v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1200 420v-9M1200 464v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1212 420v-9M1212 464v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1224 420v-9M1224 464v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1236 420v-9M1236 464v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Crect x=%22150%22 y=%22470%22 width=%2264%22 height=%2244%22 rx=%225%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.13%22 stroke-width=%221.3%22/%3E%3Cpath d=%22M158 470v-9M158 514v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M170 470v-9M170 514v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M182 470v-9M182 514v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M194 470v-9M194 514v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M206 470v-9M206 514v9%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cpath d=%22M0 96 L144 96 L192 144 L384 144 L432 96 L624 96%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22624%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22144%22 cy=%2296%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22192%22 cy=%22144%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22384%22 cy=%22144%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22432%22 cy=%2296%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M0 240 L96 240 L144 192 L288 192%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22240%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22288%22 cy=%22192%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2296%22 cy=%22240%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22144%22 cy=%22192%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 120 L1296 120 L1248 168 L1104 168 L1056 216 L960 216%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22120%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22960%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221296%22 cy=%22120%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221248%22 cy=%22168%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221104%22 cy=%22168%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221056%22 cy=%22216%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 336 L1344 336 L1296 288 L1152 288%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22336%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221152%22 cy=%22288%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221344%22 cy=%22336%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221296%22 cy=%22288%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M0 720 L120 720 L168 672 L336 672 L384 624 L480 624%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22720%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22480%22 cy=%22624%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22120%22 cy=%22720%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22168%22 cy=%22672%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22336%22 cy=%22672%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22384%22 cy=%22624%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M720 0 L720 72 L768 120 L768 216%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22720%22 cy=%220%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22768%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22720%22 cy=%2272%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22768%22 cy=%22120%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1200 900 L1200 820 L1248 772 L1392 772%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221200%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221392%22 cy=%22772%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221200%22 cy=%22820%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221248%22 cy=%22772%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 600 L1320 600 L1272 552 L1176 552%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22600%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221176%22 cy=%22552%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221320%22 cy=%22600%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221272%22 cy=%22552%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M240 900 L240 840 L288 792 L432 792%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22240%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22432%22 cy=%22792%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22240%22 cy=%22840%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22288%22 cy=%22792%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Crect x=%221180%22 y=%22420%22 width=%2264%22 height=%2244%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.13%22 stroke-width=%221.3%22/%3E%3Cpath d=%22M1188 420v-9M1188 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1200 420v-9M1200 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1212 420v-9M1212 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1224 420v-9M1224 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1236 420v-9M1236 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"][data-sec="health"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cpath d=%22M0 250 L60 250 L72 240 L84 250 L96 250 L104 264 L116 188 L128 280 L138 250 L170 250 L186 236 L204 250 L260 250 L260 250 L320 250 L332 240 L344 250 L356 250 L364 264 L376 188 L388 280 L398 250 L430 250 L446 236 L464 250 L520 250 L520 250 L580 250 L592 240 L604 250 L616 250 L624 264 L636 188 L648 280 L658 250 L690 250 L706 236 L724 250 L780 250 L780 250 L840 250 L852 240 L864 250 L876 250 L884 264 L896 188 L908 280 L918 250 L950 250 L966 236 L984 250 L1040 250 L1040 250 L1100 250 L1112 240 L1124 250 L1136 250 L1144 264 L1156 188 L1168 280 L1178 250 L1210 250 L1226 236 L1244 250 L1300 250 L1300 250 L1360 250 L1372 240 L1384 250 L1396 250 L1404 264 L1416 188 L1428 280 L1438 250 L1470 250 L1486 236 L1504 250 L1560 250%22 fill=%22none%22 stroke=%22%230ecb81%22 stroke-opacity=%220.14%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M-90 620 L-30 620 L-18 613 L-6 620 L6 620 L14 630 L26 577 L38 641 L48 620 L80 620 L96 610 L114 620 L170 620 L170 620 L230 620 L242 613 L254 620 L266 620 L274 630 L286 577 L298 641 L308 620 L340 620 L356 610 L374 620 L430 620 L430 620 L490 620 L502 613 L514 620 L526 620 L534 630 L546 577 L558 641 L568 620 L600 620 L616 610 L634 620 L690 620 L690 620 L750 620 L762 613 L774 620 L786 620 L794 630 L806 577 L818 641 L828 620 L860 620 L876 610 L894 620 L950 620 L950 620 L1010 620 L1022 613 L1034 620 L1046 620 L1054 630 L1066 577 L1078 641 L1088 620 L1120 620 L1136 610 L1154 620 L1210 620 L1210 620 L1270 620 L1282 613 L1294 620 L1306 620 L1314 630 L1326 577 L1338 641 L1348 620 L1380 620 L1396 610 L1414 620 L1470 620 L1470 620 L1530 620 L1542 613 L1554 620 L1566 620 L1574 630 L1586 577 L1598 641 L1608 620 L1640 620 L1656 610 L1674 620 L1730 620%22 fill=%22none%22 stroke=%22%230ecb81%22 stroke-opacity=%220.08%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M-170 450 L-110 450 L-98 445 L-86 450 L-74 450 L-66 457 L-54 419 L-42 465 L-32 450 L0 450 L16 443 L34 450 L90 450 L90 450 L150 450 L162 445 L174 450 L186 450 L194 457 L206 419 L218 465 L228 450 L260 450 L276 443 L294 450 L350 450 L350 450 L410 450 L422 445 L434 450 L446 450 L454 457 L466 419 L478 465 L488 450 L520 450 L536 443 L554 450 L610 450 L610 450 L670 450 L682 445 L694 450 L706 450 L714 457 L726 419 L738 465 L748 450 L780 450 L796 443 L814 450 L870 450 L870 450 L930 450 L942 445 L954 450 L966 450 L974 457 L986 419 L998 465 L1008 450 L1040 450 L1056 443 L1074 450 L1130 450 L1130 450 L1190 450 L1202 445 L1214 450 L1226 450 L1234 457 L1246 419 L1258 465 L1268 450 L1300 450 L1316 443 L1334 450 L1390 450 L1390 450 L1450 450 L1462 445 L1474 450 L1486 450 L1494 457 L1506 419 L1518 465 L1528 450 L1560 450 L1576 443 L1594 450 L1650 450%22 fill=%22none%22 stroke=%22%23f6465d%22 stroke-opacity=%220.07%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M113 120h14M120 113v14%22 stroke=%22%230ecb81%22 stroke-opacity=%22.16%22 stroke-width=%222%22/%3E%3Cpath d=%22M1313 160h14M1320 153v14%22 stroke=%22%230ecb81%22 stroke-opacity=%22.16%22 stroke-width=%222%22/%3E%3Cpath d=%22M213 800h14M220 793v14%22 stroke=%22%230ecb81%22 stroke-opacity=%22.16%22 stroke-width=%222%22/%3E%3Cpath d=%22M1233 780h14M1240 773v14%22 stroke=%22%230ecb81%22 stroke-opacity=%22.16%22 stroke-width=%222%22/%3E%3Cpath d=%22M713 90h14M720 83v14%22 stroke=%22%230ecb81%22 stroke-opacity=%22.16%22 stroke-width=%222%22/%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"][data-sec="learn"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cpath d=%22M140 120L360 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 120L360 252%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 120L360 384%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 120L360 780%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 285L360 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 285L360 384%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 285L360 516%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 285L360 780%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 450L360 252%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 450L360 516%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 615L360 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 615L360 516%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 780L360 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 780L360 252%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M140 780L360 516%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 120L1300 450%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 120L1300 780%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 252L1300 450%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 252L1300 615%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 252L1300 780%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 384L1300 285%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 384L1300 615%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 384L1300 780%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 516L1300 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 516L1300 285%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Cpath d=%22M1080 780L1300 120%22 stroke=%22%238b7cff%22 stroke-opacity=%22.07%22 stroke-width=%221%22/%3E%3Ccircle cx=%22140%22 cy=%22120%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22140%22 cy=%22120%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22140%22 cy=%22285%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22140%22 cy=%22285%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22140%22 cy=%22450%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22140%22 cy=%22450%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22140%22 cy=%22615%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22140%22 cy=%22615%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22140%22 cy=%22780%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22140%22 cy=%22780%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22120%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22120%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22252%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22252%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22384%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22384%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22516%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22516%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22648%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22648%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%22360%22 cy=%22780%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22360%22 cy=%22780%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22120%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22120%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22252%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22252%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22384%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22384%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22516%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22516%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22648%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22648%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221080%22 cy=%22780%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221080%22 cy=%22780%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221300%22 cy=%22120%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221300%22 cy=%22120%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221300%22 cy=%22285%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221300%22 cy=%22285%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221300%22 cy=%22450%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221300%22 cy=%22450%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221300%22 cy=%22615%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221300%22 cy=%22615%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ccircle cx=%221300%22 cy=%22780%22 r=%226%22 fill=%22%2307131c%22 stroke=%22%238b7cff%22 stroke-opacity=%22.22%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221300%22 cy=%22780%22 r=%222%22 fill=%22%234c8dff%22 fill-opacity=%22.3%22/%3E%3Ctext x=%22560%22 y=%2280%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E01100110101001110001110010%3C/text%3E%3Ctext x=%22580%22 y=%22132%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E00001110011101111011011111%3C/text%3E%3Ctext x=%22560%22 y=%22184%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E01101001111110001111101011%3C/text%3E%3Ctext x=%22580%22 y=%22236%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E11100010101010011010010110%3C/text%3E%3Ctext x=%22560%22 y=%22288%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E00010110101111111110100011%3C/text%3E%3Ctext x=%22580%22 y=%22340%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E00111001000001001001001001%3C/text%3E%3Ctext x=%22560%22 y=%22392%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E01101000000100110101101100%3C/text%3E%3Ctext x=%22580%22 y=%22444%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E00000100110101111110110001%3C/text%3E%3Ctext x=%22560%22 y=%22496%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E00011101011111100010101001%3C/text%3E%3Ctext x=%22580%22 y=%22548%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E11010101001001000100100011%3C/text%3E%3Ctext x=%22560%22 y=%22600%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E10000001000001111111010101%3C/text%3E%3Ctext x=%22580%22 y=%22652%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E10100011100100101110101110%3C/text%3E%3Ctext x=%22560%22 y=%22704%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E01011011010101010000100100%3C/text%3E%3Ctext x=%22580%22 y=%22756%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E01001010000110111001111100%3C/text%3E%3Ctext x=%22560%22 y=%22808%22 font-family=%22monospace%22 font-size=%2213%22 fill=%22%238b7cff%22 fill-opacity=%22.10%22 letter-spacing=%224%22%3E11010101011011111010110100%3C/text%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"][data-sec="cal"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Ccircle cx=%221220%22 cy=%22230%22 r=%22170%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.08%22 stroke-width=%221.2%22 /%3E%3Ccircle cx=%221220%22 cy=%22230%22 r=%22133%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.09%22 stroke-width=%221.2%22 /%3E%3Ccircle cx=%221220%22 cy=%22230%22 r=%2285%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.11%22 stroke-width=%221.2%22 stroke-dasharray='4 6'/%3E%3Cpath d=%22M1390.0 230.0L1376.0 230.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1389.1 247.8L1383.1 247.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1386.3 265.3L1380.4 264.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1381.7 282.5L1376.0 280.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1375.3 299.1L1369.8 296.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1367.2 315.0L1355.1 308.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1357.5 329.9L1352.7 326.4%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1346.3 343.8L1341.9 339.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1333.8 356.3L1329.7 351.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1319.9 367.5L1316.4 362.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1305.0 377.2L1298.0 365.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1289.1 385.3L1286.7 379.8%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1272.5 391.7L1270.7 386.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1255.3 396.3L1254.1 390.4%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1237.8 399.1L1237.1 393.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1220.0 400.0L1220.0 386.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1202.2 399.1L1202.9 393.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1184.7 396.3L1185.9 390.4%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1167.5 391.7L1169.3 386.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1150.9 385.3L1153.3 379.8%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1135.0 377.2L1142.0 365.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1120.1 367.5L1123.6 362.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1106.2 356.3L1110.3 351.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1093.7 343.8L1098.1 339.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1082.5 329.9L1087.3 326.4%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1072.8 315.0L1084.9 308.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1064.7 299.1L1070.2 296.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1058.3 282.5L1064.0 280.7%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1053.7 265.3L1059.6 264.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1050.9 247.8L1056.9 247.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1050.0 230.0L1064.0 230.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1050.9 212.2L1056.9 212.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1053.7 194.7L1059.6 195.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1058.3 177.5L1064.0 179.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1064.7 160.9L1070.2 163.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1072.8 145.0L1084.9 152.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1082.5 130.1L1087.3 133.6%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1093.7 116.2L1098.1 120.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1106.2 103.7L1110.3 108.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1120.1 92.5L1123.6 97.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1135.0 82.8L1142.0 94.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1150.9 74.7L1153.3 80.2%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1167.5 68.3L1169.3 74.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1184.7 63.7L1185.9 69.6%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1202.2 60.9L1202.9 66.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1220.0 60.0L1220.0 74.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1237.8 60.9L1237.1 66.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1255.3 63.7L1254.1 69.6%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1272.5 68.3L1270.7 74.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1289.1 74.7L1286.7 80.2%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1305.0 82.8L1298.0 94.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1319.9 92.5L1316.4 97.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1333.8 103.7L1329.7 108.1%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1346.3 116.2L1341.9 120.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1357.5 130.1L1352.7 133.6%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1367.2 145.0L1355.1 152.0%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.2%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1375.3 160.9L1369.8 163.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1381.7 177.5L1376.0 179.3%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1386.3 194.7L1380.4 195.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1389.1 212.2L1383.1 212.9%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1220 230L1220 128M1220 230L1291 247%22 stroke=%22%232fc4e0%22 stroke-opacity=%22.22%22 stroke-width=%222%22 stroke-linecap=%22round%22/%3E%3Crect x=%2280%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22124%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22168%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22212%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22256%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22300%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22344%22 y=%22560%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%2280%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22124%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22168%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Crect x=%22212%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22256%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22300%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22344%22 y=%22604%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%2280%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22124%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22168%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22212%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Crect x=%22256%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22300%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22344%22 y=%22648%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%2280%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22124%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22168%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22212%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22256%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22300%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22344%22 y=%22692%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%2280%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22124%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22168%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22212%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22256%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22300%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Crect x=%22344%22 y=%22736%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4e0%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"][data-sec="plan"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Ccircle cx=%221210%22 cy=%22220%22 r=%22150%22 fill=%22none%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.07%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221210%22 cy=%22220%22 r=%22110%22 fill=%22none%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221210%22 cy=%22220%22 r=%2270%22 fill=%22none%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.13%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221210%22 cy=%22220%22 r=%2230%22 fill=%22none%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221210%22 cy=%22220%22 r=%226%22 fill=%22%23ff9f43%22 fill-opacity=%22.25%22/%3E%3Cpath d=%22M1080 350L1205 225M1205 225l-4 16M1205 225l-16 4%22 stroke=%22%23ff9f43%22 stroke-opacity=%22.22%22 stroke-width=%222%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M60 820 L300 740 L460 780 L700 640 L900 690 L1120 540%22 fill=%22none%22 stroke=%22%23ff9f43%22 stroke-opacity=%22.12%22 stroke-width=%221.6%22 stroke-dasharray=%227 7%22/%3E%3Ccircle cx=%2260%22 cy=%22820%22 r=%225%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%22300%22 cy=%22740%22 r=%225%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%22460%22 cy=%22780%22 r=%225%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%22700%22 cy=%22640%22 r=%225%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%22900%22 cy=%22690%22 r=%225%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.18%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%221120%22 cy=%22540%22 r=%229%22 fill=%22%2307131c%22 stroke=%22%23ff9f43%22 stroke-opacity=%220.3%22 stroke-width=%221.6%22/%3E%3C/svg%3E") center/cover no-repeat fixed,var(--scn-grid) center/cover no-repeat fixed #07131c!important}
+:root[data-theme="dark"][data-skin="navy"][data-sec="acct"]{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cpath d=%22M0 96 L144 96 L192 144 L384 144 L432 96 L624 96%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22624%22 cy=%2296%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22144%22 cy=%2296%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22192%22 cy=%22144%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22384%22 cy=%22144%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22432%22 cy=%2296%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M0 240 L96 240 L144 192 L288 192%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22240%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22288%22 cy=%22192%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2296%22 cy=%22240%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22144%22 cy=%22192%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 120 L1296 120 L1248 168 L1104 168 L1056 216 L960 216%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22120%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22960%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221296%22 cy=%22120%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221248%22 cy=%22168%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221104%22 cy=%22168%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221056%22 cy=%22216%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 336 L1344 336 L1296 288 L1152 288%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22336%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221152%22 cy=%22288%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221344%22 cy=%22336%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221296%22 cy=%22288%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M0 720 L120 720 L168 672 L336 672 L384 624 L480 624%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%220%22 cy=%22720%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22480%22 cy=%22624%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22120%22 cy=%22720%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22168%22 cy=%22672%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22336%22 cy=%22672%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22384%22 cy=%22624%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M720 0 L720 72 L768 120 L768 216%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22720%22 cy=%220%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22768%22 cy=%22216%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22720%22 cy=%2272%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22768%22 cy=%22120%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1200 900 L1200 820 L1248 772 L1392 772%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221200%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221392%22 cy=%22772%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221200%22 cy=%22820%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221248%22 cy=%22772%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M1440 600 L1320 600 L1272 552 L1176 552%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%221440%22 cy=%22600%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221176%22 cy=%22552%22 r=%223.2%22 fill=%22none%22 stroke=%22%232dd4bf%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%221320%22 cy=%22600%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%221272%22 cy=%22552%22 r=%221.7%22 fill=%22%232dd4bf%22 fill-opacity=%220.15%22/%3E%3Cpath d=%22M240 900 L240 840 L288 792 L432 792%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.1%22 stroke-width=%221.4%22/%3E%3Ccircle cx=%22240%22 cy=%22900%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22432%22 cy=%22792%22 r=%223.2%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.16%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%22240%22 cy=%22840%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Ccircle cx=%22288%22 cy=%22792%22 r=%221.7%22 fill=%22%232fc4b2%22 fill-opacity=%220.15%22/%3E%3Crect x=%221180%22 y=%22420%22 width=%2264%22 height=%2244%22 rx=%225%22 fill=%22none%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.13%22 stroke-width=%221.3%22/%3E%3Cpath d=%22M1188 420v-9M1188 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1200 420v-9M1200 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1212 420v-9M1212 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1224 420v-9M1224 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M1236 420v-9M1236 464v9%22 stroke=%22%232fc4b2%22 stroke-opacity=%220.10%22 stroke-width=%221.2%22/%3E%3C/svg%3E") center/cover no-repeat fixed,url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3Cpattern id=%22g%22 width=%2248%22 height=%2248%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M48 0H0V48%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.032%22/%3E%3C/pattern%3E%3Cpattern id=%22p%22 width=%22192%22 height=%22192%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M-4 0h8M0-4v8%22 stroke=%22%23fff%22 stroke-opacity=%22.09%22 transform=%22translate(0 0)%22/%3E%3C/pattern%3E%3Cpattern id=%22d%22 width=%2210%22 height=%2210%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%22.8%22 fill=%22%23fff%22 fill-opacity=%22.06%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23g)%22/%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23p)%22/%3E%3Crect width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3Crect x=%221080%22 y=%22660%22 width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3C/svg%3E") center/cover no-repeat fixed #07131c!important}
+/* ==== HẾT GIAO DIỆN 1.16 ==== */
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="hdr-l"><a class="hdr-logo" href="#tong-quan" aria-label="Trang chủ"><img src="icons/icon-192.png?v=1.16.0" alt=""></a><div>
       <h1 id="title">Tổng quan</h1>
       <div class="sub" id="subtitle">Sổ cá nhân · Tài chính</div>
-    </div>
-    <div class="hdr-r"><div id="hdr-right"></div><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
+    </div></div>
+    <div class="hdr-r"><div id="hdr-right"></div><a class="hdrbell" id="hdrbell" href="#nhac-nho" aria-label="Nhắc nhở" title="Nhắc nhở"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd" hidden></span></a><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
   </header>
   <div id="offbar"></div>
   <div id="note"></div>
@@ -960,16 +1277,19 @@ html.i18n-wait body{visibility:hidden}
 </div>
 <button class="fab" id="fab" aria-label="Thêm" data-act="fab">+</button>
 <button class="syncfab none" id="syncfab" data-act="sync-now" aria-label="Đồng bộ ngay" title="Đồng bộ ngay" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.4 6.4L3 16"/><path d="M3 21v-5h5"/><path d="M3 12A9 9 0 0 1 18.4 5.6L21 8"/><path d="M21 3v5h-5"/></svg><span class="bd" hidden></span></button>
-<nav class="tabs" id="tabs">
-  <a href="#tong-quan" data-tab="home"><span class="ic">🏠</span>Trang chủ</a>
-  <a href="#tai-chinh" data-tab="fin"><span class="ic">💰</span>Tài chính</a>
-  <a href="#suc-khoe" data-tab="health"><span class="ic">❤️</span>Sức khỏe</a>
-  <a href="#lich" data-tab="cal"><span class="ic">📅</span>Lịch</a>
-  <a href="#hoc-tap" data-tab="learn"><span class="ic">📚</span>Học tập</a>
-  <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
+<nav class="tabs" id="tabs" aria-label="Điều hướng chính">
+  <a class="nv-brand" href="#tong-quan" aria-label="Sổ Cá Nhân"><img src="icons/icon-192.png?v=1.16.0" alt=""><span><b>Sổ Cá Nhân</b><small>Quản lý cá nhân</small></span></a>
+  <a href="#tong-quan" data-tab="home"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg></span>Trang chủ</a>
+  <a href="#tai-chinh" data-tab="fin"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg></span>Tài chính</a>
+  <a href="#suc-khoe" data-tab="health"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span>Sức khỏe</a>
+  <a href="#hoc-tap" data-tab="learn"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></span>Học tập</a>
+  <a href="#lich" data-tab="cal" class="nv-d"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Lịch</a>
+  <a href="#ke-hoach" data-tab="plan" class="nv-d"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>Kế hoạch</a>
+  <a href="#ca-nhan" data-tab="acct" class="nv-d nv-acct"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>Tài khoản</a>
+  <button type="button" class="nv-more" data-act="more" aria-label="Mục khác: Lịch, Kế hoạch, Mục tiêu, Thói quen, Tài khoản…"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>Khác</button>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.15.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.16.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -997,15 +1317,19 @@ const PREF = {
   get: (k, d) => { try { return localStorage.getItem('scn-' + k) || d; } catch (e) { return d; } },
   set: (k, v) => { try { localStorage.setItem('scn-' + k, v); } catch (e) { } },
 };
+const UI_PRESETS = { premium: ['Light Premium', 'light', 'Sáng, tối giản cao cấp'], analytics: ['Light Analytics', 'light', 'Sáng, giàu số liệu (mặc định)'], digital: ['Dark Digital', 'dark', 'Tối Navy – Teal'] };
+function uiGet() { const u = PREF.get('ui', 'analytics'); return UI_PRESETS[u] ? u : 'analytics'; }
 function themeApply(t) {
-  t = t || PREF.get('theme', 'light');
+  t = t || PREF.get('theme', 'auto');
   if (t === 'binance') { t = 'dark'; PREF.set('theme', 'dark'); } // bản 1.13.2 có lựa chọn Binance riêng → nay là "Tối"
-  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.documentElement.dataset.skin = dark ? 'binance' : ''; // giao diện Tối = bộ màu tối kiểu Binance (nền đen, nhấn vàng)
-  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#0b0e11' : '#1e2a5e';
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches), u = uiGet(), R = document.documentElement;
+  R.dataset.theme = dark ? 'dark' : 'light'; R.dataset.skin = dark ? 'navy' : ''; R.dataset.ui = u; // giao diện Tối = bộ màu Navy – Teal (bản 1.16)
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#07131c' : u === 'premium' ? '#f5f8fa' : '#eaf1f7';
 }
-try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (PREF.get('theme', 'light') === 'auto') themeApply('auto'); }); } catch (e) { }
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (PREF.get('theme', 'auto') === 'auto') themeApply('auto'); }); } catch (e) { }
 function themeSet(t) { PREF.set('theme', t); themeApply(t); prefUIRefresh(); }
+// Chọn phong cách: đổi bố cục + đặt chế độ gợi ý (A, B sáng · C tối); sau đó vẫn đổi Sáng/Tối/Theo máy riêng được
+function uiSet(u) { if (!UI_PRESETS[u]) return; PREF.set('ui', u); PREF.set('theme', UI_PRESETS[u][1]); themeApply(); prefUIRefresh(); if (typeof render === 'function' && typeof MODE !== 'undefined' && MODE !== 'loading') try { render(); } catch (e) { } }
 
 const I18N = { lang: PREF.get('lang', 'vi'), dict: null, keys: null, re: null, obs: null, busy: false };
 const I18N_SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE', 'PRE', 'NOSCRIPT']);
@@ -1111,14 +1435,16 @@ const FLAG = {
 };
 // Khối chọn giao diện & ngôn ngữ (dùng ở ⚙️ Ứng dụng, 👤 Tài khoản, màn đăng nhập)
 function prefUI(compact) {
-  const t = PREF.get('theme', 'light'), l = I18N.lang;
+  const t = PREF.get('theme', 'auto'), l = I18N.lang, u = uiGet();
   const seg = (k, opts, cur) => `<div class="seg pref-seg" data-pref="${k}">${opts.map(([v, lb]) => `<button type="button" data-v="${v}" class="${cur === v ? 'on' : ''}">${lb}</button>`).join('')}</div>`;
   if (compact) return `<div class="pref-mini noi18n"><button type="button" data-pref-q="theme" title="Sáng / Tối">${document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</button><button type="button" data-pref-q="lang" title="English / Tiếng Việt">${l === 'en' ? FLAG.vi + ' VI' : FLAG.en + ' EN'}</button></div>`;
-  return `<div class="pref-box"><div class="kv2"><span class="l">🎨 Giao diện</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['auto', '🖥️ Theo máy']], t === 'binance' ? 'dark' : t)}</div>
+  return `<div class="pref-box"><div class="kv2 pref-ui"><span class="l">🖼️ Phong cách</span><div class="uipick" role="radiogroup" aria-label="Phong cách giao diện">${Object.entries(UI_PRESETS).map(([k, [n, , d]]) => `<button type="button" role="radio" aria-checked="${u === k}" data-ui="${k}" class="${u === k ? 'on' : ''}"><span class="uiprev p-${k}" aria-hidden="true"><i></i><i></i><i></i><i></i></span><b class="noi18n">${n}</b><small>${d}</small></button>`).join('')}</div></div>
+    <div class="kv2"><span class="l">🎨 Chế độ</span>${seg('theme', [['light', '☀️ Sáng'], ['dark', '🌙 Tối'], ['auto', '🖥️ Theo máy']], t === 'binance' ? 'dark' : t)}</div>
     <div class="kv2"><span class="l">🌐 Ngôn ngữ</span><div class="seg pref-seg noi18n" data-pref="lang">${[['vi', FLAG.vi + ' Tiếng Việt'], ['en', FLAG.en + ' English']].map(([v, lb]) => `<button type="button" data-v="${v}" class="${l === v ? 'on' : ''}">${lb}</button>`).join('')}</div></div></div>`;
 }
 function prefUIRefresh() { document.querySelectorAll('.pref-box').forEach(b => { b.outerHTML = prefUI(); }); document.querySelectorAll('.pref-mini').forEach(b => { b.outerHTML = prefUI(true); }); }
 document.addEventListener('click', e => {
+  const up = e.target.closest('.uipick button'); if (up) { uiSet(up.dataset.ui); return; }
   const b = e.target.closest('.pref-seg button'); if (b) { const k = b.closest('.pref-seg').dataset.pref; if (k === 'theme') themeSet(b.dataset.v); else langSet(b.dataset.v); return; }
   const q = e.target.closest('[data-pref-q]'); if (q) { if (q.dataset.prefQ === 'theme') themeSet(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); else langSet(I18N.lang === 'en' ? 'vi' : 'en'); }
 });
@@ -1380,7 +1706,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.15.0';
+const APP_VER = '1.16.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1581,7 +1907,7 @@ function netUI() {
   const bar = document.getElementById('offbar'); if (bar) { bar.className = isOnline() ? '' : 'show'; bar.innerHTML = isOnline() ? '' : `📴 Mất kết nối Internet – bạn vẫn xem, nhập và sửa dữ liệu bình thường. ${MODE === 'idb' ? 'Mọi thay đổi đã lưu trên máy' + (IDB.cfg.url ? ' và sẽ tự đồng bộ khi có mạng.' : '.') : 'Thay đổi sẽ được gửi khi có mạng trở lại.'}`; }
   const sp = document.getElementById('sys-live'); if (sp) sp.innerHTML = sysStatusHTML();
   syncFabUI();
-  const ab = document.getElementById('acctbtn'); if (ab) { ab.style.display = MODE === 'idb' ? '' : 'none'; ab.classList.toggle('on', !!(AUTH.L && AUTH.L.on)); }
+  const ab = document.getElementById('acctbtn'); if (ab) { ab.style.display = MODE === 'idb' ? '' : 'none'; ab.classList.toggle('on', !!(AUTH.L && AUTH.L.on)); const fn = ((AUTH.L && AUTH.L.fullName) || '').trim().split(/\s+/).pop() || ''; ab.textContent = fn ? fn[0].toUpperCase() : '👤'; ab.classList.toggle('ini', !!fn); }
 }
 // Nút đồng bộ nhanh (mũi tên xoay, trên nút +)
 let _syncSpinUntil = 0;
@@ -2417,10 +2743,12 @@ const FIN_SUB = [['tai-chinh', 'Báo cáo'], ['thu-chi', 'Thu chi'], ['lich-su-g
 function render() {
   syncAssetCats(); syncEvCats();
   const grp = TABS[UI.tab];
-  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === grp));
+  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', !!a.dataset.tab && a.dataset.tab === grp));
+  const nvm = document.querySelector('nav.tabs .nv-more'); if (nvm) nvm.classList.toggle('on', grp === 'cal' || grp === 'plan' || grp === 'acct');
+  try { const bl = document.getElementById('hdrbell'), n = MODE === 'loading' ? 0 : attention().filter(a => a.sev >= 2).length, bd = bl && bl.querySelector('.bd'); if (bd) { bd.hidden = !n; bd.textContent = n > 9 ? '9+' : n; bl.setAttribute('aria-label', n ? 'Nhắc nhở: ' + n + ' mục cần chú ý' : 'Nhắc nhở'); } } catch (e) { }
   const navA = document.querySelector(`nav.tabs a[data-tab=${grp}]`); if (navA && grp !== 'home') navA.setAttribute('href', '#' + UI.tab);
-  document.getElementById('title').textContent = TITLES[UI.tab];
-  document.getElementById('subtitle').textContent = grp === 'fin' ? 'Sổ cá nhân · Tài chính' : grp === 'cal' ? 'Sổ cá nhân · Lịch' : grp === 'learn' ? 'Sổ cá nhân · Học tập' : grp === 'acct' ? 'Sổ cá nhân · Quản lý tài khoản' : 'Sổ cá nhân';
+  document.getElementById('title').textContent = UI.tab === 'tong-quan' ? 'Sổ Cá Nhân' : TITLES[UI.tab];
+  document.getElementById('subtitle').textContent = grp === 'fin' ? 'Sổ cá nhân · Tài chính' : grp === 'cal' ? 'Sổ cá nhân · Lịch' : grp === 'learn' ? 'Sổ cá nhân · Học tập' : grp === 'acct' ? 'Sổ cá nhân · Quản lý tài khoản' : UI.tab === 'tong-quan' ? 'Hệ thống quản lý cá nhân' : 'Sổ cá nhân';
   document.getElementById('note').innerHTML = NOTE ? `<div class="banner">${NOTE}</div>` : '';
   document.getElementById('fab').setAttribute('aria-label', { home: 'Thêm nhanh', fin: 'Thêm giao dịch', health: 'Ghi chỉ số sức khỏe', cal: 'Thêm sự kiện', learn: UI.learnSeg === 'cards' ? 'Thêm thẻ từ' : 'Ghi giờ học', plan: 'Thêm' }[grp]);
   const v = document.getElementById('view'), hr = document.getElementById('hdr-right');
@@ -2494,6 +2822,7 @@ function txRow(id, t) {
 // ================= MODAL =================
 function openModal(html, mount) { const ov = document.getElementById('ov'), sh = document.getElementById('sheet'); sh.innerHTML = html; ov.classList.add('show'); document.body.style.overflow = 'hidden'; if (mount) mount(sh); }
 function closeModal() { document.getElementById('ov').classList.remove('show'); document.getElementById('sheet').innerHTML = ''; document.body.style.overflow = ''; }
+document.addEventListener('change', e => { const t = e.target; if (t && t.classList && t.classList.contains('dbsel')) { UI.dbP = t.value; render(); } });
 document.getElementById('ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
 // Hộp xác nhận NỔI trên form đang mở (không thay nội dung form như confirmDlg)
 function confirmOver(msg, okText, noText) {
@@ -2842,47 +3171,214 @@ function dailyRoutine() {
   tiles.push({ ic: '📔', l: 'Nhật ký ngày', v: S.journal[td] ? 'Đã viết' : 'Chưa viết', ok: !!S.journal[td], act: 'journal-new' });
   return tiles;
 }
-function viewHome() {
-  const td = today(), hr = new Date().getHours(), [y, m, d] = td.split('-').map(Number);
-  const WDL = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  let h = `<div style="margin:2px 2px 12px"><p class="hello">${hr < 11 ? 'Chào buổi sáng' : hr < 14 ? 'Chào buổi trưa' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'} 👋</p><div class="sub">${WDL[new Date(y, m - 1, d).getDay()]}, ${fmtDate(td)} · Âm lịch ${lunarLabel(td)}</div></div>`;
-  if (!accList().length) h += `<div class="card"><h2>👋 Bắt đầu</h2><p class="sub" style="margin:0 0 8px">Tạo tài khoản tiền đầu tiên để bắt đầu ghi thu chi.</p><button class="btn primary sm" data-act="acc-quick">Tạo nhanh: Tiền mặt + Ngân hàng</button></div>`;
-  // 1. Nhịp hôm nay
-  const tiles = dailyRoutine(), okN = tiles.filter(t => t.ok).length;
-  h += `<div class="card"><h2>① Nhịp hôm nay<span class="muted">${okN}/${tiles.length} việc thường ngày</span></h2><div class="row" style="align-items:center;gap:14px">${ring(okN / tiles.length)}<div class="muted" style="flex:1">${okN === tiles.length ? '🎉 Hoàn thành mọi việc thường ngày!' : 'Chạm vào ô chưa xong để làm ngay. Mục tiêu: hoàn thành vòng tròn mỗi tối.'}</div></div>
-    <div class="grid3" style="margin-top:12px">${tiles.map(t => `<div class="tile ${t.ok ? 'ok' : ''}" data-act="${t.act}" ${t.x || ''}><div class="row between"><span>${t.ic}</span><span class="tk">${t.ok ? '✓' : ''}</span></div><div class="lbl">${t.l}</div><div class="v">${t.v}</div></div>`).join('')}</div>`;
+// ================= TRANG CHỦ – DASHBOARD 3 PHONG CÁCH (bản 1.16) =================
+// Một bộ số liệu thật (dbData) + các khối dùng chung; phong cách (premium / analytics / digital) chỉ đổi bố cục & màu.
+// Không có số liệu minh hoạ: mục nào chưa có dữ liệu → hiện "Chưa có dữ liệu" + nút dẫn tới đúng chức năng nhập.
+const UIP = () => { const u = document.documentElement.dataset.ui; return u === 'premium' || u === 'digital' ? u : 'analytics'; };
+const DB_MOD = { fin: ['Tài chính', 'tai-chinh', '#087f83'], health: ['Sức khỏe', 'suc-khoe', '#0f9d6b'], learn: ['Học tập', 'hoc-tap', '#2563eb'], plan: ['Kế hoạch', 'ke-hoach', '#c27803'], goal: ['Mục tiêu', 'muc-tieu', '#7c3aed'], habit: ['Thói quen', 'thoi-quen', '#0e7490'] };
+const DB_IC = {
+  fin: '<path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 21h18M12 3 3 8h18z"/>',
+  health: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+  learn: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+  plan: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 15l2 2 4-4"/>',
+  goal: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  habit: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  home: '<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
+  more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  steps: '<path d="M4 16v-2.4C4 11.5 3 10.5 3 8c0-2.7 1.5-6 4.5-6C9.4 2 10 3.8 10 5.5c0 3.1-2 5.7-2 8.7V16a2 2 0 1 1-4 0M20 20v-2.4c0-2.1 1-3.1 1-5.6 0-2.7-1.5-6-4.5-6C14.6 6 14 7.8 14 9.5c0 3.1 2 5.7 2 8.7V20a2 2 0 1 0 4 0"/>',
+  sleep: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  water: '<path d="M12 2.7 5.6 9.1a9 9 0 1 0 12.8 0z"/>',
+  weight: '<path d="M6 3h12l3 18H3zM12 7v4"/><circle cx="12" cy="11" r="2"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  fire: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1-2.1-.2-4.1 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3.3.3 1.3 1.2 2.3 2.5 2.8z"/>',
+  cards: '<rect x="2" y="6" width="15" height="14" rx="2"/><path d="M7 2h13a2 2 0 0 1 2 2v12"/>',
+  bp: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+};
+const dbIc = (k, cls) => `<svg class="dbi ${cls || ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${DB_IC[k] || ''}</svg>`;
+const pct = p => p == null ? '—' : Math.round(Math.max(0, p) * 100) + '%';
+function dbRing(p, size, color, inner, label) {
+  const sw = Math.max(6, Math.round(size / 11)), r = size / 2 - sw / 2 - 1, c = 2 * Math.PI * r, v = p == null ? 0 : Math.max(0, Math.min(1, p));
+  return `<div class="dbring" style="width:${size}px;height:${size}px" role="img" aria-label="${esc(label || '')}: ${pct(p)}"><svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>${v > 0 ? `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color || 'var(--accent)'}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${(c * v).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>` : ''}</svg><div class="dbring-in">${inner != null ? inner : `<b class="num">${pct(p)}</b>`}</div></div>`;
+}
+function dbDonut(parts, size, inner, label) { // parts: [[nhãn, giá trị, màu]]
+  const sw = Math.round(size / 7), r = size / 2 - sw / 2 - 1, c = 2 * Math.PI * r, tot = parts.reduce((s, x) => s + x[1], 0);
+  let off = 0, segs = '';
+  if (tot > 0) parts.forEach(([, v, col]) => { const L = c * v / tot; if (L <= 0) return; segs += `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${Math.max(0, L - 1.5).toFixed(1)} ${c.toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>`; off += L; });
+  return `<div class="dbring" style="width:${size}px;height:${size}px" role="img" aria-label="${esc(label || '')}"><svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>${segs}</svg><div class="dbring-in">${inner || ''}</div></div>`;
+}
+function dbBars(months) { // cột thu (xanh) – chi (đỏ) theo tháng, có nhãn & chú thích
+  const W = 320, H = 132, pb = 20, pt = 8, max = Math.max(1, ...months.map(m => Math.max(m.inc, m.exp))), bw = W / months.length;
+  const y = v => H - pb - (H - pb - pt) * v / max;
+  let s = '';
+  for (let k = 1; k <= 3; k++) { const yy = (pt + (H - pb - pt) * (k - 1) / 3).toFixed(1); s += `<line x1="0" x2="${W}" y1="${yy}" y2="${yy}" stroke="var(--grid)" stroke-dasharray="3 4"/>`; }
+  months.forEach((m, i) => {
+    const x = i * bw + bw / 2, w = Math.min(12, bw / 4);
+    s += `<g><title>${monthLabel(m.m)}: thu ${fmt(m.inc)} · chi ${fmt(m.exp)}</title><rect x="${(x - w - 1.5).toFixed(1)}" y="${y(m.inc).toFixed(1)}" width="${w}" height="${(H - pb - y(m.inc)).toFixed(1)}" rx="3" fill="var(--inc-c)"/><rect x="${(x + 1.5).toFixed(1)}" y="${y(m.exp).toFixed(1)}" width="${w}" height="${(H - pb - y(m.exp)).toFixed(1)}" rx="3" fill="var(--exp-c)"/>
+      <text x="${x.toFixed(1)}" y="${H - 5}" text-anchor="middle" class="dbax">T${Number(m.m.slice(5))}</text></g>`;
+  });
+  return `<svg class="dbbars" viewBox="0 0 ${W} ${H}" role="img" aria-label="Thu và chi ${months.length} tháng gần nhất">${s}</svg>`;
+}
+function dbSpark(vals, color) { // cột nhỏ trong thẻ (6 tháng chi tiêu)
+  const max = Math.max(1, ...vals); return `<div class="dbspark" aria-hidden="true">${vals.map(v => `<i style="height:${Math.max(6, Math.round(v / max * 100))}%;background:${color || 'currentColor'}"></i>`).join('')}</div>`;
+}
+const dbBar = (p, color) => `<div class="dbbar"><i style="width:${p == null ? 0 : Math.max(2, Math.min(100, p * 100))}%;${color ? 'background:' + color : ''}"></i></div>`;
+const dbNone = (txt, act, extra) => `<div class="dbnone">${txt}${act ? ` <button class="btn sm" data-act="${act}" ${extra || ''}>+ Nhập</button>` : ''}</div>`;
+
+function dbData() {
+  const td = today(), ws = weekStart(td), we = addDays(ws, 6), elapsed = daysBetween(ws, td) + 1, ym = ymOf(td);
+  const P = UI.dbP || 'm';
+  const [from, to, plabel] = P === 'pm' ? [shiftYM(ym, -1) + '-01', addDays(ym + '-01', -1), 'Tháng trước'] : P === 'y' ? [td.slice(0, 4) + '-01-01', td, 'Từ đầu năm'] : [ym + '-01', td, 'Tháng này'];
+  const fs = rangeStats(S.txns, from, to), save = fs.inc - fs.exp;
+  const months = []; for (let i = 5; i >= 0; i--) { const m = shiftYM(ym, -i), s = monthStats(S.txns, m); months.push({ m, inc: s.inc, exp: s.exp }); }
+  const nw = computeNetWorth();
+  const finGoal = goalList().find(g => g.status !== 'done' && g.area === 'finance' && g.kind !== 'checklist' && Number(g.target));
+  const hs = healthSummary(), hT = S.health[td] || {};
+  let hDays = 0; for (let i = 0; i < elapsed; i++) if (S.health[addDays(ws, i)]) hDays++;
+  const lW = studyMins(null, ws, td), lG = Object.keys(LEARN_CATS).reduce((s, k) => s + catGoal(k), 0);
+  const lDays = studyDays(); let lWD = 0; for (let i = 0; i < elapsed; i++) if (lDays.has(addDays(ws, i))) lWD++;
+  const T = todoList(), wkT = T.filter(t => t.due && t.due >= ws && t.due <= we), wkDone = wkT.filter(t => t.done).length;
+  const todayT = T.filter(t => t.due && ((!t.done && t.due <= td) || (t.done && t.due === td)))
+    .sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.due || '').localeCompare(b.due || '') || (a.pri || 3) - (b.pri || 3));
+  const G = goalList(), gAct = G.filter(g => g.status !== 'done'), gDone = G.length - gAct.length;
+  const gAvg = gAct.length ? gAct.reduce((s, g) => s + goalProgress(g), 0) / gAct.length : null;
+  const hb = habitList(), hbR = hb.map(x => habitRate(x, ws, td)).filter(x => x != null), hbRate = hbR.length ? hbR.reduce((s, x) => s + x, 0) / hbR.length : null;
+  // Tổng quan tuần: mỗi mảng 1 công thức rõ ràng; mảng chưa có dữ liệu → bỏ qua (không tự suy diễn)
+  const week = [
+    ['plan', wkT.length ? wkDone / wkT.length : null, `${wkDone}/${wkT.length} việc đến hạn tuần này đã xong`],
+    ['habit', hbRate, hb.length ? 'Tỷ lệ hoàn thành thói quen tuần này' : ''],
+    ['learn', lG && lW ? Math.min(1, lW / lG) : (lG && lDays.size ? 0 : null), `${lW}/${lG} phút học tuần này`],
+    ['health', Object.keys(S.health).length ? hDays / elapsed : null, `${hDays}/${elapsed} ngày đã ghi chỉ số`],
+    ['goal', gAvg, gAct.length ? `Tiến độ trung bình ${gAct.length} mục tiêu` : ''],
+  ].filter(w => w[1] != null);
+  const overall = week.length ? week.reduce((s, w) => s + w[1], 0) / week.length : null;
+  const mS = monthStats(S.txns, ym), tdAll = T.filter(t => t.due === td);
+  return { mSave: mS.inc - mS.exp, mCount: mS.count, tdAll, tdDone: tdAll.filter(t => t.done).length, td, ws, we, elapsed, P, plabel, fs, save, rate: fs.inc > 0 ? save / fs.inc : null, months, nw, finGoal, hs, hT, hDays, lW, lG, lWD, streak: streakDays(lDays, td), due: cardsDue().length, T, wkT, wkDone, todayT, openT: T.filter(t => !t.done).length, G, gAct, gDone, gAvg, hb, hbRate, week, overall };
+}
+
+function dbGreet(u) {
+  const hr = new Date().getHours(), nm = esc(((AUTH && AUTH.L && AUTH.L.fullName) || '').trim());
+  const part = hr < 11 ? 'Chào buổi sáng' : hr < 14 ? 'Chào buổi trưa' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
+  if (u === 'premium') return nm ? `<small>Chào mừng trở lại,</small><span class="noi18n">${nm}</span> 👋` : 'Chào mừng trở lại 👋';
+  if (u === 'digital') return nm ? `Xin chào, <span class="noi18n">${nm}</span> 👋` : `${part} 👋`;
+  return nm ? `${part}, <span class="noi18n">${nm}</span>!` : part + '!';
+}
+function dbDateStr(td) { const [y, m, d] = td.split('-').map(Number), WDL = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']; return WDL[new Date(y, m - 1, d).getDay()] + ', ' + fmtDate(td); }
+
+function dbHero(D, u) {
+  const wave = u === 'premium' ? `<svg class="dbwave" viewBox="0 0 300 160" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><defs><linearGradient id="dbw1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ec8c4" stop-opacity=".15"/><stop offset="1" stop-color="#087f83" stop-opacity=".75"/></linearGradient></defs><path d="M90 160C130 120 120 70 175 48S275 30 300 0v160z" fill="url(#dbw1)"/><path d="M140 160c30-40 40-70 85-88s60-30 75-60v148z" fill="#087f83" opacity=".35"/><path d="M60 160c50-30 70-80 130-92s90-20 110-50" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/><path d="M80 160c50-28 75-70 130-80s75-22 90-44" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1"/></svg>`
+    : u === 'digital' ? `<svg class="dbwave" viewBox="0 0 400 160" preserveAspectRatio="xMaxYMax slice" aria-hidden="true"><defs><linearGradient id="dbm1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity=".28"/><stop offset="1" stop-color="#0b1829" stop-opacity="0"/></linearGradient></defs><path d="M0 160 70 92l38 26 62-70 54 50 40-28 66 62 70-56v84z" fill="url(#dbm1)"/><path d="M0 160 60 112l40 22 70-58 60 52 50-30 60 46 60-34v50z" fill="#2dd4bf" opacity=".08"/><path d="M0 160 70 92l38 26 62-70 54 50 40-28 66 62 70-56" fill="none" stroke="#2dd4bf" stroke-opacity=".35" stroke-width="1"/></svg>` : '';
+  const wk = D.wkT.length ? `${D.wkDone}/${D.wkT.length}` : '—';
+  if (u === 'analytics') return `<section class="dbhero"><div class="dbh-t"><h2 class="dbhello">${dbGreet(u)}</h2><div class="dbdate">${dbDateStr(D.td)} · Âm lịch ${lunarLabel(D.td)}</div></div>
+    <nav class="dbchips" aria-label="Chuyển nhanh mục">${['home', 'fin', 'health', 'learn', 'plan', 'goal'].map(k => k === 'home' ? `<a class="on" href="#tong-quan">${dbIc('home')}Tổng quan</a>` : `<a href="#${DB_MOD[k][1]}">${dbIc(k)}${DB_MOD[k][0]}</a>`).join('')}</nav></section>`;
+  return `<section class="dbhero">${wave}<div class="dbh-t"><h2 class="dbhello">${dbGreet(u)}</h2><div class="dbdate">${u === 'digital' ? 'Quản lý cuộc sống · Cân bằng · Phát triển' : 'Quản lý tài chính, sức khỏe, học tập và kế hoạch của bạn'}</div></div>
+    ${u === 'digital' ? `<div class="dbday">${dbIc('cal')}<span>${dbDateStr(D.td).replace(', ', '<br>')}</span></div></section>` : `<div class="dbstrip"><div><span>${dbIc('cal')}Hôm nay</span><b>${fmtDate(D.td)}</b><small>Âm lịch ${lunarLabel(D.td)}</small></div><div><span>${dbIc('plan')}Tuần này</span><b class="num">${wk}</b><small>việc đến hạn đã xong</small></div><div><span>${dbIc('goal')}Tiến độ chung</span><b class="num">${pct(D.overall)}</b>${D.overall != null ? dbBar(D.overall) : '<small>Chưa có dữ liệu tuần</small>'}</div></div></section>`}`;
+}
+
+function dbTiles(D, u) {
+  const lP = D.lG ? Math.min(1, D.lW / D.lG) : null, tP = D.tdAll.length ? D.tdDone / D.tdAll.length : null;
+  const steps = D.hT.steps ? Number(D.hT.steps).toLocaleString('vi-VN') : null;
+  const t = [
+    ['fin', 'Thu − chi tháng', D.mCount ? `<b class="num ${D.mSave < 0 ? 'neg' : 'pos'}">${D.mSave < 0 ? '−' : '+'}${fmtShort(Math.abs(D.mSave))}</b>` : '<b>—</b>', dbSpark(D.months.map(m => Math.max(0, m.inc - m.exp))), ''],
+    ['health', 'Vận động hôm nay', steps ? `<b class="num">${steps}</b> <small>bước</small>` : D.hs.weight ? `<b class="num">${nf1(D.hs.weight.v)}</b> <small>kg</small>` : '<b>—</b>', dbRing(D.hDays / D.elapsed, 44, 'currentColor', `<small class="num">${D.hDays}/${D.elapsed}</small>`, 'Số ngày đã ghi chỉ số tuần này'), ''],
+    ['learn', 'Tiến độ tuần', `<b class="num">${D.lW}</b> <small>/ ${D.lG || '—'} phút</small>`, lP != null ? dbBar(lP) : '', lP != null ? pct(lP) : ''],
+    ['plan', 'Công việc hôm nay', D.tdAll.length ? `<b class="num">${D.tdDone}/${D.tdAll.length}</b> <small>hoàn thành</small>` : '<b>—</b> <small>chưa có việc</small>', tP != null ? dbBar(tP) : '', tP != null ? pct(tP) : ''],
+    ['goal', 'Mục tiêu đang theo đuổi', `<b class="num">${D.gAct.length}</b> <small>· ${D.gDone} đã xong</small>`, D.gAvg != null ? dbBar(D.gAvg) : '', D.gAvg != null ? pct(D.gAvg) : ''],
+  ];
+  return `<section class="dbtiles">${t.map(([k, s, v, x, p]) => `<a class="dbtile t-${k}" href="#${DB_MOD[k][1]}">${dbIc(k, 'tic')}<div class="dbt-h"><span>${DB_MOD[k][0]}</span><i class="go" aria-hidden="true">›</i></div><div class="dbt-s">${s}</div><div class="dbt-v">${v}</div>${x ? `<div class="dbt-x">${x}${p ? `<em class="num">${p}</em>` : ''}</div>` : ''}</a>`).join('')}</section>`;
+}
+
+function dbFinance(D, u) {
+  const sel = `<select class="dbsel" aria-label="Kỳ số liệu">${[['m', 'Tháng này'], ['pm', 'Tháng trước'], ['y', 'Từ đầu năm']].map(([v, l]) => `<option value="${v}" ${D.P === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  const COL = ['var(--m-fin)', 'var(--m-learn)', 'var(--m-plan)', 'var(--m-goal)', 'var(--muted)'];
+  const cats = Object.entries(D.fs.cat).sort((a, b) => b[1] - a[1]); const top = cats.slice(0, 4).map(([c, v], i) => [c, v, COL[i]]);
+  if (cats.length > 4) top.push(['Khác', cats.slice(4).reduce((s, x) => s + x[1], 0), COL[4]]);
+  const empty = !D.fs.count;
+  const kpi = `<div class="dbrows"><div class="k-in"><span>Thu nhập</span><b class="num">+${fmt(D.fs.inc)}</b></div><div class="k-out"><span>Chi tiêu</span><b class="num">−${fmt(D.fs.exp)}</b></div><div class="k-sv"><span>Tiết kiệm</span><b class="num">${D.save < 0 ? '−' : ''}${fmt(Math.abs(D.save))}</b></div>
+    <div class="k-rt"><span>Tỷ lệ tiết kiệm</span><b class="num">${D.rate == null ? '—' : Math.round(D.rate * 100) + '%'}</b></div>${D.rate != null ? dbBar(Math.max(0, D.rate)) : ''}</div>`;
+  const donut = `<div class="dbdonut">${dbDonut(top, 132, `<small>Chi tiêu</small><b class="num">${fmtShort(D.fs.exp)}</b>`, 'Cơ cấu chi tiêu: ' + D.plabel)}<ul class="dblegend">${top.length ? top.map(([c, v, col]) => `<li><i style="background:${col}"></i><span>${esc(c)}</span><b class="num">${D.fs.exp ? Math.round(v / D.fs.exp * 100) : 0}%</b></li>`).join('') : '<li class="muted">Chưa có khoản chi</li>'}</ul></div>`;
+  const fg = D.finGoal ? `<div class="dbfg"><div class="row between"><span>${dbIc('goal')}<b>${esc(D.finGoal.title)}</b></span><b class="num">${pct(goalProgress(D.finGoal))}</b></div>${dbBar(goalProgress(D.finGoal))}<div class="muted num">${fmtShort(D.finGoal.current === '' || D.finGoal.current == null ? D.finGoal.startValue : D.finGoal.current)} / ${fmtShort(D.finGoal.target)}${D.finGoal.unit ? ' ' + esc(D.finGoal.unit) : ''}${D.finGoal.deadline ? ' · hạn ' + fmtDate(D.finGoal.deadline) : ''}</div></div>`
+    : `<div class="dbfg">${dbNone('Chưa có mục tiêu tiết kiệm (mục tiêu lĩnh vực Tài chính).', 'goal-new')}</div>`;
+  const head = `<div class="dbc-h"><h3>${dbIc('fin', 'hic')}${u === 'analytics' ? 'Tài chính' : 'Tổng quan tài chính'}</h3>${sel}</div>`;
+  const body = empty ? dbNone(`Chưa có giao dịch (${D.plabel.toLowerCase()}).`, 'tx-new') : '';
+  if (u === 'analytics') return `<section class="dbcard dbfin s12">${head}${body}<div class="dbfin-g">${kpi}<div class="dbchart"><div class="dbc-sub">Thu – chi 6 tháng <span class="dblg"><i class="in"></i>Thu <i class="out"></i>Chi</span></div>${dbBars(D.months)}</div><div class="dbside"><div class="dbc-sub">Cơ cấu chi · ${D.plabel}</div>${donut}${fg}</div></div><a class="dbmore" href="#tai-chinh">Xem báo cáo tài chính ›</a></section>`;
+  return `<section class="dbcard dbfin s7">${head}${body}<div class="dbnet"><span>Tiết kiệm ${D.plabel.toLowerCase()}</span><b class="num ${D.save < 0 ? 'neg' : ''}">${D.save < 0 ? '−' : ''}${fmt(Math.abs(D.save))}</b>${D.rate != null ? `<em class="${D.rate < 0 ? 'neg' : 'pos'}">${D.rate < 0 ? '▼' : '▲'} ${Math.round(Math.abs(D.rate) * 100)}% thu nhập</em>` : ''}</div>
+    <div class="dbfin-p"><div class="dbio"><div class="k-in"><span>Thu nhập</span><b class="num">+${fmt(D.fs.inc)}</b></div><div class="k-out"><span>Chi tiêu</span><b class="num">−${fmt(D.fs.exp)}</b></div></div>${dbRing(D.fs.inc > 0 ? D.fs.exp / D.fs.inc : null, 112, 'var(--accent)', `<b class="num">${D.fs.inc > 0 ? Math.round(D.fs.exp / D.fs.inc * 100) + '%' : '—'}</b><small>chi / thu</small>`, 'Tỷ lệ chi tiêu trên thu nhập')}</div><a class="dbmore" href="#tai-chinh">Xem báo cáo tài chính ›</a></section>`;
+}
+
+function dbHealth(D, u, span) {
+  const hs = D.hs, hT = D.hT, m = [];
+  if (hT.steps) m.push(['steps', Number(hT.steps).toLocaleString('vi-VN'), 'bước hôm nay']); else if (hs.steps7 != null) m.push(['steps', Math.round(hs.steps7).toLocaleString('vi-VN'), 'bước TB 7 ngày']);
+  if (hs.sleep7 != null) m.push(['sleep', nf1(hs.sleep7) + ' h', 'ngủ TB 7 ngày']);
+  if (hT.water) m.push(['water', hT.water + ' ly', 'nước hôm nay']);
+  if (hs.weight) m.push(['weight', nf1(hs.weight.v) + ' kg', 'cân nặng ' + fmtDate(hs.weight.date).slice(0, 5)]);
+  if (hs.bp) m.push(['bp', hs.bp.s + '/' + hs.bp.d, 'huyết áp ' + fmtDate(hs.bp.date).slice(0, 5)]);
+  const has = Object.keys(S.health).length > 0;
+  return `<section class="dbcard dbhealth ${span || 's5'}"><div class="dbc-h"><h3>${dbIc('health', 'hic')}${u === 'premium' ? 'Sức khỏe hôm nay' : 'Sức khỏe'}</h3><button class="btn sm" data-act="health-new">+ Ghi</button></div>
+    ${has ? `<div class="dbmet">${dbRing(D.hDays / D.elapsed, 104, 'var(--m-health)', `<b class="num">${D.hDays}/${D.elapsed}</b><small>ngày đã ghi</small>`, 'Số ngày đã ghi chỉ số sức khỏe tuần này')}<ul class="dbml">${m.slice(0, 4).map(([k, v, l]) => `<li>${dbIc(k)}<span>${l}</span><b class="num">${v}</b></li>`).join('') || '<li class="muted">Chưa có chỉ số gần đây</li>'}</ul></div>` : dbNone('Chưa ghi chỉ số sức khỏe nào.', 'health-new')}
+    <a class="dbmore" href="#suc-khoe">Xem chi tiết sức khỏe ›</a></section>`;
+}
+
+function dbLearn(D, span) {
+  const p = D.lG ? Math.min(1, D.lW / D.lG) : null;
+  const en = enState(), m = [['clock', D.lW + ' phút', 'học tuần này'], ['fire', D.streak + ' ngày', 'chuỗi ngày học'], ['cards', D.due ? D.due + ' thẻ' : 'Xong', 'thẻ từ cần ôn']];
+  if (en.start) m.push(['learn', 'Tuần ' + enCurWeek() + '/' + EN.length, 'lộ trình tiếng Anh']);
+  return `<section class="dbcard dblearn ${span || 's6'}"><div class="dbc-h"><h3>${dbIc('learn', 'hic')}Học tập</h3><button class="btn sm" data-act="go" data-h="nhat-ky-hoc">+ Ghi giờ học</button></div>
+    <div class="dbmet">${dbRing(p, 104, 'var(--m-learn)', `<b class="num">${pct(p)}</b><small>mục tiêu tuần</small>`, 'Tiến độ mục tiêu học tuần này')}<ul class="dbml">${m.map(([k, v, l]) => `<li>${dbIc(k)}<span>${l}</span><b class="num">${v}</b></li>`).join('')}</ul></div>
+    <a class="dbmore" href="#hoc-tap">Xem chi tiết học tập ›</a></section>`;
+}
+
+function dbTasks(D, u, span) {
+  const L = D.todayT.slice(0, u === 'premium' ? 5 : 6), td = D.td;
+  const title = u === 'analytics' ? 'Việc ưu tiên hôm nay' : u === 'digital' ? 'Việc cần làm hôm nay' : 'Công việc hôm nay';
+  return `<section class="dbcard dbtasks ${span || 's5'}"><div class="dbc-h"><h3>${dbIc('plan', 'hic')}${title}</h3><button class="btn sm" data-act="todo-new">+ Thêm</button></div>
+    ${L.length ? `<ul class="dbtl">${L.map(t => { const late = !t.done && t.due < td; return `<li class="${t.done ? 'done' : ''}"><button class="dbck" data-act="todo-toggle" data-id="${t.id}" aria-label="${t.done ? 'Bỏ đánh dấu' : 'Đánh dấu hoàn thành'}: ${esc(t.title)}" aria-pressed="${t.done ? 'true' : 'false'}">${t.done ? '✓' : ''}</button><div class="m" data-act="todo-edit" data-id="${t.id}"><b>${esc(t.title)}</b>${late ? `<small class="late">Quá hạn ${fmtDate(t.due)}</small>` : t.goalId && S.goals[t.goalId] ? `<small>🎯 ${esc(S.goals[t.goalId].title)}</small>` : ''}</div>${t.pri && t.pri < 3 && !t.done ? `<span class="dbpri p${t.pri}">${PRI[t.pri][0]}</span>` : ''}</li>`; }).join('')}</ul>`
+      : dbNone('Không có việc đến hạn hôm nay.')}
+    <a class="dbmore" href="#ke-hoach">Xem tất cả ${D.openT ? '(' + D.openT + ' việc đang mở)' : ''} ›</a></section>`;
+}
+
+function dbGoals(D, span) {
+  const L = D.gAct.slice().sort((a, b) => goalProgress(b) - goalProgress(a)).slice(0, 4);
+  return `<section class="dbcard dbgoals ${span || 's6'}"><div class="dbc-h"><h3>${dbIc('goal', 'hic')}Mục tiêu</h3><span class="dbc-n num">${D.gDone}/${D.G.length} hoàn thành</span></div>
+    ${L.length ? L.map(g => { const p = goalProgress(g); return `<div class="dbgl" data-act="goal-edit" data-id="${g.id}"><div class="row between"><span>${esc(g.title)}</span><b class="num">${pct(p)}</b></div>${dbBar(p, 'var(--m-goal)')}</div>`; }).join('') : dbNone('Chưa có mục tiêu đang theo đuổi.', 'goal-new')}
+    <a class="dbmore" href="#muc-tieu">Xem tất cả mục tiêu ›</a></section>`;
+}
+
+function dbWeek(D, u, span) {
+  const rows = D.week.map(([k, p, sub]) => `<div class="dbwr" title="${esc(sub)}"><span class="l">${dbIc(k)}${DB_MOD[k][0]}</span>${dbBar(p, DB_MOD[k] ? `var(--m-${k === 'habit' ? 'fin' : k})` : '')}<b class="num">${pct(p)}</b></div>`).join('');
+  const ring = dbRing(D.overall, u === 'digital' ? 116 : 104, 'var(--accent)', `<b class="num">${pct(D.overall)}</b><small>${u === 'digital' ? 'Hiệu suất' : 'Tiến độ chung'}</small>`, 'Tiến độ chung tuần này');
+  return `<section class="dbcard dbweek ${span || 's7'}"><div class="dbc-h"><h3>${dbIc('home', 'hic')}Tổng quan tuần</h3><span class="dbc-n">${fmtDate(D.ws).slice(0, 5)} – ${fmtDate(D.we).slice(0, 5)}</span></div>
+    ${D.week.length ? `<div class="dbwk">${ring}<div class="dbwrs">${rows}</div></div><div class="dbfoot muted">Tiến độ chung = trung bình các mảng có dữ liệu tuần này.</div>` : dbNone('Chưa có dữ liệu tuần này. Tạo việc, thói quen hoặc mục tiêu để theo dõi tiến độ.')}</section>`;
+}
+
+function dbAgenda(D, span) { // Lịch hôm nay + cần chú ý + thói quen (giữ chức năng trang chủ cũ)
+  const td = D.td, at = attention(), evs = eventsOn(S.events, td), fin = financeOn(td).filter(f => f.kind !== 'bday');
   const hb = habitList().filter(x => habitScheduled(x, td));
+  let h = `<section class="dbcard dbagenda ${span || 's6'}"><div class="dbc-h"><h3>${dbIc('cal', 'hic')}Lịch hôm nay</h3><a class="btn sm" href="#lich">Mở lịch</a></div>`;
+  h += evs.length || fin.length ? evs.map(evRow).join('') + fin.map(finRow).join('') : dbNone('Không có lịch hẹn hôm nay.');
+  const evT = eventsOn(S.events, addDays(td, 1)); if (evT.length) h += `<div class="secthead">Ngày mai</div>` + evT.map(evRow).join('');
   if (hb.length) h += `<div class="secthead">Đánh dấu thói quen</div><div class="cats" style="margin-top:6px">${hb.map(x => `<button class="hchip ${(x.log || {})[td] ? 'on' : ''}" data-act="habit-tog" data-id="${x.id}" data-d="${td}">${esc(x.icon || '•')} ${esc(x.name)}</button>`).join('')}</div>`;
-  h += `</div>`;
-  // 2. Cần chú ý
-  const at = attention();
-  h += `<div class="card"><h2>② Cần chú ý<span class="muted">${at.length ? at.length + ' mục' : ''}</span></h2>`;
-  h += at.length ? `<div class="list">${at.slice(0, 8).map(a => `<div class="item" data-act="${a.act}" data-id="${a.id}" ${a.extra}><div class="ic">${a.ic}</div><div class="main"><div class="t1">${esc(a.t)}</div><div class="t2">${esc(a.sub)}</div></div><span class="chip ${a.sev === 3 ? 'late' : a.sev === 2 ? 'due' : ''}">${a.sev === 3 ? '⚠ Khẩn' : a.sev === 2 ? 'Sắp tới' : 'Lưu ý'}</span></div>`).join('')}</div>${at.length > 8 ? `<div class="muted" style="margin-top:6px">… và ${at.length - 8} mục khác</div>` : ''}` : `<div class="empty" style="padding:12px">✓ Không có gì cần lo. Mọi thứ đang trong tầm kiểm soát.</div>`;
-  h += `</div>`;
-  // 3. Lịch hôm nay
-  const evs = eventsOn(S.events, td), fin = financeOn(td).filter(f => f.kind !== 'bday'), tds = todoList().filter(t => !t.done && t.due === td);
-  h += `<div class="card"><h2>③ Lịch hôm nay <button class="btn sm ghost" data-act="go" data-h="lich">Mở lịch</button></h2>`;
-  if (!evs.length && !fin.length && !tds.length) h += `<div class="empty" style="padding:12px">Không có lịch hẹn hay việc đến hạn hôm nay.</div>`;
-  h += evs.map(evRow).join('') + fin.map(finRow).join('') + tds.map(todoRow).join('');
-  const tm = addDays(td, 1), evT = eventsOn(S.events, tm);
-  if (evT.length) h += `<div class="secthead">Ngày mai</div>` + evT.map(evRow).join('');
-  h += `</div>`;
-  // 4. Tổng quan các mảng
-  const nw = computeNetWorth(), ms = monthStats(S.txns, ymOf(td)), bl = budgetLimits(), hs = healthSummary();
-  const days = studyDays(), stk = streakDays(days, td), est = enState(), gl = goalList().filter(g => g.status !== 'done');
-  const gAvg = gl.length ? gl.reduce((s, g) => s + goalProgress(g), 0) / gl.length : null;
-  const hAll = habitList(), hRate = hAll.length ? avgOf(hAll.map(x => habitRate(x, addDays(td, -6), td))) : null;
-  let nb = null; for (let i = 0; i <= 60 && !nb; i++) { const dd = addDays(td, i); const c = contactList().find(c => birthdayOn(c, dd)); if (c) nb = { c, i }; }
-  const mini = (ic, title, hash, main, sub) => `<div class="mini" data-act="go" data-h="${hash}"><div class="mt">${ic} ${title}</div><div class="mv num">${main}</div><div class="ms">${sub}</div></div>`;
-  h += `<div class="card"><h2>④ Tổng quan các mảng<button class="btn sm primary" data-act="go" data-h="tong-ket">📊 Tổng kết tháng</button></h2><div class="grid2">
-    ${mini('💰', 'Tài chính', 'tai-chinh', fmtShort(nw.net), `Tài sản ròng · chi T${m}: ${fmtShort(ms.exp)}${bl.__total ? ' / ' + fmtShort(bl.__total) : ''}`)}
-    ${mini('❤️', 'Sức khỏe', 'suc-khoe', hs.weight ? nf1(hs.weight.v) + ' kg' : '—', hs.bp ? 'HA ' + hs.bp.s + '/' + hs.bp.d + (hs.sleep7 != null ? ' · ngủ ' + nf1(hs.sleep7) + 'h' : '') : 'Chưa có huyết áp')}
-    ${mini('📚', 'Học tập', 'hoc-tap', '🔥 ' + stk + ' ngày', est.start ? 'Tiếng Anh tuần ' + enCurWeek() + '/' + EN.length : 'Chưa bắt đầu lộ trình')}
-    ${mini('🔁', 'Thói quen', 'thoi-quen', hRate != null ? Math.round(hRate * 100) + '%' : '—', hAll.length ? 'Tỷ lệ hoàn thành 7 ngày' : 'Chưa tạo thói quen')}
-    ${mini('🎯', 'Mục tiêu', 'muc-tieu', gAvg != null ? Math.round(gAvg * 100) + '%' : '—', gl.length ? gl.length + ' mục tiêu đang theo đuổi' : 'Chưa đặt mục tiêu')}
-    ${mini('👥', 'Quan hệ', 'danh-ba', String(contactList().length), nb ? '🎂 ' + nb.c.name + (nb.i ? ' sau ' + nb.i + ' ngày' : ' hôm nay') : 'người trong danh bạ')}
-  </div></div>`;
+  h += `</section><section class="dbcard dbatt ${span || 's6'}"><div class="dbc-h"><h3>${dbIc('bell', 'hic')}Cần chú ý</h3><span class="dbc-n">${at.length ? at.length + ' mục' : ''}</span></div>`;
+  h += at.length ? `<div class="list">${at.slice(0, 6).map(a => `<div class="item" data-act="${a.act}" data-id="${a.id}" ${a.extra}><div class="ic">${a.ic}</div><div class="main"><div class="t1">${esc(a.t)}</div><div class="t2">${esc(a.sub)}</div></div><span class="chip ${a.sev === 3 ? 'late' : a.sev === 2 ? 'due' : ''}">${a.sev === 3 ? '⚠ Khẩn' : a.sev === 2 ? 'Sắp tới' : 'Lưu ý'}</span></div>`).join('')}</div>${at.length > 6 ? `<div class="muted" style="margin-top:6px">… và ${at.length - 6} mục khác</div>` : ''}` : dbNone('✓ Không có gì cần lo.');
+  const tiles = dailyRoutine();
+  h += `<div class="secthead">Nhịp hôm nay</div><div class="dbroutine">${tiles.map(t => `<button class="${t.ok ? 'ok' : ''}" data-act="${t.act}" ${t.x || ''}>${t.ic} ${t.l}<small>${t.v}</small></button>`).join('')}</div></section>`;
   return h;
+}
+
+function viewHome() {
+  const D = dbData(), u = UIP();
+  let h = '';
+  if (!accList().length) h += `<div class="card"><h2>👋 Bắt đầu</h2><p class="sub" style="margin:0 0 8px">Tạo tài khoản tiền đầu tiên để bắt đầu ghi thu chi.</p><button class="btn primary sm" data-act="acc-quick">Tạo nhanh: Tiền mặt + Ngân hàng</button></div>`;
+  h += `<div class="db db-${u}">` + dbHero(D, u);
+  if (u === 'premium') h += dbTiles(D, u) + dbFinance(D, u) + dbHealth(D, u, 's5') + dbTasks(D, u, 's7') + dbWeek(D, u, 's5') + dbAgenda(D);
+  else if (u === 'digital') h += dbTiles(D, u) + dbWeek(D, u, 's7') + dbTasks(D, u, 's5') + dbFinance(D, u) + dbHealth(D, u, 's5') + dbAgenda(D);
+  else h += dbWeek(D, u, 's7') + dbTasks(D, u, 's5') + dbFinance(D, u) + dbHealth(D, u, 's4') + dbLearn(D, 's4') + dbGoals(D, 's4') + dbAgenda(D);
+  return h + `</div>`;
+}
+function moreMenu() { // "Khác" ở thanh điều hướng đáy: các mục không nằm trên thanh
+  const it = [['lich', 'cal', 'Lịch cá nhân'], ['ke-hoach', 'plan', 'Kế hoạch'], ['muc-tieu', 'goal', 'Mục tiêu'], ['thoi-quen', 'habit', 'Thói quen'], ['ghi-chep', 'learn', 'Ghi chép'], ['danh-ba', 'home', 'Danh bạ quan hệ'], ['tong-ket', 'fin', 'Tổng kết tháng'], ['ca-nhan', 'more', 'Tài khoản']];
+  openModal(`<h3>Mục khác<button class="iconbtn" data-x>✕</button></h3><div class="dbmenu">${it.map(([h, k, l]) => `<a href="#${h}" data-x>${dbIc(k)}<span>${l}</span></a>`).join('')}</div>`, sh => { sh.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', () => closeModal())); });
 }
 function quickMenu() {
   const items = [['tx', '💸', 'Giao dịch thu chi'], ['health', '❤️', 'Chỉ số sức khỏe'], ['event', '📅', 'Sự kiện / lịch hẹn'], ['todo', '✅', 'Việc cần làm'], ['journal', '📔', 'Nhật ký hôm nay'], ['note', '📝', 'Ghi chú nhanh'], ['study', '📚', 'Ghi giờ học'], ['card', '🃏', 'Thẻ từ mới']];
@@ -5712,6 +6208,8 @@ document.addEventListener('click', e => {
     case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
+    case 'todo-new': todoForm(); break;
+    case 'more': moreMenu(); break;
     case 'learn-seg': UI.learnSeg = el.dataset.k; render(); break;
     case 'say': speak(el.dataset.t); break;
     case 'review': reviewSession(); break;

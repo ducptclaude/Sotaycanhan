@@ -1,6 +1,6 @@
 # Sổ Cá Nhân – Ứng dụng PWA chạy cả khi không có mạng
 
-> 📦 Danh sách phiên bản & cách quay lại bản cũ (rollback): xem [PHIEN-BAN.md](PHIEN-BAN.md) · Passkey / Face ID: [PASSKEY.md](PASSKEY.md).
+> 📦 Danh sách phiên bản & cách quay lại bản cũ (rollback): xem [PHIEN-BAN.md](PHIEN-BAN.md) · Passkey / Face ID: [PASSKEY.md](PASSKEY.md) · Giao diện 3 phong cách: [GIAO-DIEN.md](GIAO-DIEN.md).
 
 > Từ bản **1.3.0**, app **chạy độc lập, không phụ thuộc Claude**: dữ liệu lưu trên từng thiết bị và đồng bộ qua máy chủ Railway của bạn (**URL + mã SYNC_TOKEN**).
 
