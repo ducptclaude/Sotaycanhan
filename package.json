@@ -1,6 +1,6 @@
 {
   "name": "so-ca-nhan",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "private": true,
   "description": "Sổ Cá Nhân – ứng dụng PWA + máy chủ đồng bộ (không cần thư viện ngoài)",
   "main": "server.js",

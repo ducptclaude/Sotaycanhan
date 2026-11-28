@@ -1,0 +1,186 @@
+KẾT QUẢ KIỂM THỬ BẢN 1.16.0 – GIAO DIỆN 3 PHONG CÁCH (đã gộp ảnh đại diện PR #28)
+Máy chủ thử cục bộ, dữ liệu mẫu (không phải dữ liệu thật), Chromium + WebAuthn giả lập.
+Biến môi trường riêng từng bài: sinhtrac BIO_DEVICE_ONLY=1 · stepup STEPUP_SEC=3 · passkeyB CHALLENGE_TTL_SEC=3 · passkeyD BIO_BIND=0 · backup-co có BACKUP_TOKEN (giá trị thử).
+
+=== auth
+1. Chưa có tài khoản – bảng hiện: Chưa có tài khoản. Tạo tài khoản chủ để đăng nhập bằng ID/SĐT + mật khẩu hoặc vâ
+2. Tạo tài khoản → hỏi bật vân tay: Bật mở khoá bằng vân tay / Face ID trên máy này? Lần sau chỉ cần chạm vân tay để mở app.
+3. Đã bật vân tay trên A: 1 | health.account = undefined | ID/SĐT lưu trên máy: ducpt / 0912345678 | có mật khẩu mở khoá offline: true
+4. SYNC_TOKEN mở dữ liệu sau khi có tài khoản: 401 (mong đợi 401) | phiên của A: 200 | dữ liệu giữ nguyên: true
+5. Máy B dùng mã cũ → màn hình: {"locked":true,"mode":"login","msg":"Hệ thống đã bật tài khoản chủ. Đăng nhập để tiếp tục đồng bộ.","bio":false}
+6. B nhập sai mật khẩu: Sai ID/SĐT hoặc mật khẩu
+7. B đăng nhập bằng SĐT → mở app: true | nhận dữ liệu từ A: true | B lưu phiên riêng (không phải SYNC_TOKEN): true
+8. Máy mới C mở app → tự hiện: {"locked":true,"mode":"login","msg":"Đăng nhập để dùng và đồng bộ dữ liệu.","bio":true}
+10. A không dùng 1 phút → tự khoá: true {"locked":true,"mode":"unlock","msg":"","bio":true}
+11. Mở bằng vân tay (cảm biến giả lập): true
+12. Mở bằng mật khẩu: sai → Sai ID/SĐT hoặc mật khẩu | đúng → mở: true
+13. Ẩn app > 1 phút rồi quay lại → khoá: true
+14. Mở lại app → khoá ngay khi tải trang: {"locked":true,"lockVisible":"flex"}
+15. Mất mạng → mở khoá bằng mật khẩu trên máy: true | dữ liệu có: true
+16. Bảng tài khoản: 👤 | ducpt | 0912345678 · Máy tính · Chrome | Tài khoản tạo lúc 07:24 28/11/2026 | 🎨 GIAO DIỆN & NGÔN NGỮ | 🖼️ Phong cách | Light Premium | Sáng, tối giản cao cấp | Light Analytics | Sáng, giàu số liệu (mặc định) | Dark Digital | Tối Navy – Teal | 🎨 Chế độ | ☀️ Sáng | 🌙 Tối | 🖥️ Theo máy | 🌐 Ngôn ngữ | Tiếng Việt | English | 🪪 HỒ SƠ | Ảnh đại diện | Thêm ảnh | Họ tên | — | ID đă
+17. A thu hồi B → B bị yêu cầu đăng nhập lại: {"locked":true,"mode":"login","msg":"Phiên đăng nhập trên máy này đã hết hạn hoặc bị thu hồi. Hãy đăng nhập lại.","bio":true}
+18. Đăng nhập lại bằng vân tay (passkey, máy chủ xác minh chữ ký): true → vào app: true | phiên mới dùng được: true
+19. Quên mật khẩu trên C: mã sai → Mã khôi phục không đúng | mã đúng → vào app: true | C nhận dữ liệu: true
+20. Sau khi đặt lại mật khẩu, máy A bị đăng xuất: {"locked":true,"mode":"login","msg":"Phiên đăng nhập trên máy này đã hết hạn hoặc bị thu hồi. Hãy đăng nhập lại.","bio":false}
+21. Sai 5 lần: Sai ID/SĐT hoặc mật khẩu
+22. Đúng mật khẩu khi đang bị khoá dò: Sai quá nhiều lần – thử lại sau 15 phút
+=== sinhtrac
+✅ authenticatorSelection: cảm biến trong máy · passkey discoverable (required) · bắt buộc xác thực người dùng — {"authenticatorAttachment":"platform","residentKey":"required","requireResidentKey":true,"userVerification":"required"} · hints ["client-device"] · credProps {"credProps":true}
+✅ Không cá nhân hoá: khoá không chứa ID / SĐT / tên — {"name":"so-ca-nhan","displayName":"Sổ Cá Nhân"}
+✅ CSDL sinh trắc trên MÁY (IndexedDB "so-ca-nhan-sinh-trac") lưu khoá công khai (ES256) — [{"id":"EJckFi-t","alg":-7,"spki":122,"deviceType":"singleDevice"}]
+✅ CSDL sinh trắc trên MÁY CHỦ (riêng, không nằm trong hồ sơ tài khoản) · khoá chỉ trên thiết bị — [{"deviceType":"singleDevice","backedUp":false,"name":"Laptop A (Windows Hello)"}]
+✅ Mở khoá CÓ MẠNG: máy chủ phát thử thách & kiểm chữ ký — /auth/bio/unlock-options, /auth/bio/unlock
+✅ Mở khoá MẤT MẠNG: kiểm chữ ký ngay trên máy (khoá công khai trong CSDL sinh trắc)
+✅ Khoá công khai bị làm giả → chữ ký không khớp → TỪ CHỐI — Chữ ký sinh trắc không hợp lệ – đã từ chối.
+✅ Khoá ĐỒNG BỘ đám mây (passkey) → máy chủ TỪ CHỐI, giải thích rõ — Không bật được vân tay / Face ID Thiết bị / trình duyệt này chỉ tạo được khoá ĐỒNG BỘ đám mây (passkey iCloud / Google) – theo chính sách an toàn không chấp nhận. Máy này hãy mở bằng mật khẩu. Chính s
+✅ Đăng nhập bằng sinh trắc thiết bị (máy chủ xác minh) → phiên "bio" — qua bio
+✅ Trang Tài khoản: ghi rõ CSDL riêng, chính sách, nhãn "chỉ trên thiết bị" — CSDL sinh trắc riêng (file:sinh-trac.json) · chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây · không lưu thông tin cá nhân trong khoá
+✅ Thu hồi máy A → xoá khoá sinh trắc của A khỏi CSDL máy chủ — còn 0 khoá
+=== ganmay
+✅ iPhone (khoá đồng bộ iCloud) BẬT ĐƯỢC Face ID — [{"bind":43,"allowSynced":true,"deviceType":"multiDevice"}] · máy chủ [{"deviceType":"multiDevice","backedUp":true}]
+✅ Mã gắn máy: máy giữ mã 256 bit, máy chủ CHỈ giữ bản băm
+✅ iPhone A mở khoá bằng Face ID: có mạng (máy chủ kiểm) & mất mạng (kiểm trên máy) — có mạng true · mất mạng true
+✅ iPhone A đăng nhập bằng Face ID → phiên "bio" — qua bio
+✅ iPhone C có BẢN SAO khoá đồng bộ → máy chủ TỪ CHỐI (không có mã gắn máy) — Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Google) – chỉ dùng được trên đúng máy đã bật. Hãy đăng nhập bằng mật khẩu rồi bật vân tay / Face ID cho máy này.
+✅ Tự đoán mã gắn máy (bản sao khoá + mã ngẫu nhiên) → 403 — 403 Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Google) – chỉ dùng đư
+✅ iPhone C bật Face ID của riêng mình → dùng được — khoá trên máy chủ: 2
+✅ Trang Tài khoản: chính sách "khoá gắn máy" + nhãn 🔗 gắn máy — CSDL sinh trắc riêng (file:sinh-trac.json) · khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được · kh
+=== vantay
+✅ Bật vân tay trên máy A — cảm biến lưu 1 khoá, máy chủ có 1 khoá công khai
+✅ Mở khoá bằng vân tay khớp
+✅ Vân tay không khớp → không mở — thông báo: "Không xác thực được (đã huỷ, không khớp hoặc hết thời gian). Thử lại hoặc dùng mật khẩu."
+✅ Thử lại vân tay khớp → mở
+✅ Mất mạng → vẫn mở bằng vân tay
+✅ Đăng nhập lại bằng vân tay (máy chủ xác minh chữ ký) — phiên mới đồng bộ được: HTTP 200
+✅ Máy B không có vân tay của A → không đăng nhập được bằng vân tay — thông báo: "Không xác thực được – vân tay không khớp, đã huỷ, hoặc máy này chưa bật vân tay cho tài khoản (hãy đăng nhập bằng mật khẩu rồi bật)."
+✅ Bật vân tay riêng cho máy B — máy chủ giờ có 2 khoá
+✅ Hiện vân tay của 2 máy — 👆, 👆
+✅ Vân tay đã bị xoá ở máy chủ → B không mở được bằng vân tay nữa — thông báo: "Vân tay / Face ID của máy này chưa bật hoặc đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong 👤 Tài khoản." · khoá còn lưu trên B: 0
+✅ Máy không có cảm biến: không hỏi bật vân tay, không hiện nút vân tay, ghi rõ lý do
+=== stepup
+✅ Vừa đăng nhập → bật vân tay ngay được (phiên mới = vừa xác thực)
+✅ Quá hạn xác thực lại → máy chủ từ chối thu hồi & tải toàn bộ dữ liệu (403 stepup) — {"error":"Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu","code":"stepup"} · export 403
+✅ Thu hồi thiết bị: hỏi xác thực lại → vân tay → thực hiện tiếp — hộp: "🔐 Xác thực lại Cần xác thực lại bằng vân tay / Face ID hoặc mật khẩu – xác nhận đúng là bạn. 👆 Dùng vân tay / Face ID " · còn: Laptop A,
+✅ Tải toàn bộ dữ liệu máy chủ: mật khẩu sai bị từ chối, đúng thì tải được — "Mật khẩu không đúng" → so-ca-nhan-may-chu-2026-11-28.json
+✅ Ngưỡng 10 triệu: GD 5 tr lưu thẳng · GD 15 tr hỏi xác thực (huỷ → không lưu, vân tay → lưu) — 5tr true · huỷ không lưu true · vân tay đã lưu true
+✅ Mất mạng: GD 20 tr → xác thực bằng vân tay (kiểm chữ ký trên máy) → lưu
+✅ Máy B bị thu hồi → phải đăng nhập lại
+✅ Trang Tài khoản: ngưỡng giao dịch & danh sách thao tác luôn xác thực lại — Luôn xác thực lại khi: thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu, xoá dữ liệu tài chính.
+=== taikhoan
+✅ Mở trang Tài khoản từ nút 👤 — mục: 🎨 Giao diện & ngôn ngữ · 🪪 Hồ sơ · 🔐 Đăng nhập & bảo mật · 🔔 Thông báo · 💻 Thiết bị đã đăng nhập (3) | 👤 ducpt 0912345678 · Điện thoại Android A Tài khoản tạo lúc 07:25 28/11/2026
+✅ Thiết bị đã đăng nhập: 2 máy, đánh dấu máy này + có thông báo — 💻 Laptop Windows B🔔 thông báo đăng nhập qua mật khẩu · 07:25 28/11/2026 hoạt động gần nhất 07:25 28/11/2026 Thu hồi || 📱 Điện thoại Android Amáy này🔔 thông báo đăng nhập qua mật khẩu · 07:25 28/11/2026 hoạt động gần
+✅ Sửa số điện thoại — ✓ Đã lưu hồ sơ.
+✅ Đăng nhập được bằng SĐT mới
+✅ Tắt loại "Dữ liệu mới" cho máy này (lưu trên máy chủ) — {"data":false}
+✅ Đổi thời gian tự khoá → 15 phút
+✅ Thu hồi máy B → xoá luôn đăng ký thông báo của B — còn nhận thông báo: Điện thoại Android A
+✅ Máy B bị yêu cầu đăng nhập lại
+✅ Đổi mật khẩu: mật khẩu cũ bị từ chối, mật khẩu mới dùng được
+✅ Mở khoá khi mất mạng bằng mật khẩu MỚI (đã cập nhật trên máy)
+✅ Trang Tài khoản khi mất mạng: hiện thông tin đã lưu, khoá các nút cần mạng
+✅ Màn hình 360px không bị tràn ngang
+=== login-bank
+✅ Máy mới: "KÍNH CHÀO QUÝ KHÁCH" + logo + hàng trên có cờ ngôn ngữ — {"hi":"KÍNH CHÀO QUÝ KHÁCH","logo":true,"brand":true,"flag":true}
+✅ Nút 👁 hiện / ẩn mật khẩu — text → password
+✅ Trang Tài khoản: lưu Họ tên (máy chủ + máy) — ["Nguyễn Văn Trung",true]
+✅ Khoá app: "Chào buổi …," + Họ tên + ảnh đại diện chữ T — {"hi":"Chào buổi sáng,","name":"Nguyễn Văn Trung","av":"T","bioTxt":"","face":true,"label":"Mở khoá bằng Face ID / Touch ID (Passkey)"}
+✅ iPhone: nút sinh trắc chỉ có biểu tượng Face ID (không chữ) — Mở khoá bằng Face ID / Touch ID (Passkey)
+✅ Bấm biểu tượng Face ID → mở khoá
+✅ English: "Good …," + tên giữ nguyên + Sign in / Password — ["Good morning,","Nguyễn Văn Trung","Sign in","Password"]
+✅ Android: biểu tượng vân tay; họ tên đồng bộ từ máy chủ — {"finger":true,"name":"Nguyễn Văn Trung","label":"Mở khoá bằng Vân tay (Passkey)"}
+=== chao
+✅ Máy mới (chưa từng đăng nhập): "KÍNH CHÀO QUÝ KHÁCH", không hiện dòng địa chỉ máy chủ — {"hi":"KÍNH CHÀO QUÝ KHÁCH","host":false}
+✅ Sau khi đăng xuất: "Chào buổi …, Phạm Tiến Đức", ID điền sẵn, không dòng thừa — {"hi":"Chào buổi sáng,","name":"Phạm Tiến Đức","id":"ducpt","host":false}
+✅ Đổi Họ tên → màn khoá hiện tên MỚI ngay — Phạm Đức
+✅ Đăng xuất + xoá dữ liệu trên máy → xoá luôn Họ tên đã lưu — {"name":"ducpt","fn":""}
+=== backup-co
+✅ /auth/status báo dùng BACKUP_TOKEN, KHÔNG lộ giá trị — {"setup":true,"passkeys":0,"reset":"BACKUP_TOKEN"}
+✅ Nhập SYNC_TOKEN → TỪ CHỐI — 403 Mã khôi phục không đúng
+✅ Nhập mã sai → từ chối — Mã khôi phục không đúng
+✅ Màn Quên mật khẩu: chỉ "Mã khôi phục", KHÔNG tên biến, KHÔNG chân trang — {"ph":"Mã khôi phục","txt":"SỔ CÁ NHÂN\n🌙\nEN\nĐẶT LẠI MẬT KHẨU\n🔑\n🔒\n🔒\nĐặt lại & đăng nhập\n‹ Quay lại đăng nhập\n\nĐặt lại mật khẩu sẽ đăng xuất mọi thi
+✅ Nhập đúng BACKUP_TOKEN → đặt lại mật khẩu & vào app
+✅ Mật khẩu mới đăng nhập được — 200
+=== backup-khong
+✅ Chưa đặt BACKUP_TOKEN → dùng SYNC_TOKEN như cũ — {"setup":true,"passkeys":0,"reset":"SYNC_TOKEN"}
+✅ Đặt lại bằng SYNC_TOKEN (app cũ gửi trường syncToken) vẫn được — 200
+=== pref
+✅ Mặc định: Sáng + Tiếng Việt — {"theme":"light","lang":"vi","tab":"Tài chính","h1":"TÀI CHÍNH"}
+✅ Bấm 🌙 Tối → đổi ngay
+✅ Bấm 🇬🇧 English → dịch ngay (không tải lại) — {"theme":"dark","lang":"en","tab":"Finance","h1":"FINANCE"} · ⚙️ App & data
+✅ Thông báo hiện sau cũng được dịch
+✅ Tải lại trang → vẫn Tối + English — {"theme":"dark","lang":"en","tab":"Finance","h1":"FINANCE"}
+✅ Mất mạng → English vẫn hiện (từ điển đã lưu sẵn) — {"theme":"dark","lang":"en","tab":"Finance","h1":"FINANCE"}
+✅ Bấm 🇻🇳 Tiếng Việt → về tiếng Việt ngay (giữ giao diện tối) — {"theme":"dark","lang":"vi","tab":"Tài chính","h1":"TÀI CHÍNH"}
+✅ 🖥️ Theo máy → tự đổi theo hệ điều hành — light → dark
+✅ Màn đăng nhập: nút EN → tiếng Anh — PERSONAL NOTEBOOK | ☀️ | VI | WELCOME | 👤 | 🔒 | Sign in | Forgot password?
+=== loi
+✅ Màn khoá English: ô mật khẩu dịch thành "Password" — ["","Password"]
+✅ Giờ học "1g 25p" → "1h 25m" (không còn g/p) — This week 6h 35m / goal 10h 50m
+✅ Đổi English → Tiếng Việt: KHÔNG tải lại, KHÔNG bị khoá, chữ về tiếng Việt ngay — {"same":true,"locked":false,"lang":"vi","h1":"TÀI CHÍNH","sheet":"⚙️ Ứng dụng & dữ liệu\n✕","tab":"Tài chính","leftEn":false}
+✅ Sau khi về Tiếng Việt không còn chữ tiếng Anh sót lại — []
+✅ Bảng cân đối giao diện tối: nền tối (không còn nền trắng) — color(srgb 0.11898 0.192706 0.229569)
+=== navy
+✅ Chọn 🌙 Tối → bộ màu Navy–Teal (nền #07131c) — {"theme":"dark","skin":"navy","bg":"rgb(7, 19, 28)","meta":"#07131c"}
+✅ Bộ chọn còn Sáng / Tối / Theo máy (bỏ nút Binance riêng) — ["☀️ Sáng","🌙 Tối","🖥️ Theo máy"]
+✅ Bấm Sáng ↔ Tối đổi đúng — [["light",""],["dark","navy"]]
+✅ Máy đang lưu "binance" (bản 1.13.2) → tự chuyển thành "Tối", màu Navy–Teal — ["dark","navy"]
+✅ Theo máy (điện thoại đang tối) → màu Navy–Teal — ["dark","navy"]
+=== ocr
+✅ Đính kèm ảnh chuyển tiền (lần đầu, tải bộ đọc ảnh) — 1.4 s · số tiền 1.500.000 · expense · 2026-11-24 · ghi chú "Tra tien vat tu cong trinh → NGUYEN VAN BINH"
+✅ Lưu giao dịch kèm mã GD + ảnh thu nhỏ trên máy (không đoán bừa danh mục Ăn uống) — {"amount":1500000,"ref":"FT26328001234","file":true,"via":"anh","cat":"Khác","note":"Tra tien vat tu cong trinh → NGUYEN VAN BINH"}
+✅ Ảnh nhận lương (chụp lại màn hình) → Thu, danh mục Lương — 1.0 s · 20.000.000 · income · Lương · "Luong thang 11 2026 từ CONG TY CP XAY DUNG Z"
+✅ Ảnh giao diện tối — 3.250.000
+✅ Ảnh có số dư & phí gây nhiễu → lấy đúng số tiền 500.000 — 500.000
+✅ Ảnh hoá đơn điện (nén Zalo) → danh mục Điện — 845.500 · Điện
+✅ Ảnh mờ nghiêng (khó) → tô vàng & yêu cầu kiểm tra nếu không chắc — số tiền 120.000.000 · tô vàng true · có cảnh báo
+✅ Nhập lại cùng biên lai → cảnh báo trùng mã GD — ⚠ Biên lai này (mã FT26328001234) có vẻ đã nhập ngày 24/11/2026: 1.500.000 ₫.
+✅ Dán ảnh (Ctrl+V) → đọc 12.000.000 — 12.000.000
+✅ Dán nội dung tin nhắn ngân hàng → Thu 5.000.000 + nội dung ND — 5.000.000 · income · 2026-11-24 · "Hoan tien tam ung cong trinh"
+✅ Gõ "@c" → gợi ý Chi / Chuyển khoản — 💸 Chi (đã thanh toán) @chi@… | 🔁 Chuyển khoản giữa tài khoản @chuyen@…
+✅ "@chi@tiendien 845k" + Enter → Chi · Điện · 845.000 — gợi ý: 💡 Điện Danh mục | ➕ Ghi chú mới: "tiendien" danh mục Điện → expense · Điện · 845.000
+✅ Gợi ý từ lịch sử (không dấu "dien") → điền lại ghi chú + tài khoản lần trước — gợi ý: 💡 Điện Danh mục | 🕘 Tiền điện tháng 11 nhà Q7 Điện · 1 lần · gần nhất 845.000 ₫ → ghi chú "Tiền điện tháng 11 nhà Q7" · TK tm
+✅ "@thu@luong 20tr5" → Thu · Lương · 20.500.000 — income · Lương · 20.500.000
+✅ "@chi@an 1,5tr" → số tiền 1.500.000 — 1.500.000 · Ăn uống
+✅ "@chi@ 99000" → số tiền 99.000 — 99.000 · Ăn uống
+✅ "@chi@xang 2ty" → số tiền 2.000.000.000 · danh mục Đi lại — 2.000.000.000 · Đi lại
+✅ Chia sẻ ảnh từ app ngân hàng (Android) → mở form & tự đọc 2.345.000 — 2.345.000 · hash #thu-chi
+✅ MẤT MẠNG → vẫn đọc ảnh (bộ đọc đã lưu trên máy) — 1.2 s · 150.000
+=== passkeyA
+✅ Đăng ký: residentKey required + UV required + attestation none + ưu tiên platform — {"authenticatorAttachment":"platform","residentKey":"required","requireResidentKey":true,"userVerification":"required"} · attestation none
+✅ User handle ỔN ĐỊNH giữa các lần, KHÔNG chứa ID/SĐT/email — {"id":"zfGo4YHV…","name":"so-ca-nhan"}
+✅ CSDL lưu credential + khoá công khai + user handle (không lưu khoá bí mật / sinh trắc) — [{"deviceType":"multiDevice","backedUp":true,"userHandle":"zfGo4Y…"}]
+✅ Đăng xuất rồi đăng nhập lại bằng passkey (không nhập mật khẩu) → phiên "bio" — qua bio
+✅ Nhiều passkey cho 1 tài khoản + API liệt kê (GET /auth/bio/credentials) — iPhone A, Laptop B
+✅ Không đăng nhập → không xem được danh sách passkey — 401
+✅ Đổi tên passkey — iPhone A, Laptop công ty
+✅ Gắn máy (mặc định): máy khác có bản sao passkey (đăng nhập không cần ID) → TỪ CHỐI — Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Googl
+✅ Passkey đã thu hồi → bị từ chối — locked: Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản – hãy đăng nhập bằng mật kh
+✅ Đăng nhập mật khẩu vẫn hoạt động — 200
+=== passkeyB
+✅ Challenge HẾT HẠN → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Lần đầu hợp lệ → vào; dùng lại (REPLAY) → từ chối — 200 → 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Challenge đăng nhập dùng để mở khoá (sai loại thao tác) → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Challenge của phiên A dùng ở phiên khác → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ SAI CHỮ KÝ → từ chối — 401 Xác thực vân tay / Face ID không thành công
+✅ THIẾU user verification (UV=0) → từ chối — 401 Xác thực vân tay / Face ID không thành công
+=== passkeyD
+✅ BIO_BIND=0: máy khác cùng iCloud đăng nhập bằng passkey đồng bộ, KHÔNG cần gõ ID (discoverable) — gửi {"discoverable":true} · vào app
+✅ User handle không khớp tài khoản → từ chối — 400 Passkey không thuộc tài khoản này
+=== ui16
+✅ Mặc định (chưa lưu lựa chọn): Light Analytics + Theo máy — {"ui":"analytics","theme":"light","skin":"","ls":[null,null],"db":"db db-analytics"}
+✅ Tài khoản mới: hiện "Chưa có…", không có số liệu mẫu
+✅ Chọn Dark Digital → bố cục digital + chế độ Tối Navy (gợi ý) — {"ui":"digital","theme":"dark","skin":"navy","ls":["digital","dark"],"db":"db db-digital"}
+✅ Đổi riêng chế độ Sáng, giữ phong cách Digital — {"ui":"digital","theme":"light","skin":"","ls":["digital","light"],"db":"db db-digital"}
+✅ Premium + Theo máy: tự đổi khi hệ điều hành đổi — dark → light
+✅ Tải lại: giữ Premium + Theo máy (máy đang tối), màu đúng ngay từ đầu — premium|dark|rgb(7, 19, 28)
+✅ Việc vừa thêm hiện trong "Công việc hôm nay"
+✅ Bấm ô đánh dấu → cập nhật dữ liệu thật (done = true)
+✅ Tài chính: thu 20tr, chi 5tr, tiết kiệm 15tr, tỷ lệ 75% (tính từ giao dịch) — Tài chính Tháng này Tháng trước Từ đầu năm Thu nhập +20.000.000 ₫ Chi tiêu −5.000.000 ₫ Tiết kiệm 15.000.000 ₫ Tỷ lệ tiết kiệm 75% Thu – chi 6 tháng Thu Chi T6
+✅ Đổi kỳ "Tháng trước" → không còn số tháng này
+✅ iPhone: thanh đáy 5 mục (Trang chủ, Tài chính, Sức khỏe, Học tập, Khác) — ["Trang chủ","Tài chính","Sức khỏe","Học tập","Khác"]
+✅ Khác → Kế hoạch mở đúng trang, nút "Khác" sáng
+✅ Máy tính: thanh điều hướng bên trái 248px, đủ 7 mục, ẩn "Khác" — {"w":248,"h":900,"more":"none","items":7}
+✅ Không cuộn ngang: 3 phong cách × 320/375/390/430/768/1024/1440
+✅ Màn khoá che dashboard (không lộ số liệu)
+✅ Vùng chạm ô đánh dấu / điều hướng / chip ≥ 44×44 — nhỏ: 0
+✅ Ảnh đại diện: hiện trên nút tài khoản (thanh tiêu đề) và màn khoá — {"hdr":true,"lock":true}
