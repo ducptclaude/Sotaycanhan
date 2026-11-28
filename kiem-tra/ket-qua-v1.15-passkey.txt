@@ -1,0 +1,45 @@
+Kiểm thử Passkey / Face ID / Touch ID – bản 1.15.0 (WebAuthn virtual authenticator, Chrome)
+Lưu ý: virtual authenticator KHÔNG phải bằng chứng Face ID trên iPhone thật – xem PASSKEY.md §7
+
+
+== Lượt A
+✅ Đăng ký: residentKey required + UV required + attestation none + ưu tiên platform — {"authenticatorAttachment":"platform","residentKey":"required","requireResidentKey":true,"userVerification":"required"} · attestation none
+✅ User handle ỔN ĐỊNH giữa các lần, KHÔNG chứa ID/SĐT/email — {"id":"CuTlclbK…","name":"so-ca-nhan"}
+✅ CSDL lưu credential + khoá công khai + user handle (không lưu khoá bí mật / sinh trắc) — [{"deviceType":"multiDevice","backedUp":true,"userHandle":"CuTlcl…"}]
+✅ Đăng xuất rồi đăng nhập lại bằng passkey (không nhập mật khẩu) → phiên "bio" — qua bio
+✅ Nhiều passkey cho 1 tài khoản + API liệt kê (GET /auth/bio/credentials) — iPhone A, Laptop B
+✅ Không đăng nhập → không xem được danh sách passkey — 401
+✅ Đổi tên passkey — iPhone A, Laptop công ty
+✅ Gắn máy (mặc định): máy khác có bản sao passkey (đăng nhập không cần ID) → TỪ CHỐI — Khoá sinh trắc này được bật trên máy khác (khoá đồng bộ iCloud / Googl
+✅ Passkey đã thu hồi → bị từ chối — locked: Vân tay / Face ID của máy này đã bị xoá khỏi tài khoản – hãy đăng nhập bằng mật kh
+✅ Đăng nhập mật khẩu vẫn hoạt động — 200
+Lỗi JS: []
+
+== Lượt C1
+✅ SAI ORIGIN (máy chủ chờ https://sai.example, trình duyệt ký từ http://localhost:8090) → từ chối — 401 Xác thực vân tay / Face ID không thành công
+
+== Lượt C2
+✅ SAI RP ID (máy chủ chờ sai.example, khoá ký cho localhost) → từ chối — 401 Xác thực vân tay / Face ID không thành công
+
+== Lượt B
+✅ Challenge HẾT HẠN → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Lần đầu hợp lệ → vào; dùng lại (REPLAY) → từ chối — 200 → 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Challenge đăng nhập dùng để mở khoá (sai loại thao tác) → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ Challenge của phiên A dùng ở phiên khác → từ chối — 400 Xác thực không hợp lệ, đã hết hạn hoặc vân tay đã bị xoá khỏi tài khoản
+✅ SAI CHỮ KÝ → từ chối — 401 Xác thực vân tay / Face ID không thành công
+✅ THIẾU user verification (UV=0) → từ chối — 401 Xác thực vân tay / Face ID không thành công
+Lỗi JS: []
+
+== Lượt D
+✅ BIO_BIND=0: máy khác cùng iCloud đăng nhập bằng passkey đồng bộ, KHÔNG cần gõ ID (discoverable) — gửi {"discoverable":true} · vào app
+✅ User handle không khớp tài khoản → từ chối — 400 Passkey không thuộc tài khoản này
+Lỗi JS: []
+
+== Lượt E (Postgres)
+✅ Bảng scn_sinh_trac cũ được thêm cột user_handle – khoá cũ 'Laptop cũ' giữ nguyên
+✅ Đăng ký / đăng nhập lại bằng passkey trên Postgres
+✅ Challenge còn hiệu lực sau KHỞI ĐỘNG LẠI máy chủ (lưu bền scn_challenge)
+✅ Dùng lại cùng challenge (replay) → từ chối (DELETE … RETURNING nguyên tử)
+
+== Hồi quy
+đăng nhập 21 bước · sinh trắc (chế độ 1 thiết bị) 11/11 · gắn máy 8/8 · vân tay 11/11 · xác thực lại 8/8 · tài khoản 12/12 · màn đăng nhập 8/8 · lời chào 4/4 · giao diện/ngôn ngữ 9/9 · lỗi cũ 5/5 · Tối Binance 5/5 · đọc ảnh 19/19 – 0 lỗi

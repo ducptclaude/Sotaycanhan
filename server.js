@@ -15,6 +15,7 @@ const { createPush } = require('./server/push');
 const { createBackup } = require('./server/backup');
 const { createAuth } = require('./server/auth');
 const { openBioDB } = require('./server/bio-db');
+const { openChallengeStore } = require('./server/challenge-store');
 
 const ROOT = __dirname, PORT = Number(process.env.PORT || 8080);
 const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH || '';
@@ -91,7 +92,8 @@ const server = http.createServer((req, res) => {
 (async () => {
   store = await openStore({ dir: path.dirname(SYNC_FILE), files: { 'sync-db': SYNC_FILE } });
   const bio = await openBioDB(store); // CSDL sinh trắc riêng (bảng scn_sinh_trac / tệp sinh-trac.json), tự tạo nếu chưa có
-  auth = createAuth({ store, bio });
+  const challenges = await openChallengeStore(store); // challenge WebAuthn: Postgres scn_challenge (dùng 1 lần, 5 phút) / bộ nhớ khi chạy thử
+  auth = createAuth({ store, bio, challenges });
   sync = createSync({ store, token: process.env.SYNC_TOKEN || '', allowOrigin: process.env.ALLOW_ORIGIN || '', onChange: c => push && push.onChange(c), check: h => auth.check(h) });
   auth.setOnRevoke((mode, device) => { sync.dropStreams(mode, device); if (mode !== 'all' && push) push.removeDevices(mode, device); });
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN || '';
