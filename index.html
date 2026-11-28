@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#eaf1f7">
 <script>/* phong cách, chế độ sáng/tối & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang (không nháy sai màu) */try{var D=document.documentElement,_t=localStorage.getItem('scn-theme')||'auto';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _u=localStorage.getItem('scn-ui');if(_u!=='premium'&&_u!=='digital')_u='analytics';var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);D.dataset.theme=_d?'dark':'light';D.dataset.skin=_d?'navy':'';D.dataset.ui=_u;var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content=_d?'#07131c':_u==='premium'?'#f5f8fa':'#eaf1f7';if(localStorage.getItem('scn-lang')==='en'){D.lang='en';D.classList.add('i18n-wait');setTimeout(function(){D.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.16.0-jade">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.16.0-jade">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.16.1-jade">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.16.1-jade">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1253,6 +1253,55 @@ nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
 @media (max-width:480px){:root[data-ui="analytics"] header.top h1{font-size:15.5px;letter-spacing:.02em}.hdr-logo img{width:34px;height:34px}.hdr-r{gap:6px}:root[data-ui] .netpill{max-width:104px}:root[data-ui] .netpill b{overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:11px}:root[data-ui] header.top h1{font-size:17px}}
 @media (max-width:420px){.db-analytics .dbchips a{font-size:10.5px;letter-spacing:-.01em}}
 .acctbtn.pic{padding:0;border-color:var(--line)}.acctbtn.pic .profile-avatar{width:100%;height:100%}
+/* ---- Bảng thông báo ---- */
+.hdrbell{cursor:pointer;padding:0;font:inherit}
+.ntf-wrap{position:fixed;inset:0;z-index:45;pointer-events:none}
+.ntf-wrap.show{pointer-events:auto}
+.ntf-bk{position:absolute;inset:0;background:rgba(7,19,28,.38);opacity:0;transition:opacity .18s}
+.ntf-wrap.show .ntf-bk{opacity:1}
+.ntf{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s ease;padding-top:env(safe-area-inset-top)}
+.ntf-wrap.show .ntf{transform:none}
+.ntf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
+.ntf-hd h3{margin:0;flex:1;font-size:19px;font-weight:700;color:var(--text)}
+.ntf-hd .ntf-x{display:none}.ntf-hd .ntf-back{font-size:26px;line-height:1;width:40px;height:40px}
+.ntf-tabs{display:flex;gap:8px;padding:4px 14px 10px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}.ntf-tabs::-webkit-scrollbar{display:none}
+.ntf-tabs button{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text2);border-radius:999px;padding:7px 13px;min-height:38px;font-size:13px;font-weight:600;cursor:pointer}
+.ntf-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}
+.ntf-tabs i{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--crit);color:#fff;font-size:10.5px;line-height:18px;text-align:center}
+.ntf-tabs button.on i{background:rgba(255,255,255,.28);color:inherit}
+.ntf-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 14px 14px;overscroll-behavior:contain}
+.ntf-sec h4{display:flex;align-items:center;gap:8px;margin:14px 2px 6px;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2)}
+.ntf-sec h4 span{font-size:11px;background:var(--card2);color:var(--text2);border-radius:99px;padding:1px 8px;letter-spacing:0}
+.ntf-it{position:relative;display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:8px;flex-wrap:wrap}
+.ntf-it.new{background:color-mix(in srgb,var(--accent) 7%,var(--card));border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+.ntf-it.new::after{content:'';position:absolute;top:14px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.ntf-it.late .ntf-ic{background:color-mix(in srgb,var(--crit) 14%,transparent)}
+.ntf-ic{width:40px;height:40px;flex:none;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:19px}
+.ntf-m{flex:1;min-width:0;cursor:pointer;padding-right:14px}
+.ntf-m:not([data-act]){cursor:default}
+.ntf-m b{display:block;font-size:14px;font-weight:600;color:var(--text);line-height:1.35}
+.ntf-m small{display:block;font-size:12.5px;color:var(--text2);margin-top:2px;white-space:pre-line;line-height:1.4}
+.ntf-m em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:4px}
+.ntf-it.late .ntf-m em{color:var(--crit);font-weight:600}
+.ntf-a{display:flex;gap:6px;width:100%;justify-content:flex-end;padding-left:52px}
+.ntf-a .btn{min-height:36px}
+.ntf-empty{text-align:center;padding:56px 20px;color:var(--text2)}.ntf-empty div{font-size:40px;opacity:.5}.ntf-empty b{display:block;color:var(--text);margin:8px 0 4px}.ntf-empty small{font-size:13px}
+.ntf-ft{display:flex;justify-content:space-between;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
+.ntf-ft a{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;padding:8px 0}
+body.ntf-on{overflow:hidden}
+@media (min-width:768px){
+  .ntf-bk{background:rgba(7,19,28,.12)}
+  .ntf{inset:auto;top:calc(62px + env(safe-area-inset-top));right:24px;width:420px;max-height:min(640px,calc(100vh - 90px));border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(16,38,58,.22);transform:translateY(-8px);opacity:0;transition:transform .18s,opacity .18s;padding-top:0;overflow:hidden}
+  .ntf-wrap.show .ntf{transform:none;opacity:1}
+  .ntf-hd .ntf-back{display:none}.ntf-hd .ntf-x{display:inline-flex}
+  body.ntf-on{overflow:auto}
+}
+.ntf-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible}
+.ntf-tabs button{justify-content:center;padding:6px 4px;font-size:12.5px;min-width:0;white-space:nowrap;gap:4px}
+.ntf-tabs i{min-width:16px;height:16px;line-height:16px;font-size:10px;padding:0 4px}
+@media (max-width:359px){.ntf-tabs button{font-size:11px}}
+@media (prefers-reduced-motion:reduce){.ntf,.ntf-bk{transition:none}}
+:root[data-theme="dark"] .ntf{box-shadow:0 18px 50px rgba(0,0,0,.5)}
 /* nền digital theo mục cho Tối Navy (lưới + họa tiết rất mờ, cố định phía sau; thẻ vẫn màu đặc) */
 :root[data-theme="dark"][data-skin="navy"] body{background:transparent!important}
 :root[data-theme="dark"][data-skin="navy"]{--scn-grid:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3Cpattern id=%22g%22 width=%2248%22 height=%2248%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M48 0H0V48%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.032%22/%3E%3C/pattern%3E%3Cpattern id=%22p%22 width=%22192%22 height=%22192%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M-4 0h8M0-4v8%22 stroke=%22%23fff%22 stroke-opacity=%22.09%22 transform=%22translate(0 0)%22/%3E%3C/pattern%3E%3Cpattern id=%22d%22 width=%2210%22 height=%2210%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%22.8%22 fill=%22%23fff%22 fill-opacity=%22.06%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23g)%22/%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23p)%22/%3E%3Crect width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3Crect x=%221080%22 y=%22660%22 width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3C/svg%3E")}
@@ -1269,11 +1318,11 @@ nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="hdr-l"><a class="hdr-logo" href="#tong-quan" aria-label="Trang chủ"><img src="icons/icon-192.png?v=1.16.0-jade" alt=""></a><div>
+    <div class="hdr-l"><a class="hdr-logo" href="#tong-quan" aria-label="Trang chủ"><img src="icons/icon-192.png?v=1.16.1-jade" alt=""></a><div>
       <h1 id="title">Tổng quan</h1>
       <div class="sub" id="subtitle">Sổ cá nhân · Tài chính</div>
     </div></div>
-    <div class="hdr-r"><div id="hdr-right"></div><a class="hdrbell" id="hdrbell" href="#nhac-nho" aria-label="Nhắc nhở" title="Nhắc nhở"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd" hidden></span></a><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
+    <div class="hdr-r"><div id="hdr-right"></div><button type="button" class="hdrbell" id="hdrbell" data-act="notif-open" aria-haspopup="dialog" aria-expanded="false" aria-label="Thông báo" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd" hidden></span></button><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
   </header>
   <div id="offbar"></div>
   <div id="note"></div>
@@ -1282,7 +1331,7 @@ nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
 <button class="fab" id="fab" aria-label="Thêm" data-act="fab">+</button>
 <button class="syncfab none" id="syncfab" data-act="sync-now" aria-label="Đồng bộ ngay" title="Đồng bộ ngay" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.4 6.4L3 16"/><path d="M3 21v-5h5"/><path d="M3 12A9 9 0 0 1 18.4 5.6L21 8"/><path d="M21 3v5h-5"/></svg><span class="bd" hidden></span></button>
 <nav class="tabs" id="tabs" aria-label="Điều hướng chính">
-  <a class="nv-brand" href="#tong-quan" aria-label="Sổ Cá Nhân"><img src="icons/icon-192.png?v=1.16.0-jade" alt=""><span><b>Sổ Cá Nhân</b><small>Quản lý cá nhân</small></span></a>
+  <a class="nv-brand" href="#tong-quan" aria-label="Sổ Cá Nhân"><img src="icons/icon-192.png?v=1.16.1-jade" alt=""><span><b>Sổ Cá Nhân</b><small>Quản lý cá nhân</small></span></a>
   <a href="#tong-quan" data-tab="home"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg></span>Trang chủ</a>
   <a href="#tai-chinh" data-tab="fin"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg></span>Tài chính</a>
   <a href="#suc-khoe" data-tab="health"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span>Sức khỏe</a>
@@ -1293,7 +1342,7 @@ nav.tabs .ic svg{width:22px;height:22px;display:block;margin:0 auto 2px}
   <button type="button" class="nv-more" data-act="more" aria-label="Mục khác: Lịch, Kế hoạch, Mục tiêu, Thói quen, Tài khoản…"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>Khác</button>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.16.0-jade" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.16.1-jade" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1710,7 +1759,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.16.0';
+const APP_VER = '1.16.1';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1785,6 +1834,7 @@ async function periodicSyncSetup() {
 }
 // Nhận kết quả đồng bộ do Service Worker thực hiện → cập nhật dữ liệu đang hiển thị
 async function onSwMessage(m) {
+  if (m && m.type === 'scn-notif') { notifLoad(); return; }
   if (m && m.type === 'scn-open' && m.hash) { if (location.hash !== m.hash) location.hash = m.hash; return; }
   if (!m || MODE !== 'idb') return;
   if (m.type === 'scn-synced') {
@@ -2136,7 +2186,7 @@ async function authExpired() {
   AUTH.L = { ...(AUTH.L || {}), need: true }; if (AUTH.L.on) await saveL(); rtStop();
   lockShow('login', AUTH.L.on ? 'Phiên đăng nhập trên máy này đã hết hạn hoặc bị thu hồi. Hãy đăng nhập lại.' : 'Hệ thống đã bật tài khoản chủ. Đăng nhập để tiếp tục đồng bộ.');
 }
-function lockShow(mode, msg, err) { AUTH.mode = mode; AUTH.msg = msg || ''; AUTH.err = !!err; document.documentElement.classList.add('locked'); try { closeModal(); } catch (e) { } lockRender(); }
+function lockShow(mode, msg, err) { try { if (NTF.open) notifClose(); } catch (e) { } AUTH.mode = mode; AUTH.msg = msg || ''; AUTH.err = !!err; document.documentElement.classList.add('locked'); try { closeModal(); } catch (e) { } lockRender(); }
 function lockHide() { document.documentElement.classList.remove('locked'); AUTH.mode = ''; const l = document.getElementById('lock'); if (l) l.querySelector('.lockbox').innerHTML = ''; }
 // Biểu tượng nút sinh trắc (không chữ, như app ngân hàng) & nút hiện mật khẩu
 const BIO_ICON = {
@@ -2414,7 +2464,7 @@ async function authLogout(fromLock) {
   rtStop(); IDB.cfg = { ...IDB.cfg, token: '' }; await idbSet('meta', 'sync', IDB.cfg);
   AUTH.L = { on: false, id: AUTH.L && AUTH.L.id, fullName: wipe.w ? '' : (AUTH.L && AUTH.L.fullName) || '', avatar: wipe.w ? '' : (AUTH.L && AUTH.L.avatar) || '', lockMin: AUTH.L && AUTH.L.lockMin }; await saveL(); lsLock(false); // giữ Họ tên để màn đăng nhập chào đúng người
   try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); await idbSet('meta', 'push', { on: false }); } catch (e) { }
-  if (wipe.w) { for (const x of await bioAll()) await bioDel(x.id); await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
+  if (wipe.w) { NTF.list = []; NTF.seen = {}; await idbSet('meta', 'notifs', []).catch(() => { }); await idbSet('meta', 'notifSeen', {}).catch(() => { }); for (const x of await bioAll()) await bioDel(x.id); await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
   toast('Đã đăng xuất khỏi máy này.'); lockShow('login');
 }
 // ---- Tự khoá: khi mở app (authBoot) + sau N phút không dùng / ẩn app ----
@@ -2828,7 +2878,7 @@ function render() {
   document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', !!a.dataset.tab && a.dataset.tab === grp));
   try { hdrAvatar(); } catch (e) { }
   const nvm = document.querySelector('nav.tabs .nv-more'); if (nvm) nvm.classList.toggle('on', grp === 'cal' || grp === 'plan' || grp === 'acct');
-  try { const bl = document.getElementById('hdrbell'), n = MODE === 'loading' ? 0 : attention().filter(a => a.sev >= 2).length, bd = bl && bl.querySelector('.bd'); if (bd) { bd.hidden = !n; bd.textContent = n > 9 ? '9+' : n; bl.setAttribute('aria-label', n ? 'Nhắc nhở: ' + n + ' mục cần chú ý' : 'Nhắc nhở'); } } catch (e) { }
+  try { if (!NTF.ready) notifLoad(); else notifBadge(); if (NTF.open) notifRender(); } catch (e) { }
   const navA = document.querySelector(`nav.tabs a[data-tab=${grp}]`); if (navA && grp !== 'home') navA.setAttribute('href', '#' + UI.tab);
   document.getElementById('title').textContent = UI.tab === 'tong-quan' ? 'Sổ Cá Nhân' : TITLES[UI.tab];
   document.getElementById('subtitle').textContent = grp === 'fin' ? 'Sổ cá nhân · Tài chính' : grp === 'cal' ? 'Sổ cá nhân · Lịch' : grp === 'learn' ? 'Sổ cá nhân · Học tập' : grp === 'acct' ? 'Sổ cá nhân · Quản lý tài khoản' : UI.tab === 'tong-quan' ? 'Hệ thống quản lý cá nhân' : 'Sổ cá nhân';
@@ -3459,6 +3509,94 @@ function viewHome() {
   else h += dbWeek(D, u, 's7') + dbTasks(D, u, 's5') + dbFinance(D, u) + dbHealth(D, u, 's4') + dbLearn(D, 's4') + dbGoals(D, 's4') + dbAgenda(D);
   return h + `</div>`;
 }
+// ================= BẢNG THÔNG BÁO (biểu tượng 🔔 trên thanh tiêu đề) =================
+// Như app khác: bấm chuông → mở bảng thông báo (điện thoại: toàn màn hình · máy tính: thả xuống), có số chưa đọc.
+// Nguồn: nhắc nhở đã đến giờ (Xong / Báo lại) · việc cần chú ý · sắp tới hôm nay · lịch sử thông báo (đẩy từ máy chủ
+// do Service Worker ghi lại + nhắc nhở đã báo trên máy). Lưu trên máy (IndexedDB 'meta'), không gửi đi đâu.
+const NTF = { list: [], seen: {}, tab: 'all', open: false, ready: false };
+async function notifLoad() {
+  try { NTF.list = (await idbGet('meta', 'notifs')) || []; NTF.seen = (await idbGet('meta', 'notifSeen')) || {}; } catch (e) { }
+  NTF.ready = true; notifBadge(); if (NTF.open) notifRender();
+}
+async function notifLog(x) { // ghi 1 thông báo vào lịch sử trên máy (tối đa 60 mục)
+  try { const L = (await idbGet('meta', 'notifs')) || []; L.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), read: false, ...x }); NTF.list = L.slice(0, 60); await idbSet('meta', 'notifs', NTF.list); } catch (e) { }
+  notifBadge(); if (NTF.open) notifRender();
+}
+const ntfKey = a => 'a:' + a.t;
+function notifData() {
+  if (typeof MODE === 'undefined' || MODE === 'loading') return { act: [], att: [], up: [], log: NTF.list };
+  const c = remCenter(), remT = new Set([...c.A, ...c.B].map(o => o.t));
+  const att = attention().filter(a => !remT.has(a.t.replace(/^🔔 /, '')));
+  return { act: c.A, att, up: c.B, log: NTF.list };
+}
+function notifCount(d) {
+  d = d || notifData();
+  return d.act.filter(o => !NTF.seen['r:' + o.key]).length + d.att.filter(a => a.sev >= 2 && !NTF.seen[ntfKey(a)]).length + d.log.filter(x => !x.read).length;
+}
+function notifBadge() {
+  const bl = document.getElementById('hdrbell'); if (!bl) return;
+  let n = 0; try { n = notifCount(); } catch (e) { }
+  const bd = bl.querySelector('.bd'); if (bd) { bd.hidden = !n; bd.textContent = n > 99 ? '99+' : n; }
+  bl.setAttribute('aria-label', n ? 'Thông báo: ' + n + ' chưa đọc' : 'Thông báo');
+}
+function ntfAgo(ts) { const m = Math.round((Date.now() - ts) / 60000); if (m < 1) return 'Vừa xong'; if (m < 60) return m + ' phút trước'; const h = Math.round(m / 60); if (h < 24) return h + ' giờ trước'; const d = Math.round(h / 24); return d < 7 ? d + ' ngày trước' : fmtDate(new Date(ts).toISOString().slice(0, 10)); }
+function ntfHash(url) { const m = String(url || '').match(/#([\w-]+)/); return m && TABS[m[1]] ? m[1] : ''; }
+function notifRender() {
+  const box = document.getElementById('ntf-list'); if (!box) return;
+  const d = notifData(), tab = NTF.tab, now = Date.now();
+  const sec = (title, n, body) => n ? `<section class="ntf-sec"><h4>${title}<span>${n}</span></h4>${body}</section>` : '';
+  const row = (ic, t, sub, meta, attrs, extra, unread, tone) => `<div class="ntf-it ${unread ? 'new' : ''} ${tone || ''}"><div class="ntf-ic">${ic}</div><div class="ntf-m" ${attrs}><b>${esc(t)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}<em>${meta}</em></div>${extra || ''}</div>`;
+  let h = '';
+  if (tab === 'all' || tab === 'rem') {
+    h += sec('Đến giờ', d.act.length, d.act.map(o => row(o.ic, o.t, o.sub || '', o.due <= now ? (o.tm ? 'Đến giờ · ' + o.tm : 'Hôm nay') : 'Còn ' + durTxt(o.due - now), `data-act="${o.act}" ${o.id ? `data-id="${esc(o.id)}"` : ''} ${o.h ? `data-h="${o.h}"` : ''}`,
+      `<div class="ntf-a"><button class="btn sm" data-act="rem-snooze" data-k="${esc(o.key)}" title="Báo lại sau 10 phút">💤 10'</button><button class="btn sm primary" data-act="rem-done" data-k="${esc(o.key)}">✓ Xong</button></div>`, !NTF.seen['r:' + o.key], 'hot')).join(''));
+    h += sec('Sắp tới hôm nay', d.up.length, d.up.map(o => row(o.ic, o.t, o.sub || '', o.tm ? o.tm + ' · còn ' + durTxt(o.due - now) : 'Cả ngày', `data-act="${o.act}" ${o.id ? `data-id="${esc(o.id)}"` : ''} ${o.h ? `data-h="${o.h}"` : ''}`, '', false)).join(''));
+  }
+  if (tab === 'all' || tab === 'att') h += sec('Cần chú ý', d.att.length, d.att.map(a => row(a.ic, a.t.replace(/^🔔 /, ''), a.sub, a.sev === 3 ? '⚠ Khẩn' : a.sev === 2 ? 'Sắp tới' : 'Lưu ý', `data-act="${a.act}" ${a.id ? `data-id="${esc(a.id)}"` : ''} ${a.extra}`, '', a.sev >= 2 && !NTF.seen[ntfKey(a)], a.sev === 3 ? 'late' : '')).join(''));
+  if (tab === 'all' || tab === 'log') h += sec('Hoạt động', d.log.length, d.log.slice(0, 40).map(x => { const hs = ntfHash(x.url); return row(x.kind === 'rem' ? '🔔' : x.kind === 'backup' ? '🗄️' : '📲', x.title, x.body, ntfAgo(x.at), hs ? `data-act="go" data-h="${hs}"` : '', '', !x.read); }).join(''));
+  box.innerHTML = h || `<div class="ntf-empty"><div>🔔</div><b>Không có thông báo</b><small>${tab === 'all' ? 'Nhắc nhở, việc cần chú ý và hoạt động đồng bộ sẽ hiện ở đây.' : 'Chưa có mục nào trong nhóm này.'}</small></div>`;
+  const cnt = { all: notifCount(d), rem: d.act.filter(o => !NTF.seen['r:' + o.key]).length, att: d.att.length, log: d.log.filter(x => !x.read).length };
+  document.querySelectorAll('#notif .ntf-tabs button').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.setAttribute('aria-selected', b.dataset.t === tab); const s = b.querySelector('i'); if (s) { s.textContent = cnt[b.dataset.t] || ''; s.hidden = !cnt[b.dataset.t]; } });
+}
+function notifOpen() {
+  let p = document.getElementById('notif');
+  if (!p) {
+    p = document.createElement('div'); p.id = 'notif'; p.className = 'ntf-wrap';
+    p.innerHTML = `<div class="ntf-bk" data-ntf="x"></div><div class="ntf" role="dialog" aria-modal="true" aria-labelledby="ntf-h"><div class="ntf-hd"><button class="iconbtn ntf-back" data-ntf="x" aria-label="Đóng">‹</button><h3 id="ntf-h">Thông báo</h3><button class="btn sm ghost" data-ntf="read">Đánh dấu đã đọc</button><button class="iconbtn ntf-x" data-ntf="x" aria-label="Đóng">✕</button></div>
+      <div class="ntf-tabs" role="tablist">${[['all', 'Tất cả'], ['rem', 'Nhắc nhở'], ['att', 'Cần chú ý'], ['log', 'Hoạt động']].map(([k, l]) => `<button type="button" role="tab" data-t="${k}">${l}<i hidden></i></button>`).join('')}</div>
+      <div class="ntf-list" id="ntf-list"></div>
+      <div class="ntf-ft"><a href="#nhac-nho" data-ntf="go">🔔 Trung tâm nhắc nhở</a><a href="#ca-nhan" data-ntf="go">⚙️ Cài đặt thông báo</a></div></div>`;
+    document.body.appendChild(p);
+    p.addEventListener('click', e => {
+      const n = e.target.closest('[data-ntf]'); if (n) { if (n.dataset.ntf === 'read') notifReadAll(); else notifClose(); return; }
+      const t = e.target.closest('.ntf-tabs button'); if (t) { NTF.tab = t.dataset.t; notifRender(); return; }
+      const a = e.target.closest('[data-act]'); if (!a) return;
+      if (a.dataset.act === 'rem-done' || a.dataset.act === 'rem-snooze') { setTimeout(() => { notifRender(); notifBadge(); }, 400); return; } // xử lý ngay trong bảng
+      setTimeout(notifClose, 0); // mở đúng mục → đóng bảng
+    });
+  }
+  NTF.open = true; p.classList.add('show'); document.body.classList.add('ntf-on'); notifRender();
+  const bl = document.getElementById('hdrbell'); if (bl) bl.setAttribute('aria-expanded', 'true');
+  setTimeout(() => { const f = p.querySelector('.ntf-tabs button.on') || p.querySelector('.ntf-x'); if (f) f.focus({ preventScroll: true }); }, 50);
+  notifMarkSeen();
+}
+function notifClose() {
+  const p = document.getElementById('notif'); if (!p || !NTF.open) return; NTF.open = false; p.classList.remove('show'); document.body.classList.remove('ntf-on');
+  const bl = document.getElementById('hdrbell'); if (bl) { bl.setAttribute('aria-expanded', 'false'); bl.focus({ preventScroll: true }); }
+  notifBadge();
+}
+async function notifMarkSeen() { // đã mở bảng = đã xem các mục hiện có (chấm "mới" vẫn hiện trong lần mở này)
+  const d = notifData(), now = Date.now(); let ch = false;
+  d.att.forEach(a => { if (!NTF.seen[ntfKey(a)]) { NTF.seen[ntfKey(a)] = now; ch = true; } });
+  d.act.forEach(o => { if (!NTF.seen['r:' + o.key]) { NTF.seen['r:' + o.key] = now; ch = true; } });
+  for (const k in NTF.seen) if (now - NTF.seen[k] > 30 * 864e5) { delete NTF.seen[k]; ch = true; }
+  const unread = NTF.list.some(x => !x.read); if (unread) NTF.list = NTF.list.map(x => ({ ...x, read: true }));
+  try { if (ch) await idbSet('meta', 'notifSeen', NTF.seen); if (unread) await idbSet('meta', 'notifs', NTF.list); } catch (e) { }
+  notifBadge();
+}
+async function notifReadAll() { await notifMarkSeen(); notifRender(); document.querySelectorAll('#notif .ntf-it.new').forEach(x => { if (!x.classList.contains('hot')) x.classList.remove('new'); }); toast('Đã đánh dấu đã đọc.'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && NTF.open) notifClose(); });
+window.addEventListener('hashchange', () => { if (NTF.open) notifClose(); });
 function moreMenu() { // "Khác" ở thanh điều hướng đáy: các mục không nằm trên thanh
   const it = [['lich', 'cal', 'Lịch cá nhân'], ['ke-hoach', 'plan', 'Kế hoạch'], ['muc-tieu', 'goal', 'Mục tiêu'], ['thoi-quen', 'habit', 'Thói quen'], ['ghi-chep', 'learn', 'Ghi chép'], ['danh-ba', 'home', 'Danh bạ quan hệ'], ['tong-ket', 'fin', 'Tổng kết tháng'], ['ca-nhan', 'more', 'Tài khoản']];
   openModal(`<h3>Mục khác<button class="iconbtn" data-x>✕</button></h3><div class="dbmenu">${it.map(([h, k, l]) => `<a href="#${h}" data-x>${dbIc(k)}<span>${l}</span></a>`).join('')}</div>`, sh => { sh.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', () => closeModal())); });
@@ -4009,6 +4147,7 @@ function remTick() {
   const hit = L.filter(o => !_remShown.has(o.key + now) && (o.rem.some(m => { const t = o.due - m * 60000; return t > prev && t <= now; }) || (snoozeOf(o.key) > prev && snoozeOf(o.key) <= now)));
   if (hit.length) {
     hit.forEach(o => _remShown.add(o.key + now)); beep(); showRemPop(hit);
+    hit.forEach(o => notifLog({ kind: 'rem', title: o.t, body: [o.tm ? 'Đến giờ · ' + o.tm : 'Hôm nay', o.sub].filter(Boolean).join(' · '), url: '#' + (o.h && TABS[o.h] ? o.h : 'nhac-nho') }));
     if (remState().notify && 'Notification' in window && Notification.permission === 'granted') hit.forEach(o => { try { new Notification('🔔 ' + o.t, { body: (o.tm ? o.tm + ' · ' : '') + fmtDate(o.d) + (o.sub ? ' · ' + o.sub : ''), tag: o.key }); } catch (e) { } });
   }
   if (['nhac-nho', 'uong-thuoc'].includes(UI.tab) && !document.getElementById('ov').classList.contains('show')) render();
@@ -6292,6 +6431,7 @@ document.addEventListener('click', e => {
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
     case 'todo-new': todoForm(); break;
+    case 'notif-open': if (NTF.open) notifClose(); else notifOpen(); break;
     case 'more': moreMenu(); break;
     case 'learn-seg': UI.learnSeg = el.dataset.k; render(); break;
     case 'say': speak(el.dataset.t); break;
