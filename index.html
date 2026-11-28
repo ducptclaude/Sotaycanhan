@@ -1764,9 +1764,32 @@ async function backupReminder() {
 // ================= ĐĂNG NHẬP & KHOÁ APP (ID/SĐT + mật khẩu · vân tay / Face ID qua khoá truy cập) =================
 // AUTH.L (meta 'auth' trên máy): { on, id, phone, lockMin, pass:{salt,hash} (kiểm tra mật khẩu khi mất mạng), creds:[id khoá truy cập của máy này], need:true khi phiên hết hạn }
 const AUTH = { L: null, st: null, mode: '', msg: '', err: false, tries: 0, waitUntil: 0 };
-const authBase = () => (IDB.cfg.url || (STANDALONE_HOST ? location.origin : '')).replace(/\/+$/, '');
+const iosBiometrics = window.webkit?.messageHandlers?.sotaycanhanBiometrics;
+const iosBioCall = (action, challenge) => iosBiometrics.postMessage(challenge ? { action, challenge } : { action });
+const iosBioStatus = () => iosBioCall('status').catch(() => ({ available: false, id: '' }));
+async function iosBioVerify(action) {
+  const { id } = await iosBioStatus();
+  if (!id) throw new Error('Hãy đăng nhập bằng mật khẩu và bật Face ID / Touch ID trong Tài khoản.');
+  const authenticated = action === 'unlock';
+  const { flow, challenge } = await authPost('/auth/native/' + action + '-options', { id }, authenticated);
+  const proof = await iosBioCall(action, challenge);
+  return authPost('/auth/native/' + action, { flow, id, signature: proof.signature }, authenticated);
+}
+async function iosBioEnroll() {
+  let options;
+  try { options = await authPost('/auth/native/register-options', {}, true); }
+  catch (error) {
+    if (error.code !== 'stepup' || !await stepUp('Bật Face ID / Touch ID trên iPhone')) throw error;
+    options = await authPost('/auth/native/register-options', {}, true);
+  }
+  const proof = await iosBioCall('register', options.challenge);
+  await authPost('/auth/native/register', { ...proof, flow: options.flow }, true);
+  toast('Đã bật Face ID / Touch ID trên iPhone này.');
+  if (UI.tab === 'ca-nhan') await acctLoad(true);
+}
+const authBase = () => (iosBiometrics ? location.origin : IDB.cfg.url || (STANDALONE_HOST ? location.origin : '')).replace(/\/+$/, '');
 const lsLock = v => { try { localStorage.setItem('scn-lock', v ? '1' : '0'); } catch (e) { } };
-const waSupported = () => !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext);
+const waSupported = () => !iosBiometrics && !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext);
 async function waPlatform() { try { return waSupported() && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); } catch (e) { return false; } }
 const bufU = b => { const a = new Uint8Array(b); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 function credJSON(c) {
@@ -1819,7 +1842,7 @@ async function lockRender() {
   const keep = id => ((box.querySelector('#' + id) || {}).value || ''); // giữ nội dung đã gõ khi vẽ lại (VD sau khi báo sai mật khẩu)
   const kId = keep('lk-id'), kTok = keep('lk-tok');
   const L = AUTH.L || {}, mode = AUTH.mode === 'login' && !navigator.onLine && L.on && (L.pass || (L.creds || []).length) ? 'unlock' : AUTH.mode;
-  const st = AUTH.st || {}, plat = await waPlatform();
+  const st = AUTH.st || {}, native = iosBiometrics && await iosBioStatus();
   const msg = AUTH.msg ? `<div class="msg ${AUTH.err ? 'err' : ''}">${esc(AUTH.msg)}</div>` : '';
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
   // ---- giao diện kiểu app ngân hàng ----
@@ -1827,7 +1850,7 @@ async function lockRender() {
   const hr = new Date().getHours(), hello = hr < 11 ? 'Chào buổi sáng' : hr < 14 ? 'Chào buổi trưa' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
   const ini = (name ? name.split(' ').pop() : (L.id || '')).charAt(0).toUpperCase();
   const isFace = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-  const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = isFace ? 'Face ID / Touch ID (Passkey)' : 'Vân tay (Passkey)';
+  const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = iosBiometrics ? 'Face ID / Touch ID' : isFace ? 'Face ID / Touch ID (Passkey)' : 'Vân tay (Passkey)';
   const top = `<div class="lk-top"><div class="lk-brand"><img src="icons/icon-192.png?v=${APP_VER}" alt=""><span>SỔ CÁ NHÂN</span></div>${prefUI(true)}</div>`;
   const avatar = (lock) => `<div class="lk-av ${ini && (mode !== 'login' || known) ? '' : 'logo'}">${ini && (mode !== 'login' || known) ? `<span>${esc(ini)}</span>` : `<img src="icons/icon-192.png?v=${APP_VER}" alt="">`}${lock ? '<i class="lk-lock">🔒</i>' : ''}</div>`;
   const greet = (mode !== 'login' || known)
@@ -1836,7 +1859,7 @@ async function lockRender() {
   const pwf = (id, ac, ph) => `<div class="f pwf"><span class="pwi" aria-hidden="true">🔒</span><input id="${id}" type="password" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph}"><button type="button" class="eye" data-eye="${id}" aria-label="Hiện / ẩn mật khẩu" title="Hiện / ẩn mật khẩu">${EYE_ICON}</button></div>`;
   let h = '';
   if (mode === 'unlock') {
-    const hasBio = (L.creds || []).length && waSupported();
+    const hasBio = native ? !!native.id && navigator.onLine : (L.creds || []).length && waSupported();
     h = `${top}<div class="hd">${avatar(true)}${greet}</div>${msg}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
       ${pwf('lk-pw', 'current-password', 'Mật khẩu')}
@@ -1850,7 +1873,7 @@ async function lockRender() {
       <button class="btn primary lk-go" style="width:100%" type="submit">Đặt lại & đăng nhập</button></form>
       <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px;margin:6px 0 0">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    const hasBio = st.passkeys && waSupported();
+    const hasBio = native ? !!native.id && navigator.onLine : st.passkeys && waSupported();
     h = `${top}<div class="hd">${avatar(false)}${greet}</div>${msg}
       <form id="lk-form" autocomplete="on"><div class="f idf"><span class="pwi" aria-hidden="true">👤</span><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
       ${pwf('lk-pw', 'current-password', 'Mật khẩu')}
@@ -1925,7 +1948,8 @@ async function credsRefresh() {
   } catch (e) { } // mất mạng / máy chủ chậm: giữ nguyên, kiểm tra lại lần sau
 }
 const BIO_ERR = e => e && e.name === 'NotAllowedError' ? 'Không xác thực được (đã huỷ, không khớp hoặc hết thời gian). Thử lại hoặc dùng mật khẩu.' : e && e.name === 'NotSupportedError' ? 'Thiết bị / trình duyệt này không hỗ trợ passkey. Hãy dùng mật khẩu.' : e && e.name === 'SecurityError' ? 'Passkey chỉ dùng được qua HTTPS trên đúng tên miền của app.' : e && e.name === 'InvalidStateError' ? 'Passkey này đã được đăng ký cho máy này.' : e instanceof TypeError ? 'Không kết nối được máy chủ.' : (e && e.message) || 'Lỗi xác thực';
-async function bioServerVerify() { // máy chủ phát thử thách → cảm biến thiết bị ký → máy chủ kiểm chữ ký (đồng thời ghi nhận "vừa xác thực lại")
+async function bioServerVerify() {
+  if (iosBiometrics) { await iosBioVerify('unlock'); _stepAt = Date.now(); return true; } // máy chủ phát thử thách → cảm biến thiết bị ký → máy chủ kiểm chữ ký (đồng thời ghi nhận "vừa xác thực lại")
   const { flow, options } = await authPost('/auth/bio/unlock-options', {}, true);
   const c = await navigator.credentials.get({ publicKey: { ...options, challenge: b64u(options.challenge), allowCredentials: (options.allowCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
   const rec = (await bioAll()).find(x => x.id === c.id);
@@ -1938,7 +1962,7 @@ let _stepAt = 0;
 const STEP_LOCAL_MS = 5 * 60000;
 const bigTxNeed = amt => !!(AUTH.L && AUTH.L.on && AUTH.L.bigTx > 0 && Number(amt) >= AUTH.L.bigTx);
 async function stepUp(reason) { // xác thực lại với MÁY CHỦ: sinh trắc (nếu máy đã bật) hoặc mật khẩu
-  const hasBio = (await bioAll()).length > 0 && waSupported();
+  const hasBio = iosBiometrics ? !!(await iosBioStatus()).id : (await bioAll()).length > 0 && waSupported();
   return new Promise(res => {
     // Lớp riêng NẰM TRÊN form đang mở (không thay nội dung form – giữ nguyên dữ liệu đang nhập)
     const ov = document.createElement('div'); ov.className = 'ov show'; ov.style.zIndex = 260; ov.innerHTML = '<div class="sheet" style="max-width:420px"></div>'; document.body.appendChild(ov);
@@ -1966,6 +1990,7 @@ async function localStepUp(reason) { // thao tác trên máy: có mạng → nh�
 }
 async function unlockBio() {
   try {
+    if (iosBiometrics) { await bioServerVerify(); return unlocked(); }
     await credsRefresh();
     const list = await bioAll();
     if (!list.length) { await bioSyncMirror(); lockMsg('Vân tay / Face ID của máy này chưa bật hoặc đã bị xoá khỏi tài khoản. Hãy mở bằng mật khẩu rồi bật lại trong 👤 Tài khoản.'); return; }
@@ -2005,6 +2030,7 @@ async function loginPw(login, pw, fromUnlock) {
 async function loginPasskey(btn) {
   try {
     if (btn) btn.disabled = true;
+    if (iosBiometrics) { await authSaved(await iosBioVerify('login'), null, null); return; }
     if (!waSupported()) throw new Error('Trình duyệt / thiết bị này không hỗ trợ passkey (Face ID / Touch ID / vân tay). Hãy đăng nhập bằng mật khẩu.');
     const local = await bioAll(), mineIds = new Set(local.map(x => x.id)); // khoá đã bật trên CHÍNH máy này
     const { flow, options } = await authPost('/auth/bio/login-options', { discoverable: !mineIds.size }); // máy chưa có khoá → passkey discoverable: iOS tự hiện danh sách, không cần gõ ID
@@ -2031,7 +2057,7 @@ async function authSaved(r, pw, credId) {
   if (!same) { for (const x of await bioAll()) await bioDel(x.id); } // tài khoản khác → xoá khoá sinh trắc cũ trên máy
   await bioSyncMirror(); await saveL(); lsLock(true); AUTH.st = { ...(AUTH.st || {}), setup: true };
   RT.denied = false; rtStop(); unlocked(); syncNow(); periodicSyncSetup(); setTimeout(() => { pushRefresh(); }, 2000);
-  if (!AUTH.L.creds.length && await waPlatform()) setTimeout(offerPasskey, 600);
+  if (iosBiometrics ? (await iosBioStatus()).available && !(a.nativeDevices || []).some(p => p.mine) : !AUTH.L.creds.length && await waPlatform()) setTimeout(offerPasskey, 600);
 }
 async function offerPasskey() {
   if (!(await confirmDlg('Bật <b>mở khoá bằng vân tay / Face ID</b> trên máy này? Lần sau chỉ cần chạm vân tay để mở app.', '👆 Bật ngay'))) return;
@@ -2039,6 +2065,7 @@ async function offerPasskey() {
 }
 async function addPasskey() { // bật vân tay / Face ID cho máy này: khoá GẮN MÁY (mã bí mật), lưu CSDL sinh trắc riêng (máy chủ + máy)
   try {
+    if (iosBiometrics) return await iosBioEnroll();
     let ro; try { ro = await authPost('/auth/bio/register-options', {}, true); } catch (er) { if (er.code === 'stepup' && await stepUp('Bật vân tay / Face ID cho máy này')) ro = await authPost('/auth/bio/register-options', {}, true); else throw er; }
     const { flow, options, policy } = ro;
     const c = await navigator.credentials.create({ publicKey: { ...options, challenge: b64u(options.challenge), user: { ...options.user, id: b64u(options.user.id) }, excludeCredentials: (options.excludeCredentials || []).map(x => ({ ...x, id: b64u(x.id) })) } });
@@ -2065,7 +2092,7 @@ async function authLogout(fromLock) {
   try { if (navigator.onLine) await authPost('/auth/logout', {}, true); } catch (e) { }
   rtStop(); IDB.cfg = { ...IDB.cfg, token: '' }; await idbSet('meta', 'sync', IDB.cfg);
   AUTH.L = { on: false, id: AUTH.L && AUTH.L.id, fullName: wipe.w ? '' : (AUTH.L && AUTH.L.fullName) || '', lockMin: AUTH.L && AUTH.L.lockMin }; await saveL(); lsLock(false); // giữ Họ tên để màn đăng nhập chào đúng người
-  try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); await idbSet('meta', 'push', { on: false }); } catch (e) { }
+  try { const reg = await navigator.serviceWorker?.getRegistration(), sub = await reg?.pushManager?.getSubscription(); if (sub) await sub.unsubscribe(); await idbSet('meta', 'push', { on: false }); } catch (e) { }
   if (wipe.w) { for (const x of await bioAll()) await bioDel(x.id); await idbReq(['docs', 'outbox', 'files'], 'readwrite', t => { ['docs', 'outbox', 'files'].forEach(n => t.objectStore(n).clear()); }); await idbSet('meta', 'lastSync', 0); await idbSet('meta', 'epoch', ''); location.reload(); return; }
   toast('Đã đăng xuất khỏi máy này.'); lockShow('login');
 }
@@ -2119,7 +2146,7 @@ async function acctLoad(force) {
       try { pushes = (await apiFetch('/push/list', { method: 'POST', body: '{}' })).devices || []; } catch (e) { }
     }
     const pm = (await idbGet('meta', 'push').catch(() => null)) || {};
-    UI.acct = { at: Date.now(), st, me, pushes, pm, plat: await waPlatform(), err: '' };
+    UI.acct = { at: Date.now(), st, me, pushes, pm, plat: iosBiometrics ? (await iosBioStatus()).available : await waPlatform(), err: '' };
     if (me && AUTH.L && (AUTH.L.fullName || '') !== (me.fullName || '')) { AUTH.L.fullName = me.fullName || ''; saveL().catch(() => { }); } // họ tên đổi ở máy khác → cập nhật cho màn chào
   } catch (e) { UI.acct = { ...(UI.acct || {}), at: Date.now(), err: e.message }; }
   finally { _acctBusy = false; }
@@ -2129,7 +2156,7 @@ function viewAccount() {
   const A = UI.acct; if (!A || Date.now() - A.at > 30000) setTimeout(() => acctLoad(), 0);
   if (!A) return `<div class="card"><div class="loading"><div class="spin"></div>Đang tải tài khoản…</div></div>`;
   const L = AUTH.L || {}, me = A.me, dt = ts => ts ? hmOf(ts) + ' ' + fmtDate(dsOf(ts)) : '—';
-  const via = { password: 'mật khẩu', passkey: 'vân tay / Face ID', setup: 'tạo tài khoản', reset: 'đặt lại mật khẩu' };
+  const via = { 'native-ios': 'Face ID / Touch ID', password: 'mật khẩu', passkey: 'vân tay / Face ID', setup: 'tạo tài khoản', reset: 'đặt lại mật khẩu' };
   let h = '<div class="acp">';
   // Chưa đăng nhập
   if (!L.on) {
@@ -2147,13 +2174,14 @@ function viewAccount() {
     <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa họ tên / ID / số điện thoại</button></div>
     <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>Họ tên (hiện trong câu chào màn đăng nhập)</label><input id="ac-fn" value="${esc(L.fullName || '')}" autocomplete="name" maxlength="40" placeholder="VD: Nguyễn Văn Trung"></div><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
   // 2. Đăng nhập & bảo mật
-  const pks = me ? me.passkeys : [], hasLocal = (L.creds || []).length;
+  const pks = me && !iosBiometrics ? me.passkeys : [], nativeDevices = me?.nativeDevices || [], hasLocal = iosBiometrics ? nativeDevices.some(p => p.mine) : (L.creds || []).length;
   h += `<div class="sechd"><span>🔐 Đăng nhập & bảo mật</span></div><div class="card">
     <div class="kv2"><span class="l">Mật khẩu</span><button class="btn sm" data-act="ac-fold" data-k="pw" ${offline ? 'disabled' : ''}>🔑 Đổi mật khẩu</button></div>
     <div class="fold ${UI.acctOpen === 'pw' ? 'open' : ''}"><div class="f"><input id="ac-cur" type="password" autocomplete="current-password" placeholder="Mật khẩu hiện tại"></div><div class="f"><input id="ac-new" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (≥ 8 ký tự)"></div><div class="f"><input id="ac-new2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div><label class="check" style="font-size:12.5px"><input type="checkbox" id="ac-lo" checked> Đăng xuất mọi máy khác</label><button class="btn sm primary" data-act="ac-pw" style="margin-top:6px">Đổi mật khẩu</button></div>
     <div class="kv2"><span class="l">Tự khoá app</span><select id="ac-lock" style="width:auto">${[[1, 'Sau 1 phút'], [5, 'Sau 5 phút'], [15, 'Sau 15 phút'], [30, 'Sau 30 phút'], [0, 'Chỉ khi mở app']].map(([k, l]) => `<option value="${k}" ${L.lockMin === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="kv2" style="align-items:flex-start"><span class="l">👆 Vân tay / Face ID<br><span class="muted" style="font-size:12px">${hasLocal ? '✓ Máy này đã bật' : A.plat ? 'Máy này chưa bật' : 'Máy này không có cảm biến'}</span></span>${!hasLocal && A.plat && !offline ? '<button class="btn sm primary" data-act="ac-pk">Bật cho máy này</button>' : ''}</div>
-    ${me ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được'} · không lưu thông tin cá nhân trong khoá</div><div class="muted" style="font-size:12px;margin:0 0 4px">🔑 Passkey (Face ID / Touch ID / vân tay) đăng ký <b>một lần trên mỗi máy</b>. Khi xác thực, iPhone có thể cho dùng <b>mật mã máy</b> thay sinh trắc – đây là cơ chế của iOS, app không phân biệt được. Luôn giữ mật khẩu để đăng nhập khi mất máy.</div>` : ''}
+    ${me && !iosBiometrics ? `<div class="muted" style="font-size:12px;margin:2px 0 4px">CSDL sinh trắc riêng (${esc(me.bioDb || '')}) · ${me.bioPolicy === 'device-only' ? 'chỉ chấp nhận khoá gắn chặt thiết bị – không dùng passkey đồng bộ đám mây' : 'khoá gắn máy: mỗi khoá kèm mã bí mật chỉ có trên máy đã bật – khoá đồng bộ iCloud / Google sang máy khác không dùng được'} · không lưu thông tin cá nhân trong khoá</div><div class="muted" style="font-size:12px;margin:0 0 4px">🔑 Passkey (Face ID / Touch ID / vân tay) đăng ký <b>một lần trên mỗi máy</b>. Khi xác thực, iPhone có thể cho dùng <b>mật mã máy</b> thay sinh trắc – đây là cơ chế của iOS, app không phân biệt được. Luôn giữ mật khẩu để đăng nhập khi mất máy.</div>` : ''}
+    ${nativeDevices.map(p => `<div class="kv2"><span>${esc(p.name)}${p.mine ? ' · Máy này' : ''}</span><button class="btn sm" data-act="ac-native-del" data-id="${esc(p.id)}" data-mine="${p.mine ? '1' : ''}">Thu hồi khóa</button></div>`).join('')}
     ${pks.map(p => `<div class="dev"><div class="ic">👆</div><div class="m"><b>${esc(p.name)}</b>${p.mine ? '<span class="tag ok">máy này</span>' : ''}<span class="tag">${p.deviceType === 'singleDevice' ? '🔒 chỉ trên thiết bị' : p.bound ? '🔗 gắn máy' : p.deviceType === 'multiDevice' ? '☁️ đồng bộ' : '❔ chưa rõ'}</span>${p.provider ? `<span class="tag">${esc(p.provider)}</span>` : ''}<div class="muted" style="font-size:12px">thêm ${dt(p.created)} · dùng gần nhất ${dt(p.used)}</div></div><div class="row" style="gap:6px;flex:none"><button class="btn sm" data-act="ac-pkren" data-id="${esc(p.cid || '')}" data-name="${esc(p.name)}" ${offline || !p.cid ? 'disabled' : ''}>✏️</button><button class="btn sm" data-act="ac-pkdel" data-id="${esc(p.id)}">Xoá</button></div></div>`).join('')}
     <div class="kv2" style="margin-top:6px"><span class="l">Xác thực lại khi lưu / xoá giao dịch từ<br><span class="muted" style="font-size:12px">tham khảo QĐ 2345/QĐ-NHNN: ngân hàng yêu cầu sinh trắc cho giao dịch &gt; 10 triệu</span></span><select id="ac-bigtx" style="width:auto">${[[0, 'Không yêu cầu'], [5e6, '5 triệu'], [1e7, '10 triệu'], [2e7, '20 triệu'], [5e7, '50 triệu'], [1e8, '100 triệu']].map(([k, l]) => `<option value="${k}" ${(L.bigTx || 0) === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="muted" style="font-size:12px;margin-top:4px">Luôn xác thực lại khi: thêm / xoá vân tay, thu hồi thiết bị, tải / sao lưu toàn bộ dữ liệu, xoá dữ liệu tài chính${me && me.stepUpLeft ? ` · đang còn hiệu lực ${Math.ceil(me.stepUpLeft / 60)} phút` : ''}.</div>
@@ -2187,6 +2215,16 @@ async function acctAct(act, el) {
       case 'ac-lockn': lockShow('unlock'); break;
       case 'ac-out': authLogout(false); break;
       case 'ac-pk': await addPasskey(); await acctLoad(true); break;
+      case 'ac-native-del':
+        if (!await confirmDlg('Thu hồi khóa Face ID / Touch ID này?')) break;
+        try { await authPost('/auth/native/delete', { id: el.dataset.id }, true); }
+        catch (error) {
+          if (error.code !== 'stepup' || !await stepUp('Thu hồi khóa Face ID / Touch ID')) throw error;
+          await authPost('/auth/native/delete', { id: el.dataset.id }, true);
+        }
+        if (iosBiometrics && el.dataset.mine) await iosBioCall('remove');
+        await done('Đã thu hồi khóa Face ID / Touch ID.');
+        break;
       case 'ac-pkren': { const nm = (window.prompt('Tên gợi nhớ cho passkey (VD: iPhone của tôi):', el.dataset.name || '') || '').trim(); if (!nm) break; await apiFetch('/auth/bio/rename', { method: 'POST', body: JSON.stringify({ id: el.dataset.id, name: nm }) }); await done('✓ Đã đổi tên passkey.'); break; }
       case 'ac-pkdel': if (await confirmDlg('Xoá vân tay / Face ID này? Thiết bị đó sẽ không mở bằng vân tay được nữa.')) { await apiFetch('/auth/bio/delete', { method: 'POST', body: JSON.stringify({ id: el.dataset.id }) }); await credsRefresh(); await done('Đã xoá vân tay.'); } break;
       case 'ac-rv': if (await confirmDlg('Thu hồi thiết bị này? Máy đó bị đăng xuất, không đồng bộ và không nhận thông báo nữa.', 'Thu hồi')) { await apiFetch('/auth/revoke', { method: 'POST', body: JSON.stringify({ sid: el.dataset.id }) }); await done('Đã thu hồi thiết bị.'); } break;
@@ -5709,7 +5747,7 @@ document.addEventListener('click', e => {
     case 'sys-open': sysForm(); break;
     case 'sw-update': if (_swWaiting) _swWaiting.postMessage('skip'); else location.reload(); break;
     case 'sync-now': syncFabClick(); break;
-    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
+    case 'ac-fold': case 'ac-login': case 'ac-setup': case 'ac-refresh': case 'ac-lockn': case 'ac-out': case 'ac-pk': case 'ac-native-del': case 'ac-pkren': case 'ac-pkdel': case 'ac-rv': case 'ac-rvall': case 'ac-pw': case 'ac-prof': case 'ac-pon': case 'ac-poff': case 'ac-ptest': acctAct(el.dataset.act, el); break;
     case 'fab': { const g = TABS[UI.tab]; if (UI.tab === 'ngan-sach') budgetForm(); else if (UI.tab === 'danh-ba') contactForm(); else if (UI.tab === 'vay-no') loanForm(); else if (UI.tab === 'tiet-kiem') savForm(); else if (UI.tab === 'tai-khoan') { UI.accId ? txForm(null, { accountId: UI.accId }) : accForm(); } else if (g === 'fin' && UI.tab !== 'tai-san') txForm(); else if (g === 'health') healthForm(today()); else if (g === 'cal') { UI.tab === 'ngay-ky-niem' ? annivForm() : UI.tab === 'uong-thuoc' ? medForm() : eventForm(null, UI.tab === 'lich' ? UI.calDay : today()); } else if (g === 'learn') { ({ 'the-tu': () => cardForm(), 'khoa-hoc': () => courseForm(), 'doc-sach': () => bookForm(), 'tieng-anh': () => studyForm(null, 'en') }[UI.tab] || (() => studyForm()))(); } else if (UI.tab === 'tai-san') assetForm(); else if (g === 'plan') ({ 'muc-tieu': () => goalForm(), 'thoi-quen': () => habitForm(), 'ghi-chep': () => noteForm(), 'ke-hoach': () => todoForm() })[UI.tab](); else quickMenu(); break; }
     case 'go': location.hash = '#' + el.dataset.h; break;
     case 'learn-seg': UI.learnSeg = el.dataset.k; render(); break;
