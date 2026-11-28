@@ -8,9 +8,9 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.16.1';
+const VERSION = 'scn-v1.16.1-jade';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts', OCR = 'scn-ocr', SHARE = 'scn-share';
-const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.16.1', './icons/icon-512.png?v=1.16.1', './icons/maskable-192.png?v=1.16.1', './icons/maskable-512.png?v=1.16.1', './icons/apple-touch-icon.png?v=1.16.1', './icons/favicon-32.png?v=1.16.1', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp', './assets/i18n-en.json']; // ảnh nền đăng nhập: hiện cả khi mất mạng
+const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.16.1-jade', './icons/icon-512.png?v=1.16.1-jade', './icons/maskable-192.png?v=1.16.1-jade', './icons/maskable-512.png?v=1.16.1-jade', './icons/apple-touch-icon.png?v=1.16.1-jade', './icons/favicon-32.png?v=1.16.1-jade', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp', './assets/i18n-en.json']; // ảnh nền đăng nhập: hiện cả khi mất mạng
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.registration.active ? null : self.skipWaiting()));
@@ -212,7 +212,7 @@ async function logNotif(d) {
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
   const show = self.registration.showNotification(d.title || 'Sổ Cá Nhân', {
-    body: d.body || '', icon: './icons/icon-192.png?v=1.16.1', badge: './icons/favicon-32.png?v=1.16.1', tag: d.tag || 'scn', renotify: true,
+    body: d.body || '', icon: './icons/icon-192.png?v=1.16.1-jade', badge: './icons/favicon-32.png?v=1.16.1-jade', tag: d.tag || 'scn', renotify: true,
     data: { url: d.url || './', kind: d.kind || '' }, lang: 'vi'
   });
   e.waitUntil(Promise.all([show, logNotif(d), d.sync ? swSync('push').catch(err => reportErr('push', err)) : null]));
