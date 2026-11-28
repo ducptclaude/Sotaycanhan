@@ -34,7 +34,9 @@ const validId = id => /^[a-z0-9][a-z0-9._-]{2,31}$/.test(id);
 const validPhone = p => /^0\d{9,10}$/.test(p);
 const normName = v => String(v || '').replace(/[<>"`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40); // Họ tên hiển thị (câu chào màn đăng nhập)
 
-function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpName = 'Sổ Cá Nhân' }) {
+function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', recoveryToken = process.env.BACKUP_TOKEN || '', rpName = 'Sổ Cá Nhân' }) {
+  // Quên mật khẩu: có BACKUP_TOKEN → CHỈ nhận mã này (tách khỏi SYNC_TOKEN – mỗi mã một việc); chưa đặt → dùng SYNC_TOKEN như cũ
+  const resetSecret = recoveryToken || syncToken, resetVar = recoveryToken ? 'BACKUP_TOKEN' : 'SYNC_TOKEN';
   // Chính sách sinh trắc (bản 1.12): iPhone (iCloud Keychain) & Android (Google Password Manager) LUÔN tạo khoá đồng bộ cho web →
   // mặc định CHẤP NHẬN khoá đồng bộ nhưng BẮT BUỘC GẮN MÁY: mỗi khoá kèm 1 mã gắn máy bí mật (256 bit, chỉ lưu trên máy đã đăng ký,
   // máy chủ giữ SHA-256). Máy khác dù nhận được khoá đồng bộ cũng không có mã → bị từ chối. BIO_DEVICE_ONLY=1: quay lại chỉ nhận khoá 1 thiết bị.
@@ -93,7 +95,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
     if (!acc) return !!syncToken && eq(String(header || ''), 'Bearer ' + syncToken); // chưa có tài khoản: như cũ
     return !!sessionOf(header);
   }
-  const info = () => ({ setup: !!acc, passkeys: acc ? bio.count() : 0 });
+  const info = () => ({ setup: !!acc, passkeys: acc ? bio.count() : 0, reset: resetVar }); // chỉ báo TÊN biến dùng để khôi phục, không bao giờ trả giá trị
   const markStep = s => { if (s && acc.sessions[s.key]) { acc.sessions[s.key].stepUp = Date.now(); save(); } };
   const stepFresh = s => !!(s && acc && acc.sessions[s.key] && Date.now() - (acc.sessions[s.key].stepUp || 0) < STEP_MS);
   // Dùng cho đường dẫn ngoài auth (VD /admin/export): chưa có tài khoản thì không áp dụng
@@ -154,7 +156,8 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', rpNa
         if (url === '/auth/login' || url === '/auth/reset') {
           if (!acc) return send(404, { error: 'Chưa tạo tài khoản' });
           if (url === '/auth/reset') {
-            if (!syncToken || !eq(q.syncToken || '', syncToken)) { failed(req); return send(403, { error: 'Mã SYNC_TOKEN không đúng' }); }
+            const code = String(q.recovery != null ? q.recovery : q.syncToken || '').trim();
+            if (!resetSecret || !eq(code, resetSecret)) { failed(req); return send(403, { error: recoveryToken ? 'Mã khôi phục (BACKUP_TOKEN) không đúng' : 'Mã SYNC_TOKEN không đúng' }); }
             if (String(q.password || '').length < 8) return send(400, { error: 'Mật khẩu tối thiểu 8 ký tự' });
             const salt = crypto.randomBytes(16); acc.pw = { salt: salt.toString('base64'), hash: (await scrypt(q.password, salt)).toString('base64') };
             acc.sessions = {}; onRevoke('others', String(q.device || '')); // đăng xuất mọi thiết bị khác (kèm tắt thông báo)
