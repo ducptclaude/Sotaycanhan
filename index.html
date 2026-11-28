@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#1e2a5e">
 <script>/* giao diện & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang */try{var _t=localStorage.getItem('scn-theme')||'light';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=_d?'dark':'light';document.documentElement.dataset.skin=_d?'binance':'';if(_d){var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content='#0b0e11'}if(localStorage.getItem('scn-lang')==='en'){document.documentElement.lang='en';document.documentElement.classList.add('i18n-wait');setTimeout(function(){document.documentElement.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.13.5">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.13.5">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.14.0">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.14.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -911,6 +911,28 @@ html.i18n-wait body{visibility:hidden}
 :root[data-theme="dark"] :is(.st-err,.st-wait){color:color-mix(in srgb,#9a6a10 45%,#fff)}
 :root[data-theme="dark"] :is(.st-on){color:color-mix(in srgb,#16795a 45%,#fff)}
 /* ==== HẾT GIAO DIỆN TỐI ==== */
+
+/* ===== Màn đăng nhập kiểu app ngân hàng ===== */
+.lockbox .lk-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-4px -2px 14px}
+.lockbox .lk-brand{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.14em;font-size:12px;color:#bfeee7}.lockbox .lk-brand img{width:26px;height:26px;border-radius:8px}
+.lockbox .lk-top .pref-mini{margin:0}
+.lockbox .hd{text-align:center;margin-bottom:14px}
+.lockbox .lk-av{position:relative;width:76px;height:76px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.55);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.lockbox .lk-av span{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.lockbox .lk-av.logo{background:transparent;border:0;box-shadow:none}.lockbox .lk-av.logo img{width:76px;height:76px;border-radius:20px}
+.lockbox .lk-av .lk-lock{position:absolute;right:-4px;bottom:-2px;font-style:normal;font-size:18px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.lockbox .lk-hi{font-size:14px;color:rgba(255,255,255,.82)}.lockbox .lk-hi.up{text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:13.5px;color:#fff;margin-top:2px}
+.lockbox .lk-name{font-size:21px;font-weight:800;color:#fff;margin-top:2px;line-height:1.2;word-break:break-word}
+.lockbox .pwf,.lockbox .idf{position:relative}
+.lockbox .pwf input,.lockbox .idf input{padding-left:40px!important}.lockbox .pwf input{padding-right:46px!important}
+.lockbox .pwi{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.75;pointer-events:none}
+.lockbox .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;color:rgba(255,255,255,.7);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lockbox .eye svg{width:20px;height:20px}.lockbox .eye.on{color:#fff;background:rgba(255,255,255,.12)}
+.lockbox .lk-row{display:flex;gap:10px;align-items:stretch;margin-top:4px}
+.lockbox .lk-go{flex:1;justify-content:center;min-height:50px;font-size:16px}
+.lockbox .lk-bio{flex:none;width:54px;min-height:50px;border-radius:14px;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.lockbox .lk-bio svg{width:30px;height:30px}.lockbox .lk-bio:active{transform:scale(.96)}.lockbox .lk-bio:disabled{opacity:.5}
+.lockbox .links{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -937,7 +959,7 @@ html.i18n-wait body{visibility:hidden}
   <a href="#ke-hoach" data-tab="plan"><span class="ic">🎯</span>Kế hoạch</a>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.5" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.14.0" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1348,7 +1370,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.13.5';
+const APP_VER = '1.14.0';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1776,6 +1798,12 @@ async function authExpired() {
 }
 function lockShow(mode, msg, err) { AUTH.mode = mode; AUTH.msg = msg || ''; AUTH.err = !!err; document.documentElement.classList.add('locked'); try { closeModal(); } catch (e) { } lockRender(); }
 function lockHide() { document.documentElement.classList.remove('locked'); AUTH.mode = ''; const l = document.getElementById('lock'); if (l) l.querySelector('.lockbox').innerHTML = ''; }
+// Biểu tượng nút sinh trắc (không chữ, như app ngân hàng) & nút hiện mật khẩu
+const BIO_ICON = {
+  face: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V7a3 3 0 0 1 3-3h3M22 4h3a3 3 0 0 1 3 3v3M28 22v3a3 3 0 0 1-3 3h-3M10 28H7a3 3 0 0 1-3-3v-3"/><path d="M11 12v2M21 12v2M16 12v6h-1.5M12 21.5c2.2 1.8 5.8 1.8 8 0"/></svg>',
+  finger: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 7.5A10.5 10.5 0 0 1 26 14.5"/><path d="M5.5 12a11 11 0 0 1 1.3-2.6M26.5 18.5v1.5"/><path d="M10 26c1.3-2.3 2-5 2-8a4 4 0 0 1 8 0c0 1.5-.1 3-.4 4.4"/><path d="M14.5 28c1.3-2.9 1.9-6.2 1.9-10M18.6 26.6c.5-1.2.9-2.5 1.1-3.8"/><path d="M6.5 22.5c.9-1.4 1.5-3 1.5-4.5a8 8 0 0 1 14.3-4.9M23.5 21c.3-1 .5-2 .5-3"/></svg>',
+};
+const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 async function lockRender() {
   const box = document.querySelector('#lock .lockbox'); if (!box) return;
   const keep = id => ((box.querySelector('#' + id) || {}).value || ''); // giữ nội dung đã gõ khi vẽ lại (VD sau khi báo sai mật khẩu)
@@ -1784,29 +1812,43 @@ async function lockRender() {
   const st = AUTH.st || {}, plat = await waPlatform();
   const msg = AUTH.msg ? `<div class="msg ${AUTH.err ? 'err' : ''}">${esc(AUTH.msg)}</div>` : '';
   const who = L.id ? `Tài khoản <b>${esc(L.id)}</b>` : 'Tài khoản chủ';
+  // ---- giao diện kiểu app ngân hàng ----
+  const name = (L.fullName || '').trim(), known = !!(L.id && L.on !== false && (L.fullName || L.id));
+  const hr = new Date().getHours(), hello = hr < 11 ? 'Chào buổi sáng' : hr < 14 ? 'Chào buổi trưa' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
+  const ini = (name ? name.split(' ').pop() : (L.id || '')).charAt(0).toUpperCase();
+  const isFace = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  const bioIco = isFace ? BIO_ICON.face : BIO_ICON.finger, bioLbl = isFace ? 'Face ID' : 'Vân tay';
+  const top = `<div class="lk-top"><div class="lk-brand"><img src="icons/icon-192.png?v=${APP_VER}" alt=""><span>SỔ CÁ NHÂN</span></div>${prefUI(true)}</div>`;
+  const avatar = (lock) => `<div class="lk-av ${ini && (mode !== 'login' || known) ? '' : 'logo'}">${ini && (mode !== 'login' || known) ? `<span>${esc(ini)}</span>` : `<img src="icons/icon-192.png?v=${APP_VER}" alt="">`}${lock ? '<i class="lk-lock">🔒</i>' : ''}</div>`;
+  const greet = (mode !== 'login' || known)
+    ? `<div class="lk-hi">${hello},</div><div class="lk-name noi18n">${esc(name || L.id || 'bạn')}</div>`
+    : `<div class="lk-hi up">Kính chào Quý khách</div>`;
+  const pwf = (id, ac, ph) => `<div class="f pwf"><span class="pwi" aria-hidden="true">🔒</span><input id="${id}" type="password" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph}"><button type="button" class="eye" data-eye="${id}" aria-label="Hiện / ẩn mật khẩu" title="Hiện / ẩn mật khẩu">${EYE_ICON}</button></div>`;
   let h = '';
   if (mode === 'unlock') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.5" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Ứng dụng đã khoá</h2><div class="who">${who}</div></div>${msg}
-      ${(L.creds || []).length && waSupported() ? `<button class="btn primary bio" id="lk-bio">👆 Mở bằng vân tay / Face ID</button><div class="or">hoặc nhập mật khẩu</div>` : ''}
+    const hasBio = (L.creds || []).length && waSupported();
+    h = `${top}<div class="hd">${avatar(true)}${greet}</div>${msg}
       <form id="lk-form" autocomplete="on"><input type="text" name="username" autocomplete="username" value="${esc(L.id || '')}" hidden>
-      <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu"></div><button class="btn ${(L.creds || []).length ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Mở khoá</button></form>
-      <div class="links"><a id="lk-out">Đăng xuất khỏi máy này</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
+      ${pwf('lk-pw', 'current-password', 'Mật khẩu')}
+      <div class="lk-row"><button class="btn primary lk-go" type="submit">Đăng nhập</button>${hasBio ? `<button type="button" class="lk-bio" id="lk-bio" aria-label="Mở khoá bằng ${bioLbl}" title="${bioLbl}">${bioIco}</button>` : ''}</div></form>
+      <div class="links"><a id="lk-reset">Quên mật khẩu?</a><a id="lk-out">Đăng xuất</a>${!navigator.onLine ? '<span class="muted">📴 Ngoại tuyến</span>' : ''}</div>`;
   } else if (mode === 'reset') {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.5" alt=""><span>🔑</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đặt lại mật khẩu</h2><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
-      <form id="lk-form"><div class="f"><label>Mã SYNC_TOKEN</label><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}"></div>
-      <div class="f"><label>Mật khẩu mới (tối thiểu 8 ký tự)</label><input id="lk-pw" type="password" autocomplete="new-password"></div>
-      <div class="f"><label>Nhập lại mật khẩu mới</label><input id="lk-pw2" type="password" autocomplete="new-password"></div>
-      <button class="btn primary" style="width:100%;justify-content:center" type="submit">Đặt lại & đăng nhập</button></form>
-      <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
+    h = `${top}<div class="hd">${avatar(false)}<div class="lk-hi up">Đặt lại mật khẩu</div><div class="who">Dùng mã SYNC_TOKEN (biến trên Railway) để xác minh là chủ tài khoản</div></div>${msg}
+      <form id="lk-form"><div class="f"><input id="lk-tok" type="password" autocomplete="off" value="${esc(kTok)}" placeholder="Mã SYNC_TOKEN" aria-label="Mã SYNC_TOKEN"></div>
+      ${pwf('lk-pw', 'new-password', 'Mật khẩu mới (tối thiểu 8 ký tự)')}
+      ${pwf('lk-pw2', 'new-password', 'Nhập lại mật khẩu mới')}
+      <button class="btn primary lk-go" style="width:100%" type="submit">Đặt lại & đăng nhập</button></form>
+      <div class="links"><a id="lk-back">‹ Quay lại đăng nhập</a></div><p class="muted" style="font-size:12px;margin:6px 0 0">Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị.</p>`;
   } else {
-    h = `<div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.13.5" alt=""><span>🔐</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đăng nhập</h2><div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div></div>${msg}
-      ${st.passkeys && waSupported() ? `<button class="btn primary bio" id="lk-pk">👆 Vân tay / Face ID</button><div class="or">hoặc dùng mật khẩu</div>` : ''}
-      <form id="lk-form" autocomplete="on"><div class="f"><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
-      <div class="f"><input id="lk-pw" type="password" autocomplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu"></div>
-      <button class="btn ${st.passkeys ? '' : 'primary'}" style="width:100%;justify-content:center" type="submit">Đăng nhập</button></form>
-      <div class="links"><a id="lk-reset">Quên mật khẩu?</a>${L.on ? '<a id="lk-out">Đăng xuất khỏi máy này</a>' : ''}</div>`;
+    const hasBio = st.passkeys && waSupported();
+    h = `${top}<div class="hd">${avatar(false)}${greet}${known ? '' : `<div class="who">${esc(authBase().replace(/^https?:\/\//, ''))}</div>`}</div>${msg}
+      <form id="lk-form" autocomplete="on"><div class="f idf"><span class="pwi" aria-hidden="true">👤</span><input id="lk-id" name="username" autocomplete="username" placeholder="ID hoặc số điện thoại" aria-label="ID hoặc số điện thoại" value="${esc(kId || AUTH.idTyped || L.id || '')}" autocapitalize="none" spellcheck="false"></div>
+      ${pwf('lk-pw', 'current-password', 'Mật khẩu')}
+      <div class="lk-row"><button class="btn primary lk-go" type="submit">Đăng nhập</button>${hasBio ? `<button type="button" class="lk-bio" id="lk-pk" aria-label="Đăng nhập bằng ${bioLbl}" title="${bioLbl}">${bioIco}</button>` : ''}</div></form>
+      <div class="links"><a id="lk-reset">Quên mật khẩu?</a>${L.on ? '<a id="lk-out">Đăng xuất</a>' : ''}</div>`;
   }
-  box.innerHTML = h + `<div class="lfoot">🔐 HTTPS · Sinh trắc gắn máy · Dữ liệu riêng tư · v${APP_VER}${prefUI(true)}</div>`;
+  box.innerHTML = h + `<div class="lfoot">🔐 HTTPS · Sinh trắc gắn máy · Dữ liệu riêng tư · v${APP_VER}</div>`;
+  box.querySelectorAll('[data-eye]').forEach(b => b.onclick = () => { const i = box.querySelector('#' + b.dataset.eye); i.type = i.type === 'password' ? 'text' : 'password'; b.classList.toggle('on', i.type === 'text'); i.focus(); });
   const q = id => box.querySelector('#' + id), busy = (b, on) => { if (b) { b.disabled = on; } };
   if (q('lk-id')) q('lk-id').addEventListener('input', e => { AUTH.idTyped = e.target.value; });
   if (q('lk-bio')) q('lk-bio').onclick = () => unlockBio();
@@ -1973,7 +2015,7 @@ async function authReset(tok, pw, pw2) {
 async function authSaved(r, pw, credId) {
   const a = r.account || {}, old = AUTH.L || {}, same = old.id === a.id;
   IDB.cfg = { ...IDB.cfg, url: authBase(), token: r.token }; await idbSet('meta', 'sync', IDB.cfg);
-  AUTH.L = { on: true, need: false, id: a.id, phone: a.phone || '', lockMin: old.lockMin != null ? old.lockMin : 5,
+  AUTH.L = { on: true, need: false, id: a.id, phone: a.phone || '', fullName: a.fullName || '', lockMin: old.lockMin != null ? old.lockMin : 5,
     pass: pw ? await pwVerifier(pw) : same ? old.pass : null, creds: [] };
   if (!same) { for (const x of await bioAll()) await bioDel(x.id); } // tài khoản khác → xoá khoá sinh trắc cũ trên máy
   await bioSyncMirror(); await saveL(); lsLock(true); AUTH.st = { ...(AUTH.st || {}), setup: true };
@@ -2036,6 +2078,7 @@ function setupForm() {
     <p class="sub" style="margin-top:0">Sau khi tạo, <b>mọi thiết bị phải đăng nhập</b> (ID/SĐT + mật khẩu hoặc vân tay). Mã SYNC_TOKEN không còn mở được dữ liệu – chỉ dùng để khôi phục khi quên mật khẩu. Dữ liệu hiện có được giữ nguyên.</p>
     <div class="f"><label>ID đăng nhập</label><input id="su-id" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="VD: ducpt (chữ thường không dấu, số, . _ -)"></div>
     <div class="f"><label>Số điện thoại (riêng tư – dùng để đăng nhập)</label><input id="su-ph" inputmode="tel" autocomplete="tel" placeholder="VD: 0912345678"></div>
+    <div class="f"><label>Họ tên (hiện trong câu chào – không bắt buộc)</label><input id="su-fn" autocomplete="name" placeholder="VD: Nguyễn Văn Trung" maxlength="40"></div>
     <div class="f"><label>Mật khẩu (tối thiểu 8 ký tự)</label><input id="su-pw" type="password" autocomplete="new-password"></div>
     <div class="f"><label>Nhập lại mật khẩu</label><input id="su-pw2" type="password" autocomplete="new-password"></div>
     ${IDB.cfg.token ? '' : '<div class="f"><label>Mã SYNC_TOKEN</label><input id="su-tok" type="password" autocomplete="off"></div>'}
@@ -2045,7 +2088,7 @@ function setupForm() {
     sh.querySelector('#su-ok').onclick = async e => {
       if (v('su-pw').length < 8) return toast('Mật khẩu tối thiểu 8 ký tự.'); if (v('su-pw') !== v('su-pw2')) return toast('Hai lần nhập mật khẩu không khớp.');
       e.target.disabled = true; const pw = v('su-pw'); // đọc trước khi đóng biểu mẫu
-      try { const r = await authPost('/auth/setup', { syncToken: v('su-tok') || IDB.cfg.token, id: v('su-id'), phone: v('su-ph'), password: pw, device: IDB.device, name: devName() }); closeModal(); toast('✓ Đã tạo tài khoản ' + r.account.id); await authSaved(r, pw, null); }
+      try { const r = await authPost('/auth/setup', { syncToken: v('su-tok') || IDB.cfg.token, id: v('su-id'), phone: v('su-ph'), fullName: v('su-fn'), password: pw, device: IDB.device, name: devName() }); closeModal(); toast('✓ Đã tạo tài khoản ' + r.account.id); await authSaved(r, pw, null); }
       catch (er) { toast(er instanceof TypeError ? 'Không kết nối được máy chủ.' : er.message); e.target.disabled = false; }
     };
   });
@@ -2066,6 +2109,7 @@ async function acctLoad(force) {
     }
     const pm = (await idbGet('meta', 'push').catch(() => null)) || {};
     UI.acct = { at: Date.now(), st, me, pushes, pm, plat: await waPlatform(), err: '' };
+    if (me && AUTH.L && (AUTH.L.fullName || '') !== (me.fullName || '')) { AUTH.L.fullName = me.fullName || ''; saveL().catch(() => { }); } // họ tên đổi ở máy khác → cập nhật cho màn chào
   } catch (e) { UI.acct = { ...(UI.acct || {}), at: Date.now(), err: e.message }; }
   finally { _acctBusy = false; }
   if (UI.tab === 'ca-nhan' && !document.getElementById('ov').classList.contains('show')) render();
@@ -2088,9 +2132,9 @@ function viewAccount() {
   h += `<div class="card"><div class="hero"><div class="av">👤</div><div style="min-width:0"><h2 style="margin:0">${esc(L.id || '')}</h2><div class="sub" style="margin:2px 0 0">${esc(L.phone || 'Chưa có số điện thoại')} · ${esc(devName())}</div>
     <div class="sub" style="margin:2px 0 0;font-size:12px">${offline ? '📴 Ngoại tuyến – hiển thị thông tin đã lưu trên máy' : 'Tài khoản tạo lúc ' + dt(me.created)}</div></div></div></div>`;
   h += `<div class="sechd"><span>🎨 Giao diện & ngôn ngữ</span></div><div class="card">${prefUI()}</div>`;
-  h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
-    <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa ID / số điện thoại</button></div>
-    <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
+  h += `<div class="sechd"><span>🪪 Hồ sơ</span></div><div class="card"><div class="kv2"><span class="l">Họ tên</span><b>${esc(L.fullName || '—')}</b></div><div class="kv2"><span class="l">ID đăng nhập</span><b>${esc(L.id || '')}</b></div><div class="kv2"><span class="l">Số điện thoại</span><b>${esc(L.phone || '—')}</b></div>
+    <div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn sm" data-act="ac-fold" data-k="prof" ${offline ? 'disabled' : ''}>✏️ Sửa họ tên / ID / số điện thoại</button></div>
+    <div class="fold ${UI.acctOpen === 'prof' ? 'open' : ''}"><div class="f"><label>Họ tên (hiện trong câu chào màn đăng nhập)</label><input id="ac-fn" value="${esc(L.fullName || '')}" autocomplete="name" maxlength="40" placeholder="VD: Nguyễn Văn Trung"></div><div class="f"><label>ID (chữ thường không dấu, số, . _ -)</label><input id="ac-id" value="${esc(L.id || '')}" autocapitalize="none" spellcheck="false"></div><div class="f"><label>Số điện thoại</label><input id="ac-ph" value="${esc(L.phone || '')}" inputmode="tel"></div><div class="f"><label>Mật khẩu hiện tại (xác nhận)</label><input id="ac-cur2" type="password" autocomplete="current-password"></div><button class="btn sm primary" data-act="ac-prof">Lưu hồ sơ</button></div></div>`;
   // 2. Đăng nhập & bảo mật
   const pks = me ? me.passkeys : [], hasLocal = (L.creds || []).length;
   h += `<div class="sechd"><span>🔐 Đăng nhập & bảo mật</span></div><div class="card">
@@ -2139,7 +2183,7 @@ async function acctAct(act, el) {
         if (v('ac-new').length < 8) return toast('Mật khẩu mới tối thiểu 8 ký tự.'); if (v('ac-new') !== v('ac-new2')) return toast('Hai lần nhập không khớp.');
         await apiFetch('/auth/password', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: v('ac-cur'), password: v('ac-new'), logoutOthers: document.getElementById('ac-lo').checked }) });
         AUTH.L.pass = await pwVerifier(v('ac-new')); await saveL(); await done('✓ Đã đổi mật khẩu.'); break;
-      case 'ac-prof': { const r = await apiFetch('/auth/profile', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: v('ac-cur2'), id: v('ac-id'), phone: v('ac-ph') }) }); AUTH.L.id = r.account.id; AUTH.L.phone = r.account.phone; await saveL(); await done('✓ Đã lưu hồ sơ.'); break; }
+      case 'ac-prof': { const r = await apiFetch('/auth/profile', { method: 'POST', noAuthCheck: true, body: JSON.stringify({ current: v('ac-cur2'), id: v('ac-id'), phone: v('ac-ph'), fullName: v('ac-fn') }) }); AUTH.L.id = r.account.id; AUTH.L.phone = r.account.phone; AUTH.L.fullName = r.account.fullName || ''; await saveL(); await done('✓ Đã lưu hồ sơ.'); break; }
       case 'ac-pon': await pushEnable(); await acctLoad(true); break;
       case 'ac-poff': await pushDisable(); await acctLoad(true); break;
       case 'ac-ptest': await pushTest(); break;
