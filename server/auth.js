@@ -157,7 +157,7 @@ function createAuth({ store, bio, syncToken = process.env.SYNC_TOKEN || '', reco
           if (!acc) return send(404, { error: 'Chưa tạo tài khoản' });
           if (url === '/auth/reset') {
             const code = String(q.recovery != null ? q.recovery : q.syncToken || '').trim();
-            if (!resetSecret || !eq(code, resetSecret)) { failed(req); return send(403, { error: recoveryToken ? 'Mã khôi phục (BACKUP_TOKEN) không đúng' : 'Mã SYNC_TOKEN không đúng' }); }
+            if (!resetSecret || !eq(code, resetSecret)) { failed(req); return send(403, { error: 'Mã khôi phục không đúng' }); } // không nhắc tên biến cấu hình
             if (String(q.password || '').length < 8) return send(400, { error: 'Mật khẩu tối thiểu 8 ký tự' });
             const salt = crypto.randomBytes(16); acc.pw = { salt: salt.toString('base64'), hash: (await scrypt(q.password, salt)).toString('base64') };
             acc.sessions = {}; onRevoke('others', String(q.device || '')); // đăng xuất mọi thiết bị khác (kèm tắt thông báo)
