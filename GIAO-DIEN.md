@@ -73,3 +73,15 @@ Giữ toàn bộ khối cũ của Trang chủ: Lịch hôm nay / ngày mai, Cầ
 
 - **Không cần thêm biến môi trường**, không có dependency mới, không đổi CSDL.
 - Rollback: Railway › Deployments › bản 1.15.0 › Redeploy, hoặc nhánh `phien-ban/v1.15.0`. Lựa chọn `scn-ui` thừa không ảnh hưởng bản cũ.
+
+## 8. Bảng thông báo 🔔 (bản 1.16.1)
+
+Bấm chuông trên thanh tiêu đề → mở **bảng Thông báo** như các app khác (không chuyển trang):
+
+- **iPhone**: toàn màn hình, trượt từ phải, nút ‹ để quay lại · **máy tính**: bảng thả xuống 420 px dưới chuông. Đóng bằng ‹ / ✕ / Esc / bấm ra ngoài; tự đóng khi khoá app.
+- Tab: **Tất cả · Nhắc nhở · Cần chú ý · Hoạt động**, mỗi tab có số chưa đọc.
+- Nhóm: **Đến giờ** (nhắc nhở đã tới giờ – bấm **✓ Xong** hoặc **💤 10'** ngay trong bảng) · **Sắp tới hôm nay** · **Cần chú ý** (việc quá hạn, ngân sách, nợ đến hạn, sinh nhật, mục tiêu, huyết áp…) · **Hoạt động** (lịch sử thông báo đẩy: giao dịch/dữ liệu thêm từ máy khác, sao lưu tuần; nhắc nhở đã báo).
+- Số đỏ trên chuông = mục **chưa xem**; mở bảng là đã xem (giống app khác). Nhắc nhở "Đến giờ" vẫn nằm trong bảng đến khi bấm Xong.
+- Bấm một thông báo → mở đúng trang / mục liên quan, bảng tự đóng.
+- Lịch sử thông báo lưu **trên từng máy** (IndexedDB, tối đa 60 mục), Service Worker ghi khi nhận thông báo đẩy; xoá khi "Đăng xuất + xoá dữ liệu trên máy". Không đổi máy chủ.
+- Kiểm thử: 12/12 (`kiem-tra/v1.16/thong-bao-*.png`), hồi quy không lỗi.

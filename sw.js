@@ -8,9 +8,9 @@
        • Tin nhắn từ trang ({type:'scn-sync'}) : trang bàn giao việc đồng bộ khi bị ẩn/đóng
      Dùng chung IndexedDB 'so-ca-nhan' với trang (docs / outbox / meta) và cùng giao thức POST /sync.
      Khoá 'scn-sync' (Web Locks) đảm bảo trang và Service Worker không đồng bộ cùng lúc. */
-const VERSION = 'scn-v1.16.0';
+const VERSION = 'scn-v1.16.1';
 const SHELL = VERSION + '-shell', RUNTIME = VERSION + '-rt', FONTS = 'scn-fonts', OCR = 'scn-ocr', SHARE = 'scn-share';
-const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.16.0', './icons/icon-512.png?v=1.16.0', './icons/maskable-192.png?v=1.16.0', './icons/maskable-512.png?v=1.16.0', './icons/apple-touch-icon.png?v=1.16.0', './icons/favicon-32.png?v=1.16.0', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp', './assets/i18n-en.json']; // ảnh nền đăng nhập: hiện cả khi mất mạng
+const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png?v=1.16.1', './icons/icon-512.png?v=1.16.1', './icons/maskable-192.png?v=1.16.1', './icons/maskable-512.png?v=1.16.1', './icons/apple-touch-icon.png?v=1.16.1', './icons/favicon-32.png?v=1.16.1', './assets/dang-nhap-dien-thoai.webp', './assets/dang-nhap-web.webp', './assets/i18n-en.json']; // ảnh nền đăng nhập: hiện cả khi mất mạng
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.registration.active ? null : self.skipWaiting()));
@@ -200,13 +200,22 @@ self.addEventListener('message', e => {
 
 // ================= THÔNG BÁO ĐẨY =================
 // Máy chủ gửi khi thiết bị khác thêm dữ liệu / sao lưu tuần. Nếu có sync:true → kéo dữ liệu mới về nền luôn.
+// Ghi lại thông báo vào lịch sử trên máy (bảng 🔔 trong app) – tối đa 60 mục, chỉ trong IndexedDB của máy
+async function logNotif(d) {
+  try {
+    const db = await dbOpen(), L = (await dbGet(db, 'meta', 'notifs')) || [];
+    L.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), read: false, kind: String(d.kind || '').slice(0, 20), title: String(d.title || 'Sổ Cá Nhân').slice(0, 160), body: String(d.body || '').slice(0, 500), url: String(d.url || '').slice(0, 120) });
+    await dbTx(db, ['meta'], 'readwrite', t => { t.objectStore('meta').put(L.slice(0, 60), 'notifs'); });
+    (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).forEach(c => c.postMessage({ type: 'scn-notif' }));
+  } catch (_) { }
+}
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
   const show = self.registration.showNotification(d.title || 'Sổ Cá Nhân', {
-    body: d.body || '', icon: './icons/icon-192.png?v=1.16.0', badge: './icons/favicon-32.png?v=1.16.0', tag: d.tag || 'scn', renotify: true,
+    body: d.body || '', icon: './icons/icon-192.png?v=1.16.1', badge: './icons/favicon-32.png?v=1.16.1', tag: d.tag || 'scn', renotify: true,
     data: { url: d.url || './', kind: d.kind || '' }, lang: 'vi'
   });
-  e.waitUntil(Promise.all([show, d.sync ? swSync('push').catch(err => reportErr('push', err)) : null]));
+  e.waitUntil(Promise.all([show, logNotif(d), d.sync ? swSync('push').catch(err => reportErr('push', err)) : null]));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
