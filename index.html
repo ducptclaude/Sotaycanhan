@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#eaf1f7">
 <script>/* phong cách, chế độ sáng/tối & ngôn ngữ đã chọn – áp dụng trước khi vẽ trang (không nháy sai màu) */try{var D=document.documentElement,_t=localStorage.getItem('scn-theme')||'auto';if(_t==='binance'){_t='dark';localStorage.setItem('scn-theme','dark')}var _u=localStorage.getItem('scn-ui');if(_u!=='premium'&&_u!=='digital')_u='analytics';var _d=_t==='dark'||(_t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);D.dataset.theme=_d?'dark':'light';D.dataset.skin=_d?'navy':'';D.dataset.ui=_u;var _m=document.querySelector('meta[name="theme-color"]');if(_m)_m.content=_d?'#07131c':_u==='premium'?'#f5f8fa':'#eaf1f7';if(localStorage.getItem('scn-lang')==='en'){D.lang='en';D.classList.add('i18n-wait');setTimeout(function(){D.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.16.1">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.16.1">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1.16.2">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.16.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1302,6 +1302,35 @@ body.ntf-on{overflow:hidden}
 @media (max-width:359px){.ntf-tabs button{font-size:11px}}
 @media (prefers-reduced-motion:reduce){.ntf,.ntf-bk{transition:none}}
 :root[data-theme="dark"] .ntf{box-shadow:0 18px 50px rgba(0,0,0,.5)}
+/* --- 1.16.2: số tiền dài không bị cắt; danh sách mục dùng chung --- */
+.dbcard{min-width:0}.dbcard>*{min-width:0;max-width:100%}
+.dbfin-g{grid-template-columns:minmax(0,1fr)}
+@media (min-width:768px){.dbfin-g{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (min-width:1280px){.dbfin-g{grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr) minmax(0,1fr)}}
+.dbrows>div{flex-wrap:wrap;column-gap:10px;row-gap:2px}.dbrows>div span{flex:1 1 auto;min-width:0}.dbrows>div b{margin-left:auto;max-width:100%}
+.dbrows b{font-size:clamp(13.5px,3.9vw,15.5px)}
+:is(.dbio,.dbkpi) b{overflow:visible;text-overflow:clip;white-space:nowrap;font-size:clamp(13.5px,4vw,16px)}
+.dbfin-p{flex-wrap:wrap}.dbfin-p .dbio{flex:1 1 170px}.dbfin-p .dbring{margin:0 auto}
+.dbnet b{font-size:clamp(20px,6.6vw,26px);overflow-wrap:anywhere}
+.dblegend span{white-space:normal}
+.dbt-v b{font-size:clamp(14px,4.1vw,17px)}
+.dbstrip small{white-space:normal}
+.dbml li span{white-space:normal}
+.dbtl .m b,.dbfg .row span b,.dbgl .row span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dbgl .row,.dbfg .row{align-items:flex-start}
+@media (min-width:600px){.dbt-v b{font-size:22px}}
+.dbmenu a.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent)}
+@media (min-width:1024px){nav.tabs .nv-sep{display:block;margin:10px 14px 2px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}:root[data-ui] nav.tabs a{min-height:40px;padding:8px 14px}}
+/* chấm trạng thái đồng bộ (thay nút "Đã đồng bộ"): xanh = đã đồng bộ · đỏ = ngoại tuyến · vàng = chưa đồng bộ / đang chờ */
+:root .netpill.dot{position:relative;width:32px;height:38px;min-width:32px;max-width:none;padding:0;border:0!important;background:transparent!important;box-shadow:none;display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:50%}
+.netpill.dot i{display:block;width:13px;height:13px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px color-mix(in srgb,#16a34a 22%,transparent)}
+.netpill.dot.off i{background:#dc2626;box-shadow:0 0 0 3px color-mix(in srgb,#dc2626 22%,transparent)}
+.netpill.dot:is(.wait,.err,.sync) i{background:#eab308;box-shadow:0 0 0 3px color-mix(in srgb,#eab308 25%,transparent)}
+.netpill.dot.sync i{animation:ntpulse 1s ease-in-out infinite}
+@keyframes ntpulse{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.netpill.dot.sync i{animation:none}}
+.netpill.dot .sr,.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:root[data-ui] .acctbtn.on:after{display:none} /* chỉ còn 1 chấm trạng thái (đồng bộ) – tránh nhầm với chấm 'đã đăng nhập' */
 /* nền digital theo mục cho Tối Navy (lưới + họa tiết rất mờ, cố định phía sau; thẻ vẫn màu đặc) */
 :root[data-theme="dark"][data-skin="navy"] body{background:transparent!important}
 :root[data-theme="dark"][data-skin="navy"]{--scn-grid:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Cdefs%3E%3Cpattern id=%22g%22 width=%2248%22 height=%2248%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M48 0H0V48%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.032%22/%3E%3C/pattern%3E%3Cpattern id=%22p%22 width=%22192%22 height=%22192%22 patternUnits=%22userSpaceOnUse%22%3E%3Cpath d=%22M-4 0h8M0-4v8%22 stroke=%22%23fff%22 stroke-opacity=%22.09%22 transform=%22translate(0 0)%22/%3E%3C/pattern%3E%3Cpattern id=%22d%22 width=%2210%22 height=%2210%22 patternUnits=%22userSpaceOnUse%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%22.8%22 fill=%22%23fff%22 fill-opacity=%22.06%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23g)%22/%3E%3Crect width=%221440%22 height=%22900%22 fill=%22url(%23p)%22/%3E%3Crect width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3Crect x=%221080%22 y=%22660%22 width=%22360%22 height=%22240%22 fill=%22url(%23d)%22/%3E%3C/svg%3E")}
@@ -1318,11 +1347,11 @@ body.ntf-on{overflow:hidden}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="hdr-l"><a class="hdr-logo" href="#tong-quan" aria-label="Trang chủ"><img src="icons/icon-192.png?v=1.16.1" alt=""></a><div>
+    <div class="hdr-l"><a class="hdr-logo" href="#tong-quan" aria-label="Trang chủ"><img src="icons/icon-192.png?v=1.16.2" alt=""></a><div>
       <h1 id="title">Tổng quan</h1>
       <div class="sub" id="subtitle">Sổ cá nhân · Tài chính</div>
     </div></div>
-    <div class="hdr-r"><div id="hdr-right"></div><button type="button" class="hdrbell" id="hdrbell" data-act="notif-open" aria-haspopup="dialog" aria-expanded="false" aria-label="Thông báo" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd" hidden></span></button><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"></button></div>
+    <div class="hdr-r"><div id="hdr-right"></div><button type="button" class="hdrbell" id="hdrbell" data-act="notif-open" aria-haspopup="dialog" aria-expanded="false" aria-label="Thông báo" title="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd" hidden></span></button><a class="acctbtn" id="acctbtn" href="#ca-nhan" aria-label="Tài khoản" title="Tài khoản">👤</a><button class="netpill dot" id="netpill" data-act="sys-open" aria-label="Trạng thái kết nối và dữ liệu"><i aria-hidden="true"></i></button></div>
   </header>
   <div id="offbar"></div>
   <div id="note"></div>
@@ -1331,18 +1360,15 @@ body.ntf-on{overflow:hidden}
 <button class="fab" id="fab" aria-label="Thêm" data-act="fab">+</button>
 <button class="syncfab none" id="syncfab" data-act="sync-now" aria-label="Đồng bộ ngay" title="Đồng bộ ngay" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.4 6.4L3 16"/><path d="M3 21v-5h5"/><path d="M3 12A9 9 0 0 1 18.4 5.6L21 8"/><path d="M21 3v5h-5"/></svg><span class="bd" hidden></span></button>
 <nav class="tabs" id="tabs" aria-label="Điều hướng chính">
-  <a class="nv-brand" href="#tong-quan" aria-label="Sổ Cá Nhân"><img src="icons/icon-192.png?v=1.16.1" alt=""><span><b>Sổ Cá Nhân</b><small>Quản lý cá nhân</small></span></a>
+  <a class="nv-brand" href="#tong-quan" aria-label="Sổ Cá Nhân"><img src="icons/icon-192.png?v=1.16.2" alt=""><span><b>Sổ Cá Nhân</b><small>Quản lý cá nhân</small></span></a>
   <a href="#tong-quan" data-tab="home"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg></span>Trang chủ</a>
   <a href="#tai-chinh" data-tab="fin"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg></span>Tài chính</a>
   <a href="#suc-khoe" data-tab="health"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span>Sức khỏe</a>
   <a href="#hoc-tap" data-tab="learn"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></span>Học tập</a>
-  <a href="#lich" data-tab="cal" class="nv-d"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Lịch</a>
-  <a href="#ke-hoach" data-tab="plan" class="nv-d"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>Kế hoạch</a>
-  <a href="#ca-nhan" data-tab="acct" class="nv-d nv-acct"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>Tài khoản</a>
   <button type="button" class="nv-more" data-act="more" aria-label="Mục khác: Lịch, Kế hoạch, Mục tiêu, Thói quen, Tài khoản…"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>Khác</button>
 </nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
-<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.16.1" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
+<div class="lock" id="lock"><div class="lockbox"><div class="hd"><div class="logo"><img src="icons/icon-192.png?v=1.16.2" alt=""><span>🔒</span></div><div class="brand">SỔ CÁ NHÂN</div><h2>Đang mở…</h2></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1759,7 +1785,7 @@ const accList = () => Object.entries(S.accounts).map(([id, a]) => ({ id, ...a })
 const accName = id => (S.accounts[id] && S.accounts[id].name) || '(đã xoá)';
 
 // ================= PWA: LƯU TRÊN MÁY (IndexedDB) + ĐỒNG BỘ + TRẠNG THÁI MẠNG =================
-const APP_VER = '1.16.1';
+const APP_VER = '1.16.2';
 const STANDALONE_HOST = /^https?:$/.test(location.protocol); // chạy độc lập qua web (Railway) – không phụ thuộc Claude
 const IDB = { db: null, pending: 0, cfg: { url: '', token: '', auto: true }, lastSync: 0, lastSyncAt: 0, syncing: false, syncErr: '', device: '' };
 function idbOpen() {
@@ -1957,7 +1983,9 @@ function netState() {
 }
 function netUI() {
   const p = document.getElementById('netpill'); if (!p) return;
-  const [k, l, sub] = netState(); p.className = 'netpill ' + k; p.innerHTML = `<b>${l}</b>${sub ? `<span>${esc(sub)}</span>` : ''}`;
+  const [k, l, sub] = netState(), txt = l.replace(/^\S+\s/, '') + (sub ? ' · ' + sub : ''); // chỉ hiện CHẤM màu: xanh = đã đồng bộ · đỏ = ngoại tuyến · vàng = chưa đồng bộ
+  p.className = 'netpill dot ' + k; p.title = txt; p.setAttribute('aria-label', 'Trạng thái: ' + txt + '. Bấm để mở Ứng dụng & dữ liệu');
+  p.innerHTML = `<i aria-hidden="true"></i><b class="sr">${l}</b>${sub ? `<span class="sr">${esc(sub)}</span>` : ''}`;
   const bar = document.getElementById('offbar'); if (bar) { bar.className = isOnline() ? '' : 'show'; bar.innerHTML = isOnline() ? '' : `📴 Mất kết nối Internet – bạn vẫn xem, nhập và sửa dữ liệu bình thường. ${MODE === 'idb' ? 'Mọi thay đổi đã lưu trên máy' + (IDB.cfg.url ? ' và sẽ tự đồng bộ khi có mạng.' : '.') : 'Thay đổi sẽ được gửi khi có mạng trở lại.'}`; }
   const sp = document.getElementById('sys-live'); if (sp) sp.innerHTML = sysStatusHTML();
   syncFabUI();
@@ -2875,9 +2903,10 @@ const FIN_SUB = [['tai-chinh', 'Báo cáo'], ['thu-chi', 'Thu chi'], ['lich-su-g
 function render() {
   syncAssetCats(); syncEvCats();
   const grp = TABS[UI.tab];
-  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('on', !!a.dataset.tab && a.dataset.tab === grp));
+  navBuild(); const nk = navKey(UI.tab);
+  document.querySelectorAll('nav.tabs a[data-nav]').forEach(a => { const on = a.dataset.nav === nk || (!!a.dataset.tab && a.dataset.tab === grp && NAV_MAIN.includes(nk)); a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   try { hdrAvatar(); } catch (e) { }
-  const nvm = document.querySelector('nav.tabs .nv-more'); if (nvm) nvm.classList.toggle('on', grp === 'cal' || grp === 'plan' || grp === 'acct');
+  const nvm = document.querySelector('nav.tabs .nv-more'); if (nvm) nvm.classList.toggle('on', !NAV_MAIN.includes(nk));
   try { if (!NTF.ready) notifLoad(); else notifBadge(); if (NTF.open) notifRender(); } catch (e) { }
   const navA = document.querySelector(`nav.tabs a[data-tab=${grp}]`); if (navA && grp !== 'home') navA.setAttribute('href', '#' + UI.tab);
   document.getElementById('title').textContent = UI.tab === 'tong-quan' ? 'Sổ Cá Nhân' : TITLES[UI.tab];
@@ -3597,9 +3626,23 @@ async function notifMarkSeen() { // đã mở bảng = đã xem các mục hiệ
 async function notifReadAll() { await notifMarkSeen(); notifRender(); document.querySelectorAll('#notif .ntf-it.new').forEach(x => { if (!x.classList.contains('hot')) x.classList.remove('new'); }); toast('Đã đánh dấu đã đọc.'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && NTF.open) notifClose(); });
 window.addEventListener('hashchange', () => { if (NTF.open) notifClose(); });
-function moreMenu() { // "Khác" ở thanh điều hướng đáy: các mục không nằm trên thanh
-  const it = [['lich', 'cal', 'Lịch cá nhân'], ['ke-hoach', 'plan', 'Kế hoạch'], ['muc-tieu', 'goal', 'Mục tiêu'], ['thoi-quen', 'habit', 'Thói quen'], ['ghi-chep', 'learn', 'Ghi chép'], ['danh-ba', 'home', 'Danh bạ quan hệ'], ['tong-ket', 'fin', 'Tổng kết tháng'], ['ca-nhan', 'more', 'Tài khoản']];
-  openModal(`<h3>Mục khác<button class="iconbtn" data-x>✕</button></h3><div class="dbmenu">${it.map(([h, k, l]) => `<a href="#${h}" data-x>${dbIc(k)}<span>${l}</span></a>`).join('')}</div>`, sh => { sh.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', () => closeModal())); });
+// Danh sách mục DÙNG CHUNG cho thanh bên (web / máy tính) và menu "Khác" (điện thoại) → hai nơi luôn giống nhau
+DB_IC.notes = '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>';
+DB_IC.users = '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 3.1a4 4 0 0 1 0 7.8M22 21a7 7 0 0 0-5-6.7"/>';
+DB_IC.report = '<path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/>';
+DB_IC.user = '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>';
+const NAV_MAIN = ['tong-quan', 'tai-chinh', 'suc-khoe', 'hoc-tap'];
+const NAV_MORE = [['lich', 'cal', 'Lịch'], ['ke-hoach', 'plan', 'Kế hoạch'], ['muc-tieu', 'goal', 'Mục tiêu'], ['thoi-quen', 'habit', 'Thói quen'], ['ghi-chep', 'notes', 'Ghi chép'], ['danh-ba', 'users', 'Danh bạ'], ['tong-ket', 'report', 'Tổng kết tháng'], ['ca-nhan', 'user', 'Tài khoản']];
+const NAV_DEF = { home: 'tong-quan', fin: 'tai-chinh', health: 'suc-khoe', learn: 'hoc-tap', cal: 'lich', plan: 'ke-hoach', acct: 'ca-nhan' };
+function navKey(tab) { return NAV_MAIN.includes(tab) || NAV_MORE.some(x => x[0] === tab) ? tab : NAV_DEF[TABS[tab]] || 'tong-quan'; } // trang con → mục cha (VD Nhắc nhở → Lịch)
+function navBuild() { // thêm các mục "Khác" vào thanh bên (chỉ hiện trên máy tính)
+  const nav = document.getElementById('tabs'), more = nav && nav.querySelector('.nv-more'); if (!more || nav.querySelector('.nv-sep')) return;
+  more.insertAdjacentHTML('beforebegin', `<div class="nv-sep nv-d" aria-hidden="true">Khác</div>` + NAV_MORE.map(([h, k, l]) => `<a href="#${h}" data-nav="${h}" class="nv-d${h === 'ca-nhan' ? ' nv-acct' : ''}"><span class="ic">${dbIc(k)}</span>${l}</a>`).join(''));
+  NAV_MAIN.forEach(h => { const a = nav.querySelector(`a[href="#${h}"][data-tab]`); if (a) a.dataset.nav = h; });
+}
+function moreMenu() { // "Khác" ở thanh điều hướng đáy (điện thoại): cùng danh sách với thanh bên của web
+  const cur = navKey(UI.tab);
+  openModal(`<h3>Mục khác<button class="iconbtn" data-x>✕</button></h3><div class="dbmenu">${NAV_MORE.map(([h, k, l]) => `<a href="#${h}" data-x class="${cur === h ? 'on' : ''}" ${cur === h ? 'aria-current="page"' : ''}>${dbIc(k)}<span>${l}</span></a>`).join('')}</div>`, sh => { sh.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', () => closeModal())); });
 }
 function quickMenu() {
   const items = [['tx', '💸', 'Giao dịch thu chi'], ['health', '❤️', 'Chỉ số sức khỏe'], ['event', '📅', 'Sự kiện / lịch hẹn'], ['todo', '✅', 'Việc cần làm'], ['journal', '📔', 'Nhật ký hôm nay'], ['note', '📝', 'Ghi chú nhanh'], ['study', '📚', 'Ghi giờ học'], ['card', '🃏', 'Thẻ từ mới']];
